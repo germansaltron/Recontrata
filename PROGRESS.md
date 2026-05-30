@@ -15,7 +15,10 @@
   - Nuevo endpoint `GET /dashboard/projects-pending` (2 queries fijas) con `ProjectPendingItem` (id/name/client_name/worker_count/pending_count/first_pending_worker_id). Reusa la tecnica de evaluated_subq de next-evaluation.
   - `api.ts`: `getProjectsPending` + tipo `ProjectPending`. `Evaluate.tsx`: 1 sola llamada agregada.
 - **Verificado**: `npm run build` OK, `pytest` 21/21 OK, deploy Railway (deployment `fb27f523`) — endpoint `/projects-pending` responde 403 estable en prod (probe: 404=viejo, 401/403=nuevo). Control: `/next-evaluation` y `/stats` tambien 403.
-- **Pendiente de verificar**: medir latencia real logueado con Playwright (deberia bajar de ~4-5s a <1s).
+- **Verificado parcial**: tras fix N+1, Evaluar bajo de ~4s a ~2s (medido por German logueado).
+- **Diagnostico latencia restante (medido por curl 30 may)**: RTT base Chile->Railway ~0.5s; cada query a Supabase (sa-east-1) ~0.5s (statement_cache_size=0 + distancia Railway<->DB). Piso fisico ~300-500ms. El cuello YA NO es el numero de llamadas sino el costo por query + RTT.
+- **Optimizacion cliente (prefetch + SWR cache) deployada** (commits `c8c83be` + `0fe5f97`, bundle prod `index-BoJyl9Cn.js`): `lib/swr.ts` (cache SWR en memoria); `AppShell` precarga projects-pending + el chunk JS de Evaluate al montar cualquier pantalla del panel; `Evaluate.tsx` renderiza cache al instante y revalida. OJO: el primer intento (commit `c8c83be`) NO cableo el prefetch (el Edit a AppShell fallo silenciosamente por shape de archivo distinto); corregido en `0fe5f97`. Efecto: al entrar a Evaluar tras ~1-2s en el panel, deberia sentirse instantaneo (cache hit + chunk precargado).
+- **Pendiente (palanca backend, requiere input de German)**: pasar DATABASE_URL al **session pooler (5432)** de Supabase para habilitar statement cache -> baja CADA query de ~0.5s a ~0.15s (afecta toda la app). Necesita la connection string del session pooler + verificar IPv4/limites desde Railway.
 - **Nota entorno**: el canal de herramientas estuvo inestable (outputs vacios/duplicados, bucles de polling descontrolados). Deploy Railway requirio `railway service faenascore` + `railway up` con salida SIN filtrar (el grep se comia la confirmacion y el up no creaba deployment).
 
 ## Sesion 30 may 2026 — Investigacion monetizacion + nuevo pricing en landing (deployado)
