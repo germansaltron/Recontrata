@@ -2,6 +2,21 @@
 
 ## Ultima actualizacion: 2026-05-30T00:00:00-04:00
 
+## Sesion 30 may 2026 (parte 3) — Naming pan-LATAM: decision Recontrata (PENDIENTE ejecutar)
+- **Contexto**: German quiere expandir el producto a TODA Latinoamerica (no solo Chile), incluido Mexico/Colombia/Cono Sur.
+- **Hallazgo decisivo sobre "Faena"** (verificado con fuentes): la palabra NO viaja bien pan-LATAM:
+  - Chile / Peru / Bolivia (andino-minero): OK, es jerga del rubro.
+  - Argentina / Uruguay: "faena" = **matanza/sacrificio de ganado** (matadero-frigorifico, acepcion oficial SENASA). Malo para software de trabajadores.
+  - Mexico / Colombia: tarea coloquial / taurino / agricola, NO jerga de construccion. Tibio.
+  - => Tanto FaenaScore como FichaFaena quedan descartados por anclar a "Faena".
+- **Decision de German**: rebrand a **"Recontrata"** (marca = propuesta de valor; pan-LATAM; sin connotacion negativa; dice que hace).
+- **Dominios verificados (NIC Chile, autoritativo solo para .cl)**: `recontrata.cl` LIBRE. `faenascore.cl` y `fichafaena.cl` tambien libres (ya no se usaran). `recontrata.com/.io/.co/.app` parecen TOMADOS pero la verificacion via nslookup NO es confiable — **CONFIRMAR en registrador real (Namecheap/GoDaddy)**.
+- **Estado**: esperando go/no-go de German para ejecutar. Se le ofrecio: (A) arrancar rebrand de codigo ya, (B) confirmar .com primero, (C) reconsiderar nombre si .com tomado. **Interrumpido antes de responder.**
+
+### Plan de rebrand a Recontrata (cuando se confirme)
+- **Fase A — Codigo (reversible, NO toca infra)**: archivos con "FaenaScore"/"faenascore": `frontend/index.html` (title/meta), `frontend/src/pages/Landing.tsx`, `frontend/src/components/layout/AppShell.tsx` (logo sidebar), `frontend/src/pages/Terms.tsx`, `frontend/src/pages/Privacy.tsx`, `backend/app/core/config.py`, `.env.example`, `backend/seed_org1.sql` (demo). Emails `contacto@faenascore.cl` -> `contacto@recontrata.cl`. Regenerar screenshot `dashboard-preview.png` (tiene el logo). Docs historicos (JUSTIFICACION_FAENASCORE.md, NAMING_DISCUSSION.md) se pueden dejar o anotar.
+- **Fase B — Infra (requiere accion de German / coordinacion)**: comprar `recontrata.cl` en NIC (~$10k CLP/ano); renombrar repo GitHub FaenaScore->Recontrata (mantiene redirects); renombrar proyecto Railway (URL pasa a recontrata-production.up.railway.app); renombrar app en Clerk (no afecta keys); conectar dominio. Supabase no cambia (ref interno).
+
 ## Sesion 30 may 2026 (parte 2) — Fix N+1 en Evaluar/Proyectos (deployado)
 - **Sintoma**: entrar a "Evaluar" tardaba 4-5s. **Causa**: N+1 anidado. Auditados TODAS las paginas a pedido del usuario.
 - **Hallazgos** (el N+1 NO estaba solo en el front):
