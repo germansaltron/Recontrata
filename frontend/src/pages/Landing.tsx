@@ -125,7 +125,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
             Planes simples. Precios en pesos chilenos.
           </h3>
           <p className="mt-3 text-center text-gray-600">
-            Sin tarjeta de crédito para empezar. Cambia de plan cuando lo necesites.
+            Pagas por trabajadores activos, no por usuario. Supervisores e historial ilimitados en todos los planes.
           </p>
           <div className="mt-10 grid md:grid-cols-3 gap-6">
             <PricingCard
@@ -134,41 +134,41 @@ export default function Landing({ isSignedIn }: LandingProps) {
               period="para siempre"
               description="Para probar la herramienta en una faena pequeña."
               features={[
-                'Hasta 15 trabajadores',
+                'Hasta 15 trabajadores activos',
                 '1 proyecto activo',
-                '30 evaluaciones por mes',
-                'Import Excel / CSV',
-                'Exportar trabajadores a CSV',
+                'Supervisores ilimitados',
+                'Historial completo por trabajador',
+                'Import / export Excel y CSV',
               ]}
               cta={primaryCta.label}
               ctaTo={primaryCta.to}
             />
             <PricingCard
               name="Profesional"
-              price="$29.990"
+              price="$49.990"
               period="CLP / mes"
               description="Para contratistas con faenas activas de forma permanente."
               featured
               features={[
-                'Hasta 100 trabajadores',
-                'Proyectos ilimitados',
-                'Evaluaciones ilimitadas',
-                'Historial completo por trabajador',
-                'Soporte por email',
+                'Hasta 100 trabajadores activos',
+                'Proyectos y supervisores ilimitados',
+                'Búsqueda y filtros avanzados',
+                'Alertas y exportación',
+                '14 días de prueba gratis',
               ]}
               cta={primaryCta.label}
               ctaTo={primaryCta.to}
             />
             <PricingCard
               name="Empresa"
-              price="$99.990"
+              price="$149.990"
               period="CLP / mes"
               description="Para empresas con múltiples equipos y muchos trabajadores."
               features={[
-                'Trabajadores ilimitados',
-                'Múltiples usuarios por organización',
-                'Acceso a la API',
-                'Onboarding asistido',
+                'Hasta 500 trabajadores activos',
+                'Multi-faena y multi-usuario',
+                'Acceso a la API e integraciones',
+                'Insights con IA y onboarding asistido',
                 'Soporte prioritario',
               ]}
               cta="Contactar"
@@ -177,7 +177,9 @@ export default function Landing({ isSignedIn }: LandingProps) {
             />
           </div>
           <p className="mt-8 text-center text-xs text-gray-500">
-            Precios referenciales, aún en fase de lanzamiento. Podrían ajustarse antes del cobro.
+            ¿Más de 500 trabajadores? Tenemos plan Enterprise a medida —{' '}
+            <a href="mailto:contacto@faenascore.cl?subject=Plan%20Enterprise" className="underline hover:text-blue-600">escríbenos</a>.
+            Facturación mensual o anual (2 meses gratis). Precios en CLP, referenciales en fase de lanzamiento.
           </p>
         </div>
       </section>
