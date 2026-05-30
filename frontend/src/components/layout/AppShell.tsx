@@ -1,7 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { LayoutDashboard, FolderKanban, Users, ClipboardCheck, Menu, X } from 'lucide-react'
 import { UserButton } from '@clerk/clerk-react'
+import { useOrg } from '../../lib/org'
+import { api } from '../../lib/api'
+import { prefetch } from '../../lib/swr'
 
 const navItems = [
   { to: '/app', icon: LayoutDashboard, label: 'Dashboard' },
@@ -12,6 +15,15 @@ const navItems = [
 
 export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { orgId } = useOrg()
+
+  // Warm up Evaluate (data + JS chunk) while the user is on any panel screen,
+  // so the click feels instant. Best-effort, no UI impact.
+  useEffect(() => {
+    if (!orgId) return
+    prefetch(`projects-pending:${orgId}`, () => api.getProjectsPending(orgId))
+    import('../../pages/Evaluate').catch(() => { /* best-effort */ })
+  }, [orgId])
 
   return (
     <div className="flex h-screen bg-gray-50">
