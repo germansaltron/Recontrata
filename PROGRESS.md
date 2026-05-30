@@ -2,6 +2,22 @@
 
 ## Ultima actualizacion: 2026-05-30T00:00:00-04:00
 
+## Sesion 30 may 2026 (parte 2) — Fix N+1 en Evaluar/Proyectos (deployado)
+- **Sintoma**: entrar a "Evaluar" tardaba 4-5s. **Causa**: N+1 anidado. Auditados TODAS las paginas a pedido del usuario.
+- **Hallazgos** (el N+1 NO estaba solo en el front):
+  - `projects.py::list_project_workers`: 1 query de evaluacion POR trabajador (1+M). Afecta Evaluar y Detalle de Proyecto.
+  - `Evaluate.tsx`: llamaba a list_project_workers POR cada proyecto (1+N). Multiplicaba lo anterior → 40-60 queries.
+  - `projects.py::list_projects`: 2 queries (wc+ec) POR proyecto (1+2N). Afecta Evaluar y Proyectos.
+  - Resto de paginas (Dashboard/EvaluateWorker/ProjectDetail/WorkerDetail) ya usaban `Promise.all` correcto.
+- **Fixes** (commit `7d1f757`):
+  - `list_project_workers` → single query con `outerjoin` a Evaluation.
+  - `list_projects` → subqueries escalares correlacionadas (`add_columns`), 1 query.
+  - Nuevo endpoint `GET /dashboard/projects-pending` (2 queries fijas) con `ProjectPendingItem` (id/name/client_name/worker_count/pending_count/first_pending_worker_id). Reusa la tecnica de evaluated_subq de next-evaluation.
+  - `api.ts`: `getProjectsPending` + tipo `ProjectPending`. `Evaluate.tsx`: 1 sola llamada agregada.
+- **Verificado**: `npm run build` OK, `pytest` 21/21 OK, deploy Railway (deployment `fb27f523`) — endpoint `/projects-pending` responde 403 estable en prod (probe: 404=viejo, 401/403=nuevo). Control: `/next-evaluation` y `/stats` tambien 403.
+- **Pendiente de verificar**: medir latencia real logueado con Playwright (deberia bajar de ~4-5s a <1s).
+- **Nota entorno**: el canal de herramientas estuvo inestable (outputs vacios/duplicados, bucles de polling descontrolados). Deploy Railway requirio `railway service faenascore` + `railway up` con salida SIN filtrar (el grep se comia la confirmacion y el up no creaba deployment).
+
 ## Sesion 30 may 2026 — Investigacion monetizacion + nuevo pricing en landing (deployado)
 - Investigacion de competidores (Chile: Buk/Talana/Rankmi/GeoVictoria cobran por trabajador/mes, desempeno es modulo add-on en Buk, precios solo por cotizacion; global: Workyard US$6-13/user + US$50 base fee, trial 14d; freemium vs trial: trial convierte 14-25% vs freemium 2-5%, hibrido es lo mas usado). Documento completo en `PROPUESTA_MONETIZACION.md`.
 - **Decisiones de German**: eje de cobro por **trabajadores activos** (supervisores e historial ilimitados, NO per-seat); **Pro $49.990** (subido desde $29.990); **Empresa $149.990** (subido desde $99.990); conversion **hibrida freemium + trial 14d**; **10 design partners** a -50% lifetime.
