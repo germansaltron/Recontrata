@@ -1,6 +1,12 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-04-17T19:00:00-04:00
+## Ultima actualizacion: 2026-05-30T00:00:00-04:00
+
+## Sesion 30 may 2026 — Investigacion monetizacion + nuevo pricing en landing (deployado)
+- Investigacion de competidores (Chile: Buk/Talana/Rankmi/GeoVictoria cobran por trabajador/mes, desempeno es modulo add-on en Buk, precios solo por cotizacion; global: Workyard US$6-13/user + US$50 base fee, trial 14d; freemium vs trial: trial convierte 14-25% vs freemium 2-5%, hibrido es lo mas usado). Documento completo en `PROPUESTA_MONETIZACION.md`.
+- **Decisiones de German**: eje de cobro por **trabajadores activos** (supervisores e historial ilimitados, NO per-seat); **Pro $49.990** (subido desde $29.990); **Empresa $149.990** (subido desde $99.990); conversion **hibrida freemium + trial 14d**; **10 design partners** a -50% lifetime.
+- **Landing actualizada y deployada**: `frontend/src/pages/Landing.tsx` seccion pricing. Commit `7d8f8e3`. Build OK. Verificado E2E en prod (bundle `index-DcM1ckkw.js` sirviendo "$49.990" tras 220s). Copy nuevo: "Pagas por trabajadores activos, no por usuario. Supervisores e historial ilimitados". Menciona trial 14d, facturacion anual (2 meses gratis), y plan Enterprise +500.
+- Pendiente implementacion (no decision): aplicar limites de plan en el producto cuando se construya billing, flujo design partners, medios de pago (transferencia+factura+Webpay).
 
 ## Estado actual
 - Fase: **P2 polish cerrado.** Quedan solamente #2 Clerk prod (bloqueado por dominio) y decisiones de producto (modelo monetizacion, compra dominio).
