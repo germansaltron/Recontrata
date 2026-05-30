@@ -9,7 +9,7 @@ export default function Terms() {
           <Link to="/" className="p-2 hover:bg-gray-100 rounded-lg" aria-label="Volver al inicio">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-xl font-bold text-gray-900">FaenaScore</h1>
+          <h1 className="text-xl font-bold text-gray-900">Recontrata</h1>
         </div>
       </header>
       <article className="max-w-3xl mx-auto px-4 md:px-6 py-10 md:py-16 prose prose-sm md:prose-base">
@@ -17,14 +17,14 @@ export default function Terms() {
         <p className="text-sm text-gray-500">Última actualización: 17 de abril de 2026</p>
 
         <p className="mt-6">
-          Estos Términos de Servicio ("Términos") regulan el uso de la plataforma FaenaScore
+          Estos Términos de Servicio ("Términos") regulan el uso de la plataforma Recontrata
           ("el Servicio"), propiedad de su desarrollador ("nosotros", "nuestro"). Al crear una
           cuenta o usar el Servicio, usted ("el Usuario") acepta estos Términos.
         </p>
 
         <h2 className="text-xl font-semibold mt-8">1. Objeto del Servicio</h2>
         <p>
-          FaenaScore es una plataforma web orientada a contratistas de minería y construcción
+          Recontrata es una plataforma web orientada a contratistas de minería y construcción
           en Chile, que permite registrar trabajadores, proyectos y evaluaciones de desempeño,
           con el fin de apoyar decisiones internas de recontratación.
         </p>
@@ -75,14 +75,14 @@ export default function Terms() {
           El Servicio se ofrece "tal como está", sin garantía de disponibilidad continua.
           Dentro de los límites permitidos por la ley, no seremos responsables por lucro
           cesante, daños indirectos ni por decisiones de recontratación tomadas por el
-          Usuario a partir de los datos almacenados. FaenaScore no califica ni certifica a
+          Usuario a partir de los datos almacenados. Recontrata no califica ni certifica a
           trabajadores: es una herramienta de registro interno del contratista.
         </p>
 
         <h2 className="text-xl font-semibold mt-8">8. Terminación</h2>
         <p>
           El Usuario puede cancelar su cuenta en cualquier momento escribiendo a
-          contacto@faenascore.cl. En caso de terminación, eliminaremos los datos dentro de un
+          contacto@recontrata.cl. En caso de terminación, eliminaremos los datos dentro de un
           plazo razonable, salvo aquellos que debamos conservar por obligación legal.
         </p>
 
@@ -103,8 +103,8 @@ export default function Terms() {
         <h2 className="text-xl font-semibold mt-8">11. Contacto</h2>
         <p>
           Para consultas relacionadas con estos Términos, escríbanos a{' '}
-          <a href="mailto:contacto@faenascore.cl" className="text-blue-600 hover:underline">
-            contacto@faenascore.cl
+          <a href="mailto:contacto@recontrata.cl" className="text-blue-600 hover:underline">
+            contacto@recontrata.cl
           </a>
           .
         </p>

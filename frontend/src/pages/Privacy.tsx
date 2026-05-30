@@ -9,7 +9,7 @@ export default function Privacy() {
           <Link to="/" className="p-2 hover:bg-gray-100 rounded-lg" aria-label="Volver al inicio">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-xl font-bold text-gray-900">FaenaScore</h1>
+          <h1 className="text-xl font-bold text-gray-900">Recontrata</h1>
         </div>
       </header>
       <article className="max-w-3xl mx-auto px-4 md:px-6 py-10 md:py-16 prose prose-sm md:prose-base">
@@ -17,7 +17,7 @@ export default function Privacy() {
         <p className="text-sm text-gray-500">Última actualización: 17 de abril de 2026</p>
 
         <p className="mt-6">
-          Esta Política describe cómo FaenaScore ("nosotros") trata los datos personales
+          Esta Política describe cómo Recontrata ("nosotros") trata los datos personales
           que los usuarios del Servicio ("Usuario") ingresan o generan al usar la plataforma.
           Respetamos la Ley N° 19.628 sobre Protección de la Vida Privada y, para usuarios de
           la Unión Europea, el Reglamento General de Protección de Datos (RGPD) en lo que sea
@@ -27,12 +27,12 @@ export default function Privacy() {
         <h2 className="text-xl font-semibold mt-8">1. Responsable del tratamiento</h2>
         <p>
           El Usuario (empresa contratista) es el responsable del tratamiento de los datos de
-          trabajadores que carga en la plataforma. FaenaScore actúa como encargado de dichos
+          trabajadores que carga en la plataforma. Recontrata actúa como encargado de dichos
           datos en los términos del artículo 8 de la Ley N° 19.628.
         </p>
         <p>
           Respecto de los datos del propio Usuario (nombre, correo electrónico, datos de
-          organización, datos de pago) FaenaScore actúa como responsable.
+          organización, datos de pago) Recontrata actúa como responsable.
         </p>
 
         <h2 className="text-xl font-semibold mt-8">2. Datos que tratamos</h2>
@@ -95,8 +95,8 @@ export default function Privacy() {
           Los titulares de datos personales pueden ejercer los derechos de acceso,
           rectificación, cancelación y oposición (derechos ARCO) previstos en la Ley N°
           19.628, enviando un correo a{' '}
-          <a href="mailto:contacto@faenascore.cl" className="text-blue-600 hover:underline">
-            contacto@faenascore.cl
+          <a href="mailto:contacto@recontrata.cl" className="text-blue-600 hover:underline">
+            contacto@recontrata.cl
           </a>
           . Si el titular es un trabajador cuyos datos fueron cargados por un contratista,
           recomendamos dirigir la solicitud a dicho contratista (responsable del tratamiento);
@@ -130,8 +130,8 @@ export default function Privacy() {
         <h2 className="text-xl font-semibold mt-8">12. Contacto</h2>
         <p>
           Escribanos a{' '}
-          <a href="mailto:contacto@faenascore.cl" className="text-blue-600 hover:underline">
-            contacto@faenascore.cl
+          <a href="mailto:contacto@recontrata.cl" className="text-blue-600 hover:underline">
+            contacto@recontrata.cl
           </a>{' '}
           para ejercer derechos o resolver dudas sobre esta Política.
         </p>

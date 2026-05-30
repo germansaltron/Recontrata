@@ -24,14 +24,14 @@ logger = structlog.get_logger()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting FaenaScore API", debug=settings.DEBUG, mock_auth=settings.AUTH_MOCK_ENABLED)
+    logger.info("Starting Recontrata API", debug=settings.DEBUG, mock_auth=settings.AUTH_MOCK_ENABLED)
     if not settings.DEBUG and settings.AUTH_MOCK_ENABLED and not settings.ALLOW_MOCK_IN_PROD:
         raise RuntimeError("AUTH_MOCK_ENABLED=True is not allowed when DEBUG=False. Set ALLOW_MOCK_IN_PROD=True to override (testing only).")
     if settings.AUTH_MOCK_ENABLED and settings.ALLOW_MOCK_IN_PROD:
         logger.warning("Running with mock auth in production — anyone can access all data. Disable ALLOW_MOCK_IN_PROD before real launch.")
     yield
     await engine.dispose()
-    logger.info("Shutting down FaenaScore API")
+    logger.info("Shutting down Recontrata API")
 
 
 app = FastAPI(title=settings.APP_NAME, version="0.1.0", lifespan=lifespan)

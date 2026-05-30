@@ -35,7 +35,7 @@ export default function AppShell() {
       {/* Sidebar */}
       <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-gray-900">FaenaScore</h1>
+          <h1 className="text-xl font-bold text-gray-900">Recontrata</h1>
           <button className="md:hidden p-1" onClick={() => setSidebarOpen(false)}>
             <X className="w-5 h-5" />
           </button>

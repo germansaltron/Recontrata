@@ -15,7 +15,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
       {/* Header */}
       <header className="border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900">FaenaScore</h1>
+          <h1 className="text-xl font-bold text-gray-900">Recontrata</h1>
           <Link
             to={primaryCta.to}
             className="text-sm font-medium px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
@@ -56,7 +56,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
           <div className="absolute inset-x-0 top-1/2 -bottom-4 bg-gradient-to-b from-blue-50 to-transparent blur-3xl -z-10" aria-hidden="true" />
           <img
             src="/dashboard-preview.png"
-            alt="Vista previa del Dashboard de FaenaScore mostrando KPIs, top trabajadores y evaluaciones recientes."
+            alt="Vista previa del Dashboard de Recontrata mostrando KPIs, top trabajadores y evaluaciones recientes."
             width={1440}
             height={900}
             loading="eager"
@@ -172,13 +172,13 @@ export default function Landing({ isSignedIn }: LandingProps) {
                 'Soporte prioritario',
               ]}
               cta="Contactar"
-              ctaTo="mailto:contacto@faenascore.cl?subject=Plan%20Empresa"
+              ctaTo="mailto:contacto@recontrata.cl?subject=Plan%20Empresa"
               external
             />
           </div>
           <p className="mt-8 text-center text-xs text-gray-500">
             ¿Más de 500 trabajadores? Tenemos plan Enterprise a medida —{' '}
-            <a href="mailto:contacto@faenascore.cl?subject=Plan%20Enterprise" className="underline hover:text-blue-600">escríbenos</a>.
+            <a href="mailto:contacto@recontrata.cl?subject=Plan%20Enterprise" className="underline hover:text-blue-600">escríbenos</a>.
             Facturación mensual o anual (2 meses gratis). Precios en CLP, referenciales en fase de lanzamiento.
           </p>
         </div>
@@ -207,7 +207,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
         <div className="max-w-6xl mx-auto px-4 md:px-6">
           <div className="grid gap-8 md:grid-cols-3 text-sm">
             <div>
-              <p className="font-semibold text-gray-900">FaenaScore</p>
+              <p className="font-semibold text-gray-900">Recontrata</p>
               <p className="mt-2 text-gray-500">Evaluación de trabajadores de faena para contratistas de minería y construcción.</p>
               <p className="mt-2 text-gray-400 text-xs">Hecho en Chile</p>
             </div>
@@ -224,12 +224,12 @@ export default function Landing({ isSignedIn }: LandingProps) {
               <ul className="mt-2 space-y-1.5 text-gray-600">
                 <li><Link to="/terminos" className="hover:text-blue-600">Términos de Servicio</Link></li>
                 <li><Link to="/privacidad" className="hover:text-blue-600">Política de Privacidad</Link></li>
-                <li><a href="mailto:contacto@faenascore.cl" className="hover:text-blue-600">contacto@faenascore.cl</a></li>
+                <li><a href="mailto:contacto@recontrata.cl" className="hover:text-blue-600">contacto@recontrata.cl</a></li>
               </ul>
             </div>
           </div>
           <div className="mt-8 pt-6 border-t border-gray-100 text-xs text-gray-400 flex flex-col md:flex-row items-center justify-between gap-2">
-            <p>© {new Date().getFullYear()} FaenaScore. Todos los derechos reservados.</p>
+            <p>© {new Date().getFullYear()} Recontrata. Todos los derechos reservados.</p>
             <p>Para contratistas de minería y construcción.</p>
           </div>
         </div>

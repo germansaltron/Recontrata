@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
     # App
-    APP_NAME: str = "FaenaScore"
+    APP_NAME: str = "Recontrata"
     DEBUG: bool = True
 
     # Database
