@@ -1,6 +1,16 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-05-30T00:00:00-04:00
+## Ultima actualizacion: 2026-05-30T18:30:00-04:00
+
+## Sesion 30 may 2026 (parte 5) — Logo + animacion Recontrata (PENDIENTE: flecha mal)
+- **Logo elegido**: concepto **B = flecha de retorno** (cuadro azul #2563eb + flecha circular blanca + wordmark "Re"(azul)+"contrata"(gris)). Coincidio German. Archivos en `branding/`: `logo-recontrata.svg`, preview `logo-preview.html`.
+- **Animacion "el ciclo se cierra"** (cuadro aparece -> flecha se traza girando -> punta -> giro de cierre -> wordmark entra). Web: `branding/logo-animado/index.html` (SVG+CSS, servida en http://127.0.0.1:8077/...). Video: `branding/logo-animado/animate_logo.py` (Pillow, 3.2s, exporta MP4+GIF claro y oscuro en `output/`).
+- **PENDIENTE CRITICO (retomar manana)**: **la PUNTA de la flecha sigue mal** segun German. Intentos: (1) "L" axis-aligned en PIL = mal; (2) chevron tangente en PIL = German dice que SIGUE mal. 
+  - **Aclarar con German exactamente que esta mal**: ¿solo el video PIL?, ¿tambien el simbolo SVG (Lucide rotate-ccw)?, ¿la punta, el angulo, el gap, el grosor?
+  - **Estrategia sugerida**: dejar de dibujar la flecha a mano en PIL; **rasterizar el SVG real** (path Lucide `M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8` + cabeza `M3 3v5h5`) con resvg/cairosvg por frame (animar stroke-dashoffset), que es lo que se ve bien en el web. O re-disenar el simbolo de flecha desde cero si a German no le gusta el de Lucide.
+- Resto de la sesion (parte 1-4) abajo: monetizacion + landing, fix N+1 perf, rebrand Recontrata Fase A, dominio recontrata.cl via Cloudflare (DNS propagando).
+
+## Ultima actualizacion previa: 2026-05-30T00:00:00-04:00
 
 ## Sesion 30 may 2026 (parte 3) — Naming pan-LATAM: decision Recontrata (PENDIENTE ejecutar)
 - **Contexto**: German quiere expandir el producto a TODA Latinoamerica (no solo Chile), incluido Mexico/Colombia/Cono Sur.
