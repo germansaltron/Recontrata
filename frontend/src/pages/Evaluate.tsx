@@ -1,18 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ClipboardCheck, FolderKanban } from 'lucide-react'
-import { api, type Project } from '../lib/api'
+import { api, type ProjectPending } from '../lib/api'
 import { useOrg } from '../lib/org'
 import { CardSkeleton } from '../components/ui/Skeleton'
 
-interface ProjectWithPending extends Project {
-  pending_count: number
-  first_pending_worker_id: string | null
-}
-
 export default function Evaluate() {
   const { orgId: ORG_ID } = useOrg()
-  const [projects, setProjects] = useState<ProjectWithPending[]>([])
+  const [projects, setProjects] = useState<ProjectPending[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -20,22 +15,10 @@ export default function Evaluate() {
     let cancelled = false
     async function load() {
       try {
-        const res = await api.listProjects(ORG_ID!, { status: 'active', size: 50 })
-        const enriched = await Promise.all(
-          res.items.map(async (p) => {
-            try {
-              const workers = await api.listProjectWorkers(ORG_ID!, p.id)
-              const pending = workers.filter((w) => !w.evaluated)
-              return { ...p, pending_count: pending.length, first_pending_worker_id: pending[0]?.id ?? null }
-            } catch {
-              return { ...p, pending_count: 0, first_pending_worker_id: null }
-            }
-          })
-        )
-        if (!cancelled) {
-          enriched.sort((a, b) => b.pending_count - a.pending_count)
-          setProjects(enriched)
-        }
+        // Single aggregated call: backend returns active projects already enriched
+        // with pending_count + first_pending_worker_id (no N+1).
+        const items = await api.getProjectsPending(ORG_ID!)
+        if (!cancelled) setProjects(items)
       } catch { /* */ }
       finally { if (!cancelled) setLoading(false) }
     }

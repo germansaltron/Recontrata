@@ -22,6 +22,15 @@ class NextEvaluationResponse(BaseModel):
     worker_name: str | None = None
     pending_count: int = 0
 
+
+class ProjectPendingItem(BaseModel):
+    id: uuid.UUID
+    name: str
+    client_name: str | None = None
+    worker_count: int
+    pending_count: int
+    first_pending_worker_id: uuid.UUID | None = None
+
 router = APIRouter(prefix="/organizations/{org_id}/dashboard", tags=["dashboard"])
 
 
@@ -168,6 +177,74 @@ async def get_next_pending_evaluation(
         worker_name=f"{worker_row.first_name} {worker_row.last_name}",
         pending_count=pending,
     )
+
+
+@router.get("/projects-pending", response_model=list[ProjectPendingItem])
+async def get_projects_pending(
+    org_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _member: OrgMember = Depends(get_org_member),
+):
+    """All active projects with total/pending worker counts and the first
+    unevaluated worker. Powers the Evaluate page in 2 queries total (no N+1)."""
+    evaluated_subq = (
+        select(Evaluation.project_id, Evaluation.worker_id)
+        .where(Evaluation.org_id == org_id)
+        .subquery()
+    )
+
+    # Totals + evaluated counts per active project (1 query)
+    rows = (await db.execute(
+        select(
+            Project.id, Project.name, Project.client_name,
+            func.count(ProjectWorker.worker_id).label("total"),
+            func.count(evaluated_subq.c.worker_id).label("evaluated"),
+        )
+        .outerjoin(ProjectWorker, ProjectWorker.project_id == Project.id)
+        .outerjoin(
+            evaluated_subq,
+            (evaluated_subq.c.project_id == ProjectWorker.project_id)
+            & (evaluated_subq.c.worker_id == ProjectWorker.worker_id),
+        )
+        .where(Project.org_id == org_id, Project.status == "active")
+        .group_by(Project.id, Project.name, Project.client_name)
+    )).all()
+
+    # First unevaluated worker per active project (1 query)
+    pend_rows = (await db.execute(
+        select(ProjectWorker.project_id, Worker.id)
+        .join(Worker, Worker.id == ProjectWorker.worker_id)
+        .join(Project, Project.id == ProjectWorker.project_id)
+        .outerjoin(
+            evaluated_subq,
+            (evaluated_subq.c.project_id == ProjectWorker.project_id)
+            & (evaluated_subq.c.worker_id == ProjectWorker.worker_id),
+        )
+        .where(
+            Project.org_id == org_id,
+            Project.status == "active",
+            evaluated_subq.c.worker_id.is_(None),
+        )
+        .order_by(ProjectWorker.project_id, Worker.last_name.asc(), Worker.first_name.asc())
+    )).all()
+
+    first_pending: dict = {}
+    for pid, wid in pend_rows:
+        first_pending.setdefault(pid, wid)
+
+    items = [
+        ProjectPendingItem(
+            id=pid,
+            name=name,
+            client_name=client_name,
+            worker_count=total or 0,
+            pending_count=(total or 0) - (evaluated or 0),
+            first_pending_worker_id=first_pending.get(pid),
+        )
+        for pid, name, client_name, total, evaluated in rows
+    ]
+    items.sort(key=lambda x: x.pending_count, reverse=True)
+    return items
 
 
 @router.get("/recent-evaluations", response_model=list[RecentEvaluationItem])

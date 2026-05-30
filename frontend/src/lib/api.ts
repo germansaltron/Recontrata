@@ -265,6 +265,7 @@ export const api = {
   getTopWorkers: (orgId: string) => apiFetch<TopWorker[]>(`/organizations/${orgId}/dashboard/top-workers`),
   getRecentEvaluations: (orgId: string) => apiFetch<RecentEvaluation[]>(`/organizations/${orgId}/dashboard/recent-evaluations`),
   getNextEvaluation: (orgId: string) => apiFetch<NextEvaluation>(`/organizations/${orgId}/dashboard/next-evaluation`),
+  getProjectsPending: (orgId: string) => apiFetch<ProjectPending[]>(`/organizations/${orgId}/dashboard/projects-pending`),
 
   // Workers export (returns Blob, with auth header)
   exportWorkersCsv: async (orgId: string): Promise<Blob> => {
@@ -285,4 +286,13 @@ export interface NextEvaluation {
   worker_id: string | null
   worker_name: string | null
   pending_count: number
+}
+
+export interface ProjectPending {
+  id: string
+  name: string
+  client_name: string | null
+  worker_count: number
+  pending_count: number
+  first_pending_worker_id: string | null
 }

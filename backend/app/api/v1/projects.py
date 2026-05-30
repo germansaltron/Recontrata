@@ -50,16 +50,32 @@ async def list_projects(
 
     total = (await db.execute(count_query)).scalar() or 0
     offset = (page - 1) * size
-    result = await db.execute(query.order_by(Project.created_at.desc()).offset(offset).limit(size))
-    projects = result.scalars().all()
+
+    # Correlated scalar subqueries: worker/eval counts resolved in the same SELECT (no N+1).
+    wc_subq = (
+        select(func.count(ProjectWorker.id))
+        .where(ProjectWorker.project_id == Project.id)
+        .correlate(Project)
+        .scalar_subquery()
+    )
+    ec_subq = (
+        select(func.count(Evaluation.id))
+        .where(Evaluation.project_id == Project.id)
+        .correlate(Project)
+        .scalar_subquery()
+    )
+    result = await db.execute(
+        query.add_columns(wc_subq.label("wc"), ec_subq.label("ec"))
+        .order_by(Project.created_at.desc())
+        .offset(offset)
+        .limit(size)
+    )
 
     items = []
-    for p in projects:
-        wc = (await db.execute(select(func.count(ProjectWorker.id)).where(ProjectWorker.project_id == p.id))).scalar() or 0
-        ec = (await db.execute(select(func.count(Evaluation.id)).where(Evaluation.project_id == p.id))).scalar() or 0
+    for p, wc, ec in result.all():
         resp = ProjectResponse.model_validate(p)
-        resp.worker_count = wc
-        resp.evaluation_count = ec
+        resp.worker_count = wc or 0
+        resp.evaluation_count = ec or 0
         items.append(resp)
 
     return PaginatedResponse(items=items, total=total, page=page, size=size, pages=(total + size - 1) // size if total else 0)
@@ -166,21 +182,19 @@ async def list_project_workers(
 ):
     await _get_project(org_id, project_id, db)
     result = await db.execute(
-        select(Worker, ProjectWorker.role_in_project, ProjectWorker.assigned_at)
+        select(Worker, ProjectWorker.role_in_project, ProjectWorker.assigned_at, Evaluation.score_average)
         .join(ProjectWorker, ProjectWorker.worker_id == Worker.id)
+        .outerjoin(
+            Evaluation,
+            (Evaluation.project_id == project_id) & (Evaluation.worker_id == Worker.id),
+        )
         .where(ProjectWorker.project_id == project_id)
         .order_by(Worker.last_name)
     )
     rows = result.all()
 
     items = []
-    for worker, role, assigned_at in rows:
-        # Check if already evaluated in this project
-        eval_result = await db.execute(
-            select(Evaluation.score_average).where(Evaluation.project_id == project_id, Evaluation.worker_id == worker.id)
-        )
-        eval_score = eval_result.scalar_one_or_none()
-
+    for worker, role, assigned_at, eval_score in rows:
         items.append({
             "id": str(worker.id),
             "rut": worker.rut,
