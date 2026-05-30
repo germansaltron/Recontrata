@@ -3,26 +3,25 @@ import { Link } from 'react-router-dom'
 import { ClipboardCheck, FolderKanban } from 'lucide-react'
 import { api, type ProjectPending } from '../lib/api'
 import { useOrg } from '../lib/org'
+import { swr, getCached } from '../lib/swr'
 import { CardSkeleton } from '../components/ui/Skeleton'
 
 export default function Evaluate() {
   const { orgId: ORG_ID } = useOrg()
-  const [projects, setProjects] = useState<ProjectPending[]>([])
-  const [loading, setLoading] = useState(true)
+  const cacheKey = ORG_ID ? `projects-pending:${ORG_ID}` : ''
+  const [projects, setProjects] = useState<ProjectPending[]>(() => getCached<ProjectPending[]>(cacheKey) ?? [])
+  const [loading, setLoading] = useState(() => !getCached(cacheKey))
 
   useEffect(() => {
     if (!ORG_ID) return
     let cancelled = false
-    async function load() {
-      try {
-        // Single aggregated call: backend returns active projects already enriched
-        // with pending_count + first_pending_worker_id (no N+1).
-        const items = await api.getProjectsPending(ORG_ID!)
-        if (!cancelled) setProjects(items)
-      } catch { /* */ }
-      finally { if (!cancelled) setLoading(false) }
-    }
-    load()
+    const key = `projects-pending:${ORG_ID}`
+    // Render cached data instantly (prefetched by the shell), then revalidate.
+    const cached = getCached<ProjectPending[]>(key)
+    if (cached) { setProjects(cached); setLoading(false) }
+    swr(key, () => api.getProjectsPending(ORG_ID!))
+      .then((items) => { if (!cancelled) { setProjects(items); setLoading(false) } })
+      .catch(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [ORG_ID])
 
