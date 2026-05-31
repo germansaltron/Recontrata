@@ -43,13 +43,14 @@ export default function Landing({ isSignedIn }: LandingProps) {
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-24 text-center">
         <motion.h2 {...heroIn(0)} className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
-          Evalúa a tus trabajadores de faena.
+          Deja de recontratar
           <br className="hidden md:block" />
-          <span className="text-blue-600"> Nunca más recontrates al equivocado.</span>
+          <span className="text-blue-600"> al que ya te falló.</span>
         </motion.h2>
         <motion.p {...heroIn(1)} className="mt-5 md:mt-6 text-base md:text-xl text-gray-600 max-w-xl md:max-w-2xl mx-auto leading-relaxed">
-          La herramienta mobile-first para contratistas de minería y construcción.
-          Decisiones de recontratación basadas en datos, no en memoria o WhatsApp.
+          Tu próximo proyecto es tan bueno como la gente que vuelve. Recontrata recuerda
+          quién rindió y quién no, para que repitas a tus mejores y dejes fuera al problema.
+          Todo desde el celular, en terreno — con datos reales, no memoria ni WhatsApp.
         </motion.p>
         <motion.div {...heroIn(2)} className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
@@ -87,9 +88,10 @@ export default function Landing({ isSignedIn }: LandingProps) {
             Más de 1 millón de trabajadores subcontratados en Chile.
           </h3>
           <p className="mt-4 text-lg text-gray-600">
-            La mayoría de los contratistas decide recontratar por WhatsApp, listas de Excel
-            dispersas y memoria del supervisor. Resultado: el mismo trabajador problemático
-            vuelve en la siguiente faena.
+            Un trabajador que rinde mal no solo atrasa: cuesta retrabajos, días perdidos y,
+            en terreno, hasta un accidente. Hoy la mayoría decide a quién recontratar por
+            memoria del supervisor y cadenas de WhatsApp. Resultado: el mismo problema
+            vuelve en el siguiente proyecto.
           </p>
         </div>
       </section>
@@ -97,37 +99,37 @@ export default function Landing({ isSignedIn }: LandingProps) {
       {/* Features */}
       <section id="features" className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-24">
         <h3 className="text-2xl md:text-3xl font-bold text-gray-900 text-center">
-          Evaluación rápida. Decisión informada.
+          Evalúa en terreno. Decide con datos.
         </h3>
         <div className="mt-12 grid md:grid-cols-3 gap-6">
           <FeatureCard
             icon={ClipboardCheck}
-            title="Evaluaciones en segundos"
-            body="5 dimensiones (calidad, seguridad, puntualidad, equipo, técnica) + recomendación de recontratación. Desde el celular, en terreno."
+            title="Evalúa en terreno, en 30 segundos"
+            body="5 dimensiones (calidad, seguridad, puntualidad, equipo, técnica) + recomendación de recontratación. Desde el celular, sin parar el trabajo."
           />
           <FeatureCard
             icon={TrendingUp}
-            title="Score promedio por trabajador"
-            body="Cada trabajador acumula historial a través de proyectos. Ordena, filtra y encuentra a los mejores en segundos."
+            title="Sabe quién rinde antes de contratar"
+            body="Cada trabajador acumula un score real a través de tus proyectos. Ordena, filtra y encuentra a los mejores en segundos."
           />
           <FeatureCard
             icon={History}
-            title="Historial por proyecto"
-            body="Quién trabajó dónde, con qué desempeño. Importa tu base desde Excel y empieza hoy."
+            title="El historial que no se va con el supervisor"
+            body="Quién trabajó dónde y con qué desempeño queda registrado. Importa tu base desde Excel y empieza hoy."
           />
           <FeatureCard
             icon={ShieldCheck}
-            title="Datos seguros por empresa"
-            body="Multi-tenant con aislamiento por organización. Tus datos no se cruzan con otros contratistas."
+            title="Tu base de gente, solo tuya"
+            body="Aislamiento por empresa: tus datos no se cruzan con otros contratistas. Tu activo más valioso, protegido."
           />
           <FeatureCard
             icon={Zap}
-            title="Mobile-first"
-            body="Diseñado para usarse en el celular del supervisor. Funciona desde 375px de ancho."
+            title="Hecho para el celular del supervisor"
+            body="Pensado para usarse en terreno, con una mano y guantes puestos. Funciona desde cualquier celular."
           />
           <FeatureCard
             icon={Users}
-            title="Importación masiva"
+            title="Trae tu gente desde Excel"
             body="Sube tu planilla de trabajadores en Excel o CSV. RUT validado automáticamente."
           />
         </div>
@@ -147,7 +149,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
               name="Gratis"
               price="$0"
               period="para siempre"
-              description="Para probar la herramienta en una faena pequeña."
+              description="Para probar la herramienta en un proyecto pequeño."
               features={[
                 'Hasta 15 trabajadores activos',
                 '1 proyecto activo',
@@ -162,7 +164,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
               name="Profesional"
               price="$49.990"
               period="CLP / mes"
-              description="Para contratistas con faenas activas de forma permanente."
+              description="Para contratistas con proyectos activos de forma permanente."
               featured
               features={[
                 'Hasta 100 trabajadores activos',
@@ -181,7 +183,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
               description="Para empresas con múltiples equipos y muchos trabajadores."
               features={[
                 'Hasta 500 trabajadores activos',
-                'Multi-faena y multi-usuario',
+                'Multi-proyecto y multi-usuario',
                 'Acceso a la API e integraciones',
                 'Insights con IA y onboarding asistido',
                 'Soporte prioritario',
@@ -203,7 +205,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
       <section className="bg-blue-600 py-16">
         <div className="max-w-3xl mx-auto px-4 md:px-6 text-center">
           <h3 className="text-2xl md:text-3xl font-bold text-white">
-            Empieza a construir tu base de datos de trabajadores hoy.
+            Construye tu mejor equipo, proyecto tras proyecto.
           </h3>
           <p className="mt-4 text-blue-100 text-lg">
             Crea tu organización gratis. Sin tarjeta de crédito.
@@ -223,7 +225,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
           <div className="grid gap-8 md:grid-cols-3 text-sm">
             <div>
               <p className="font-semibold text-gray-900">Recontrata</p>
-              <p className="mt-2 text-gray-500">Evaluación de trabajadores de faena para contratistas de minería y construcción.</p>
+              <p className="mt-2 text-gray-500">Evaluación de desempeño de trabajadores para contratistas de minería y construcción.</p>
               <p className="mt-2 text-gray-400 text-xs">Hecho en Chile</p>
             </div>
             <div>
