@@ -30,6 +30,33 @@
     <meta name="twitter:image" content="https://recontrata.cl/og-image.png" />
   </head>
   <body>
+    <!-- Splash de marca: el logo se ARMA al instante (video nativo, antes del JS).
+         React lo retira y hace el morph al navbar (ver BootIntro). -->
+    <div id="boot-splash">
+      <video id="boot-video" src="/logo-intro.mp4" autoplay muted playsinline preload="auto"></video>
+    </div>
+    <style>
+      html, body { background:#FFFFFF; margin:0; }
+      /* fondo BLANCO = el navegador pinta el fondo del video en blanco; igualarlo
+         hace que el rectangulo del video sea invisible (en todos los navegadores). */
+      #boot-splash { position:fixed; inset:0; z-index:60; display:flex;
+        align-items:center; justify-content:center; background:#FFFFFF; }
+      #boot-video { max-width:90vw; max-height:60vh; background:#FFFFFF; }
+    </style>
+    <script>
+      // No mostrar el intro si ya se vio esta sesion o si el usuario pidio menos movimiento.
+      (function () {
+        try {
+          var seen = sessionStorage.getItem('recontrata_intro_seen');
+          var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (seen || reduced) {
+            var s = document.getElementById('boot-splash');
+            if (s) s.remove();
+          }
+        } catch (e) {}
+      })();
+    </script>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

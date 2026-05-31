@@ -1,39 +1,31 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ClipboardCheck, TrendingUp, History, ShieldCheck, Zap, Users, Check } from 'lucide-react'
-import { useLogoIntro, LogoIntroOverlay } from '../components/brand/LogoIntro'
 
 interface LandingProps {
   isSignedIn: boolean
 }
 
 export default function Landing({ isSignedIn }: LandingProps) {
-  const { showIntro, dismiss } = useLogoIntro()
   const primaryCta = isSignedIn
     ? { to: '/app', label: 'Ir al Dashboard' }
     : { to: '/sign-in', label: 'Empezar gratis' }
 
-  // Los elementos del hero esperan a que la intro termine (delay mayor) la
-  // primera vez; en visitas posteriores entran de inmediato.
+  // Entrada suave del hero (el splash del logo cubre la pantalla mientras carga).
   const heroIn = (i: number) => ({
     initial: { opacity: 0, y: 16 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.5, delay: (showIntro ? 1.4 : 0.1) + i * 0.1 },
+    transition: { duration: 0.5, delay: 0.1 + i * 0.1 },
   })
 
   return (
     <div className="min-h-screen bg-white">
-      <LogoIntroOverlay show={showIntro} onDismiss={dismiss} />
-
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/85 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center" aria-label="Recontrata — inicio">
-            <motion.img
-              // Solo reclama el layoutId cuando la intro termino: asi durante la
-              // intro el unico "brand-logo" es el del overlay (centrado) y al
-              // salir el logo hace el morph hacia el navbar.
-              layoutId={showIntro ? undefined : 'brand-logo'}
+            <img
+              id="nav-logo"
               src="/logo-recontrata.png"
               alt="Recontrata"
               className="h-8 w-auto"

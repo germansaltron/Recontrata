@@ -4,6 +4,7 @@ import { SignedIn, SignedOut, SignIn, SignUp, useAuth } from '@clerk/clerk-react
 import { OrgProvider } from './lib/org'
 import AppShell from './components/layout/AppShell'
 import Landing from './pages/Landing'
+import BootIntro from './components/brand/LogoIntro'
 import { setAuthTokenGetter } from './lib/api'
 
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -48,6 +49,8 @@ function AuthenticatedApp() {
 export default function App() {
   if (!clerkEnabled) {
     return (
+      <>
+      <BootIntro />
       <Routes>
         <Route path="/" element={<Landing isSignedIn={true} />} />
         <Route path="/terminos" element={<Suspense fallback={<PageFallback />}><Terms /></Suspense>} />
@@ -55,10 +58,13 @@ export default function App() {
         <Route path="/app/*" element={<ProtectedApp />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </>
     )
   }
 
   return (
+    <>
+    <BootIntro />
     <Routes>
       <Route
         path="/"
@@ -106,5 +112,6 @@ export default function App() {
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   )
 }
