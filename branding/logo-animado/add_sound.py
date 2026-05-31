@@ -168,7 +168,7 @@ def finalize(ch):
 
 left, right = finalize(left), finalize(right)
 peak = max(np.max(np.abs(left)), np.max(np.abs(right)))
-g = 0.92 / peak
+g = 0.80 / peak
 stereo = np.stack([left * g, right * g], axis=1)
 pcm = (stereo * 32767).astype(np.int16)
 
