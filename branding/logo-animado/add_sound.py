@@ -77,7 +77,7 @@ C5, E5, G5, C6, E6, G4, C4 = 523.25, 659.25, 783.99, 1046.50, 1318.51, 392.0, 26
 th_len = _idx(0.45)
 tt = np.arange(th_len) / SR
 fsweep = 150 * np.exp(-tt / 0.10) + 55
-thump = np.sin(2 * np.pi * np.cumsum(fsweep) / SR) * np.exp(-tt / 0.13) * 0.55
+thump = np.sin(2 * np.pi * np.cumsum(fsweep) / SR) * np.exp(-tt / 0.13) * 0.85
 add(master, thump, 0.00)
 
 # whoosh: ruido filtrado pasa-banda con cutoff subiendo + swell
@@ -87,7 +87,7 @@ b, a = signal.butter(2, [600 / (SR / 2), 6000 / (SR / 2)], btype="band")
 wh = signal.lfilter(b, a, noise)
 tt = np.arange(wh_len) / SR
 swell = np.sin(np.pi * np.clip(tt / 0.55, 0, 1)) ** 1.5          # sube y baja
-wh *= swell * 0.22
+wh *= swell * 0.34
 add(master, wh, 0.02)
 
 # ----------------------------------------------------------------------------
@@ -118,21 +118,20 @@ for f, t0, amp in arp:
     add(wet, bell(f, 1.0, amp, ratio=1.4, index=3.0, decay=0.45), t0)
 
 # ----------------------------------------------------------------------------
-# D. Cierre del ciclo (2.28s): acorde mayor brillante (la firma) + cola
+# D. Cierre del ciclo (2.28s): acorde mayor que resuelve (pluck, no sostenido)
+# decay corto + timbre dulce (index bajo) para evitar la "trompeta sostenida"
 # ----------------------------------------------------------------------------
-chord = [(C5, 0.34), (E5, 0.30), (G5, 0.30), (C6, 0.34), (E6, 0.22)]
-for f, amp in chord:
-    add(wet, bell(f, 1.7, amp, ratio=2.0, index=3.5, decay=1.30), 2.28)
-# golpe de cuerpo grave que ancla el acorde
-add(master, bell(C4, 1.4, 0.20, ratio=1.0, index=1.0, decay=0.9), 2.28)
-add(master, bell(G4, 1.4, 0.12, ratio=1.0, index=1.0, decay=0.9), 2.28)
-# brillo final agudo
-add(wet, bell(C6 * 2, 1.2, 0.06, ratio=2.0, index=2.0, decay=0.9), 2.30)
+# onsets escalonados unos ms para no apilar los ataques en un solo pico
+chord = [(C5, 0.165, 2.280), (E5, 0.14, 2.286), (G5, 0.14, 2.292), (C6, 0.155, 2.298)]
+for f, amp, t0 in chord:
+    add(wet, bell(f, 1.2, amp, ratio=2.0, index=1.4, decay=0.55), t0)
+# golpe de cuerpo grave (casi seno) que ancla el acorde, corto
+add(master, bell(C4, 0.8, 0.18, ratio=1.0, index=0.0, decay=0.40), 2.28)
 
 # ----------------------------------------------------------------------------
 # Reverb estéreo por convolución (IR sintética) sobre el bus 'wet'
 # ----------------------------------------------------------------------------
-def make_ir(decay, length_s=1.3):
+def make_ir(decay, length_s=0.8):
     m = _idx(length_s)
     tt = np.arange(m) / SR
     ir = RNG.standard_normal(m) * np.exp(-tt / decay)
@@ -140,14 +139,21 @@ def make_ir(decay, length_s=1.3):
     ir[0] = 1.0                          # componente directa
     return ir / np.max(np.abs(ir))
 
-irL, irR = make_ir(0.42), make_ir(0.48)
+irL, irR = make_ir(0.26), make_ir(0.30)
 wetL = fftconvolve(wet, irL)[:n]
 wetR = fftconvolve(wet, irR)[:n]
 
-dry_w = 0.85
-rev = 0.30
-left = master + dry_w * wet + rev * wetL
-right = master + dry_w * wet + rev * wetR
+# amortigua la cola para que no quede una nota sostenida: a partir de ~3.0s
+# baja suavemente hasta silencio en ~3.6s
+damp = np.ones(n)
+d0, d1 = _idx(3.0), _idx(3.6)
+damp[d0:d1] = np.linspace(1, 0, d1 - d0)
+damp[d1:] = 0
+
+dry_w = 0.9
+rev = 0.18
+left = (master + dry_w * wet + rev * wetL) * damp
+right = (master + dry_w * wet + rev * wetR) * damp
 
 # ----------------------------------------------------------------------------
 # Master: soft-clip, normalizar, fades
