@@ -3,7 +3,7 @@
 ## Foto del hero (`frontend/public/hero-faena.jpg`) — composición paisaje + persona
 Fuente: Pexels (licencia libre, uso comercial sin atribución). Composición:
 - **Fondo**: mina a cielo abierto (gran minería), foto ID **2892618**.
-- **Persona**: ingeniera con EPP completo (casco amarillo, chaleco, lentes), foto ID **8487994**.
+- **Persona**: trabajador con EPP completo (casco amarillo, chaleco reflectante), foto ID **37556454** (rasgos latinos, elegido para el público chileno).
 Pasos (`compose_hero.py`):
 1. Descargar ambas fotos (w=1600).
 2. `rembg` recorta a la persona -> `persona_epp.png` (fondo transparente).
