@@ -86,7 +86,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
             width={540}
             height={955}
             loading="eager"
-            className="absolute -bottom-6 right-2 sm:right-6 md:right-10 w-24 sm:w-36 md:w-48 drop-shadow-2xl"
+            className="absolute -bottom-8 right-2 sm:right-5 md:right-8 w-32 sm:w-48 md:w-64 drop-shadow-2xl"
           />
         </motion.div>
       </section>
