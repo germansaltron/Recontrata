@@ -1,15 +1,12 @@
 # Assets del hero de la landing
 
-## Foto del hero (`frontend/public/hero-faena.jpg`) — composición paisaje + persona
-Fuente: Pexels (licencia libre, uso comercial sin atribución). Composición:
-- **Fondo**: mina a cielo abierto (gran minería), foto ID **2892618**.
-- **Persona**: trabajador con EPP completo (casco amarillo, chaleco reflectante), foto ID **37556454** (rasgos latinos, elegido para el público chileno).
-Pasos (`compose_hero.py`):
-1. Descargar ambas fotos (w=1600).
-2. `rembg` recorta a la persona -> `persona_epp.png` (fondo transparente).
-3. `python compose_hero.py` — paisaje cover a banda 2.2 + degradado izq + sombra de
-   contacto + persona anclada abajo-izquierda mirando hacia la escena. -> hero-faena.jpg q84.
-Requiere: `pip install rembg onnxruntime pillow`.
+## Foto del hero (`frontend/public/hero-faena.jpg`) — solo paisaje
+Fuente: Pexels (licencia libre, uso comercial sin atribución).
+- Mina a cielo abierto (gran minería), foto ID **2892618**.
+- Proceso: descargar w=1920, cover a banda ratio 2.2 (1600×727), q84. SIN persona
+  (Germán pidió no mostrar a nadie, 31 may).
+- `compose_hero.py` queda como referencia del modo "paisaje + persona recortada con
+  rembg" por si se quisiera retomar; la versión vigente es solo el paisaje.
 
 ## Mock del celular (`frontend/public/phone-eval.png`)
 Reproduce la pantalla real de evaluación (EvaluateWorker) sin levantar el backend:

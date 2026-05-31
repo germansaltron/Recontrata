@@ -73,7 +73,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
           <div className="rounded-2xl overflow-hidden shadow-2xl border border-gray-200">
             <img
               src="/hero-faena.jpg"
-              alt="Cuadrilla de trabajadores con casco y chaleco reflectante en una faena de minería."
+              alt="Mina a cielo abierto de gran minería."
               width={1600}
               height={727}
               loading="eager"
