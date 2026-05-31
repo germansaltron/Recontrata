@@ -67,16 +67,26 @@ export default function Landing({ isSignedIn }: LandingProps) {
           </a>
         </motion.div>
 
-        {/* Product preview */}
-        <motion.div {...heroIn(3)} className="mt-12 md:mt-16 relative">
-          <div className="absolute inset-x-0 top-1/2 -bottom-4 bg-gradient-to-b from-blue-50 to-transparent blur-3xl -z-10" aria-hidden="true" />
+        {/* Product showcase: la faena + la app en el celular */}
+        <motion.div {...heroIn(3)} className="mt-14 md:mt-20 relative max-w-5xl mx-auto">
+          <div className="absolute -inset-x-4 top-1/3 -bottom-8 bg-gradient-to-b from-blue-50 to-transparent blur-3xl -z-10" aria-hidden="true" />
+          <div className="rounded-2xl overflow-hidden shadow-2xl border border-gray-200">
+            <img
+              src="/hero-faena.jpg"
+              alt="Cuadrilla de trabajadores con casco y chaleco reflectante en una faena de minería."
+              width={1600}
+              height={727}
+              loading="eager"
+              className="w-full h-[220px] sm:h-[320px] md:h-[420px] object-cover"
+            />
+          </div>
           <img
-            src="/dashboard-preview.png"
-            alt="Vista previa del Dashboard de Recontrata mostrando KPIs, top trabajadores y evaluaciones recientes."
-            width={1440}
-            height={900}
+            src="/phone-eval.png"
+            alt="Evaluación de un trabajador en la app de Recontrata, desde el celular en terreno."
+            width={540}
+            height={955}
             loading="eager"
-            className="w-full max-w-5xl mx-auto rounded-xl shadow-2xl border border-gray-200"
+            className="absolute -bottom-6 right-2 sm:right-6 md:right-10 w-24 sm:w-36 md:w-48 drop-shadow-2xl"
           />
         </motion.div>
       </section>
@@ -132,6 +142,30 @@ export default function Landing({ isSignedIn }: LandingProps) {
             title="Trae tu gente desde Excel"
             body="Sube tu planilla de trabajadores en Excel o CSV. RUT validado automáticamente."
           />
+        </div>
+      </section>
+
+      {/* Panel web */}
+      <section className="bg-white pt-4 pb-16 md:pb-20">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 text-center">
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
+            Y todo se ordena en un solo panel.
+          </h3>
+          <p className="mt-3 text-gray-600 max-w-2xl mx-auto">
+            Proyectos, trabajadores, scores e historial. Ve de un vistazo a quién recontratar
+            — desde el computador de la oficina.
+          </p>
+          <div className="mt-10 relative">
+            <div className="absolute inset-x-0 top-1/2 -bottom-4 bg-gradient-to-b from-blue-50 to-transparent blur-3xl -z-10" aria-hidden="true" />
+            <img
+              src="/dashboard-preview.png"
+              alt="Panel de Recontrata con KPIs, top trabajadores y evaluaciones recientes."
+              width={1440}
+              height={900}
+              loading="lazy"
+              className="w-full max-w-5xl mx-auto rounded-xl shadow-2xl border border-gray-200"
+            />
+          </div>
         </div>
       </section>
 

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.tailwindcss.com"></script>
+<style> body{ -webkit-font-smoothing:antialiased; font-family:'Segoe UI',system-ui,sans-serif; } </style>
+</head>
+<body class="bg-gray-50">
+  <div class="max-w-lg mx-auto px-4 pt-3 pb-6 space-y-5">
+
+    <!-- app header -->
+    <div class="flex items-center justify-between">
+      <img src="logo-recontrata.png" alt="Recontrata" class="h-6 w-auto">
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600"></div>
+    </div>
+
+    <!-- eval header -->
+    <div class="flex items-start gap-3">
+      <div class="p-2 rounded-lg shrink-0 mt-0.5 text-gray-700">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Evaluar Trabajador</p>
+        <h1 class="text-xl font-bold text-gray-900">Sergio Díaz</h1>
+        <p class="text-sm text-gray-600">Calderero · RUT 16.482.331-5</p>
+        <p class="text-sm text-gray-500 mt-1">Proyecto: <span class="font-medium text-gray-700">Mantención Mayor Concentradora</span></p>
+      </div>
+    </div>
+
+    <!-- scores -->
+    <div id="scores" class="bg-white rounded-xl border border-gray-200 p-4 space-y-5"></div>
+
+    <!-- rehire -->
+    <div class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+      <p class="text-sm font-medium text-gray-700">¿Recontratarías a este trabajador?</p>
+      <div class="grid grid-cols-3 gap-2">
+        <button class="py-3 px-2 rounded-lg text-sm font-medium border-2 bg-green-100 text-green-800 border-current">Sí</button>
+        <button class="py-3 px-2 rounded-lg text-sm font-medium border-2 border-gray-200 text-gray-600">Con Reservas</button>
+        <button class="py-3 px-2 rounded-lg text-sm font-medium border-2 border-gray-200 text-gray-600">No</button>
+      </div>
+    </div>
+
+    <!-- submit -->
+    <button class="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-3.5 rounded-xl text-base font-medium">
+      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
+      Guardar Evaluación
+    </button>
+  </div>
+
+<script>
+  const LABELS = ['Calidad del Trabajo','Seguridad','Puntualidad','Trabajo en Equipo','Habilidad Técnica'];
+  const VALUES = [5,5,4,5,4];
+  const STAR='M12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26z';
+  function color(v){ return v<=2?'#ef4444':(v<=3?'#eab308':'#22c55e'); }
+  const c = document.getElementById('scores');
+  LABELS.forEach((label,i)=>{
+    const v=VALUES[i]; const col=color(v);
+    let stars='';
+    for(let s=1;s<=5;s++){
+      const on=s<=v;
+      stars += `<span class="p-1 inline-block"><svg width="28" height="28" viewBox="0 0 24 24" fill="${on?col:'none'}" stroke="${on?col:'#d1d5db'}" stroke-width="2" stroke-linejoin="round"><path d="${STAR}"/></svg></span>`;
+    }
+    c.innerHTML += `<div class="flex items-center justify-between"><span class="text-sm font-medium text-gray-700">${label}</span><div class="flex items-center">${stars}</div></div>`;
+  });
+</script>
+</body>
+</html>
