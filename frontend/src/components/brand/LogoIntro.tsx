@@ -42,20 +42,30 @@ export default function BootIntro() {
       cleanup()
 
       const vr = video.getBoundingClientRect()
-      const nav = document.getElementById('nav-logo')
+      const nav = document.getElementById('nav-logo') as HTMLImageElement | null
       if (nav) {
         const nr = nav.getBoundingClientRect()
         const vcx = vr.left + vr.width / 2
         const vcy = vr.top + vr.height / 2
         const ncx = nr.left + nr.width / 2
         const ncy = nr.top + nr.height / 2
+        // El clon usa el logo recortado (aspect distinto al encuadre del video),
+        // por eso lo posicionamos por su CENTRO real (calculando su ancho con el
+        // aspect del logo) y luego movemos centro->centro del navbar. Si lo
+        // ancláramos por el borde del video, caería corrido a la derecha.
+        const aspect =
+          nav.naturalWidth && nav.naturalHeight
+            ? nav.naturalWidth / nav.naturalHeight
+            : nr.width / nr.height || 5.2
+        const h = vr.height
+        const w = aspect * h
         setFlyer({
-          left: vr.left,
-          top: vr.top,
-          h: vr.height,
+          left: vcx - w / 2,
+          top: vcy - h / 2,
+          h,
           dx: ncx - vcx,
           dy: ncy - vcy,
-          scale: nr.height / vr.height,
+          scale: nr.height / h,
         })
       }
 

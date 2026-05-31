@@ -41,7 +41,9 @@
          hace que el rectangulo del video sea invisible (en todos los navegadores). */
       #boot-splash { position:fixed; inset:0; z-index:60; display:flex;
         align-items:center; justify-content:center; background:#FFFFFF; }
-      #boot-video { max-width:90vw; max-height:60vh; background:#FFFFFF; }
+      /* ~la mitad de antes: el logo se ve mas contenido y elegante */
+      #boot-video { max-width:45vw; max-height:30vh; background:#FFFFFF; }
+      @media (max-width:640px) { #boot-video { max-width:80vw; max-height:24vh; } }
     </style>
     <script>
       // No mostrar el intro si ya se vio esta sesion o si el usuario pidio menos movimiento.
