@@ -1,21 +1,44 @@
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { ClipboardCheck, TrendingUp, History, ShieldCheck, Zap, Users, Check } from 'lucide-react'
+import { useLogoIntro, LogoIntroOverlay } from '../components/brand/LogoIntro'
 
 interface LandingProps {
   isSignedIn: boolean
 }
 
 export default function Landing({ isSignedIn }: LandingProps) {
+  const { showIntro, dismiss } = useLogoIntro()
   const primaryCta = isSignedIn
     ? { to: '/app', label: 'Ir al Dashboard' }
     : { to: '/sign-in', label: 'Empezar gratis' }
 
+  // Los elementos del hero esperan a que la intro termine (delay mayor) la
+  // primera vez; en visitas posteriores entran de inmediato.
+  const heroIn = (i: number) => ({
+    initial: { opacity: 0, y: 16 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.5, delay: (showIntro ? 1.4 : 0.1) + i * 0.1 },
+  })
+
   return (
     <div className="min-h-screen bg-white">
+      <LogoIntroOverlay show={showIntro} onDismiss={dismiss} />
+
       {/* Header */}
-      <header className="border-b border-gray-200">
+      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/85 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900">Recontrata</h1>
+          <Link to="/" className="flex items-center" aria-label="Recontrata — inicio">
+            <motion.img
+              // Solo reclama el layoutId cuando la intro termino: asi durante la
+              // intro el unico "brand-logo" es el del overlay (centrado) y al
+              // salir el logo hace el morph hacia el navbar.
+              layoutId={showIntro ? undefined : 'brand-logo'}
+              src="/logo-recontrata.png"
+              alt="Recontrata"
+              className="h-8 w-auto"
+            />
+          </Link>
           <Link
             to={primaryCta.to}
             className="text-sm font-medium px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
@@ -27,16 +50,16 @@ export default function Landing({ isSignedIn }: LandingProps) {
 
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-24 text-center">
-        <h2 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
+        <motion.h2 {...heroIn(0)} className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
           Evalúa a tus trabajadores de faena.
           <br className="hidden md:block" />
           <span className="text-blue-600"> Nunca más recontrates al equivocado.</span>
-        </h2>
-        <p className="mt-5 md:mt-6 text-base md:text-xl text-gray-600 max-w-xl md:max-w-2xl mx-auto leading-relaxed">
+        </motion.h2>
+        <motion.p {...heroIn(1)} className="mt-5 md:mt-6 text-base md:text-xl text-gray-600 max-w-xl md:max-w-2xl mx-auto leading-relaxed">
           La herramienta mobile-first para contratistas de minería y construcción.
           Decisiones de recontratación basadas en datos, no en memoria o WhatsApp.
-        </p>
-        <div className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+        </motion.p>
+        <motion.div {...heroIn(2)} className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             to={primaryCta.to}
             className="w-full sm:w-auto px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
@@ -49,10 +72,10 @@ export default function Landing({ isSignedIn }: LandingProps) {
           >
             Ver cómo funciona
           </a>
-        </div>
+        </motion.div>
 
         {/* Product preview */}
-        <div className="mt-12 md:mt-16 relative">
+        <motion.div {...heroIn(3)} className="mt-12 md:mt-16 relative">
           <div className="absolute inset-x-0 top-1/2 -bottom-4 bg-gradient-to-b from-blue-50 to-transparent blur-3xl -z-10" aria-hidden="true" />
           <img
             src="/dashboard-preview.png"
@@ -62,7 +85,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
             loading="eager"
             className="w-full max-w-5xl mx-auto rounded-xl shadow-2xl border border-gray-200"
           />
-        </div>
+        </motion.div>
       </section>
 
       {/* Problem */}

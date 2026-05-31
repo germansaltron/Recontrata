@@ -145,6 +145,26 @@ d.text(((W - (tbb[2] - tbb[0])) // 2, cy + icon_px // 2 + 28), tag,
        font=tag_font, fill=(71, 85, 105))
 save(og, "og-image.png")
 
+# 5b. logo-recontrata.png (logo completo, fondo transparente, para web @2x)
+#     icono (resvg) + wordmark (Segoe UI Bold) recortado al bbox real.
+LH = 256                                 # alto de render (display ~128 @2x)
+licon = svg_icon(LH)
+lfont = find_font(int(LH * 0.72))
+lgap = int(LH * 0.18)
+lre_w = lfont.getbbox("Re")[2]
+lwb = lfont.getbbox("Recontrata")
+ltw = lwb[2] - lwb[0]
+lw = LH + lgap + ltw + LH // 4
+logo = Image.new("RGBA", (lw, LH), (0, 0, 0, 0))
+logo.alpha_composite(licon, (0, 0))
+ld = ImageDraw.Draw(logo)
+ltx = LH + lgap
+lty = (LH - (lwb[3] - lwb[1])) // 2 - lwb[1]
+ld.text((ltx, lty), "Re", font=lfont, fill=BLUE)
+ld.text((ltx + lre_w, lty), "contrata", font=lfont, fill=INK)
+logo = logo.crop(logo.getbbox())          # trim al contenido
+save(logo, "logo-recontrata.png")
+
 # 6. manifest
 manifest = '''{
   "name": "Recontrata",
