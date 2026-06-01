@@ -14,7 +14,21 @@
 - **Verificado E2E con Playwright en prod**: el gate aparece → `recontrata2211` desbloquea → Landing completa renderiza. Meta `noindex` servido OK.
 - **TRAMPA descubierta — robots.txt**: Cloudflare sirve su **robots.txt gestionado** (Content-Signal / bloqueo bots IA / `Allow: /` para search) que **pisa el estatico** → mi `/robots.txt` no llega. La proteccion efectiva contra Google es el **meta noindex** (sirve). Para bloquear tambien via robots.txt habria que desactivar "Managed robots.txt" en el dashboard de Cloudflare.
 - **AL LANZAR** (checklist, buscar comentario "QUITAR al lanzar"): (1) quitar `<AccessGate>` de ambas ramas de App.tsx o `VITE_ACCESS_GATE=false`; (2) quitar meta noindex de index.html; (3) revertir el check `!unlocked` del inline script de index.html; (4) borrar/abrir public/robots.txt.
-- **Recordatorio**: sigue pendiente pasar **Clerk a produccion** (banner dev), unico otro pendiente del rebrand.
+- **Recordatorio**: sigue pendiente pasar **Clerk a produccion** (banner dev), unico otro pendiente del rebrand. Ver paso a paso abajo.
+
+## PENDIENTE — Pasar Clerk de desarrollo a produccion (documentado 1 jun 2026, ejecutar DESPUES)
+- **Por que**: prod usa hoy `VITE_CLERK_PUBLISHABLE_KEY=pk_test_...` + `CLERK_ISSUER=https://willing-monitor-52...` (instancia de DESARROLLO de Clerk). Por eso sale el banner "development mode". `AUTH_MOCK_ENABLED=False` ya esta OK (login real activo).
+- **Vars en Railway involucradas**: `VITE_CLERK_PUBLISHABLE_KEY` (build-arg en Dockerfile), `CLERK_SECRET_KEY`, `CLERK_ISSUER`, `CLERK_JWKS_URL`.
+- **El codigo NO cambia**: usa `<SignIn>`/`<SignUp>` prediseñados; los metodos de login se configuran en el dashboard de Clerk, no aqui. Login social NO esta forzado en codigo.
+- **Pasos de German (dashboard, requiere su cuenta)**:
+  1. dashboard.clerk.com -> app Recontrata -> "Deploy to production" / crear instancia de produccion.
+  2. Conectar dominio recontrata.cl: pegar en Cloudflare los CNAMEs que da Clerk (clerk./accounts.recontrata.cl) + registros DKIM para emails.
+  3. SOLO si usa "Sign in with Google": crear credenciales OAuth propias en Google Cloud y pegarlas en Clerk. Si es solo email/magic link, se salta.
+  4. Copiar las llaves de produccion: `pk_live_...`, `sk_live_...`, nuevo issuer y JWKS URL.
+- **Pasos de Claude (cuando German pase las llaves `_live_`)**:
+  1. Actualizar en Railway las 4 vars con valores `_live_`.
+  2. `railway service faenascore` -> `railway up --detach` (rebuild necesario por el build-arg).
+  3. Verificar E2E en recontrata.cl: banner dev desaparecido + registro/login OK. Pollear bundle/artefacto nuevo, no /health.
 
 ## Ultima actualizacion previa: 2026-05-30T18:30:00-04:00
 
