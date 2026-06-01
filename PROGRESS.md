@@ -1,6 +1,22 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-05-30T18:30:00-04:00
+## Ultima actualizacion: 2026-06-01T09:05:00-04:00
+
+## Sesion 1 jun 2026 — Gate de acceso pre-lanzamiento (DEPLOYADO + verificado E2E)
+- **Objetivo**: recontrata.cl NO es publico todavia (estamos puliendolo). Replicar el gate de pre-lanzamiento de casilisto.cl, con codigo propio.
+- **Implementado** (commit `9ed5d4d`, master, en prod):
+  - `frontend/src/components/AccessGate.tsx` — overlay de marca (paleta azul blue-600/700, `/logo-recontrata.png`) que pide un codigo antes de mostrar nada. **Codigo: `recontrata2211`** (case-insensitive). Al acertar guarda `localStorage recontrata_access` con TTL 90 dias. Replica del de CasiListo, adaptado a la marca.
+    - Configurable con `VITE_ACCESS_CODE`; desactivable con `VITE_ACCESS_GATE=false` (env Vite, requiere rebuild).
+  - `frontend/src/App.tsx` — envuelve con `<AccessGate>` **las dos ramas** (clerkEnabled true y false).
+  - `frontend/index.html` — `<meta name="robots" content="noindex, nofollow">` + el inline script del boot-splash ahora tambien retira el intro de logo si no hay `recontrata_access` vigente (sin flash del intro para visitantes sin codigo).
+  - `frontend/public/robots.txt` — `Disallow: /`.
+- **Build local OK** (bundle `index-Ci-5utmB.js`). Deploy via `railway up --detach` (servicio `faenascore`, single-service: Dockerfile compila frontend y lo sirve desde el backend). Prod sirve bundle `index-CA16zARG.js` (hash difiere por build-arg Clerk — esperado).
+- **Verificado E2E con Playwright en prod**: el gate aparece → `recontrata2211` desbloquea → Landing completa renderiza. Meta `noindex` servido OK.
+- **TRAMPA descubierta — robots.txt**: Cloudflare sirve su **robots.txt gestionado** (Content-Signal / bloqueo bots IA / `Allow: /` para search) que **pisa el estatico** → mi `/robots.txt` no llega. La proteccion efectiva contra Google es el **meta noindex** (sirve). Para bloquear tambien via robots.txt habria que desactivar "Managed robots.txt" en el dashboard de Cloudflare.
+- **AL LANZAR** (checklist, buscar comentario "QUITAR al lanzar"): (1) quitar `<AccessGate>` de ambas ramas de App.tsx o `VITE_ACCESS_GATE=false`; (2) quitar meta noindex de index.html; (3) revertir el check `!unlocked` del inline script de index.html; (4) borrar/abrir public/robots.txt.
+- **Recordatorio**: sigue pendiente pasar **Clerk a produccion** (banner dev), unico otro pendiente del rebrand.
+
+## Ultima actualizacion previa: 2026-05-30T18:30:00-04:00
 
 ## Sesion 30 may 2026 (parte 5) — Logo + animacion Recontrata (PENDIENTE: flecha mal)
 - **Logo elegido**: concepto **B = flecha de retorno** (cuadro azul #2563eb + flecha circular blanca + wordmark "Re"(azul)+"contrata"(gris)). Coincidio German. Archivos en `branding/`: `logo-recontrata.svg`, preview `logo-preview.html`.
