@@ -5,6 +5,7 @@ import { OrgProvider } from './lib/org'
 import AppShell from './components/layout/AppShell'
 import Landing from './pages/Landing'
 import BootIntro from './components/brand/LogoIntro'
+import AccessGate from './components/AccessGate'
 import { setAuthTokenGetter } from './lib/api'
 
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -49,7 +50,7 @@ function AuthenticatedApp() {
 export default function App() {
   if (!clerkEnabled) {
     return (
-      <>
+      <AccessGate>
       <BootIntro />
       <Routes>
         <Route path="/" element={<Landing isSignedIn={true} />} />
@@ -58,12 +59,12 @@ export default function App() {
         <Route path="/app/*" element={<ProtectedApp />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      </>
+      </AccessGate>
     )
   }
 
   return (
-    <>
+    <AccessGate>
     <BootIntro />
     <Routes>
       <Route
@@ -112,6 +113,6 @@ export default function App() {
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-    </>
+    </AccessGate>
   )
 }

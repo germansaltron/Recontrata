@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Recontrata</title>
     <meta name="description" content="Evalúa el desempeño de tu personal y decide a quién recontratar, con datos." />
+    <!-- QUITAR al lanzar: pre-lanzamiento, no indexar -->
+    <meta name="robots" content="noindex, nofollow" />
 
     <!-- Favicons / app icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -51,7 +53,10 @@
         try {
           var seen = sessionStorage.getItem('recontrata_intro_seen');
           var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          if (seen || reduced) {
+          // QUITAR al lanzar: sin código de acceso no mostramos el intro (gate de pre-lanzamiento)
+          var access = localStorage.getItem('recontrata_access');
+          var unlocked = access && parseInt(access, 10) > Date.now();
+          if (seen || reduced || !unlocked) {
             var s = document.getElementById('boot-splash');
             if (s) s.remove();
           }
