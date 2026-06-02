@@ -1,6 +1,47 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-01T09:05:00-04:00
+## Ultima actualizacion: 2026-06-02T15:20:00-04:00
+
+## Sesion 2 jun 2026 — Landing aspiracional + Auditoria multi-rol + Fase 0 seguridad + Clerk PROD (TODO DEPLOYADO Y VERIFICADO)
+
+### 1. Landing girada a mensaje aspiracional (deployado)
+- German se arrepintio del enfoque "dolor" y pidio mensaje **positivo/aspiracional**. Eleccion de hero: **"Tu mejor equipo, en cada proyecto."**
+- Cambios en `frontend/src/pages/Landing.tsx`: hero + subtitulo, seccion "Tu mejor activo ya trabajo contigo" (antes "1 millon... accidente... el problema vuelve"), feature "El historial que se queda contigo".
+- **Limpieza pan-LATAM**: eliminadas las 2 ocurrencias visibles de **"faena"** (=matadero en AR) → "proyecto"; quitado chilenismo "la pega" → "su trabajo". Quedan invisibles: `hero-faena.jpg` (nombre archivo) + localStorage key `faenascore:draft:` (no se ven).
+
+### 2. Auditoria multi-rol "clase mundial" (4 expertos en paralelo)
+- A pedido de German, auditoria con 4 lentes: **UX, Marketing, RRHH/Legal, Ciberseguridad**. Sintesis y roadmap en **`PLAN_ACCION_CLASE_MUNDIAL.md`** (raiz del repo) con 6 fases.
+- Hallazgos clave (ver doc): score = promedio plano indefendible; sin consentimiento/replica del trabajador; cita Ley derogada 19.628 (es **21.719**); disclaimer "Borrador inicial" en Privacy/Terms; landing sin prueba social ni ROI ($750K); RUT hardcodeado bloquea pan-LATAM.
+
+### 3. FASE 0 seguridad — DEPLOYADA a prod (commit `d7834ef`, master)
+- `config.py`: defaults `DEBUG=False` + `AUTH_MOCK_ENABLED=False` (fail-closed; prod en Railway YA estaba en False, era riesgo latente del codigo).
+- `projects.py`: fix **IDOR cross-tenant** en `unassign_worker` (valida `_get_project`) + scope `Worker.org_id` en `list_project_workers`.
+- `workers.py`: allowlist de columnas ordenables `_SORTABLE_COLUMNS` (anti ORM column injection) + validacion upload Excel (content-type, 5MB, 5000 filas) + mensajes de error sanitizados.
+- `admin.py`: `seed-demo` exige `ADMIN_TOKEN` >=32 chars + `secrets.compare_digest`. **ADMIN_TOKEN rotado a 48 chars en Railway** (valor en dashboard Railway; mandar en header `X-Admin-Token`).
+- `main.py`: security headers (X-Frame-Options DENY, nosniff, Referrer-Policy, HSTS solo si !DEBUG) + CORS estricto (methods/headers explicitos, +X-Admin-Token).
+- `backend/tests/test_security_hardening.py`: 9 tests de regresion sin-DB. **30/30 tests pasando.**
+- Verificado en prod: `/api/v1/me` sin token → **401** (mock OFF vivo), HSTS presente (DEBUG=False vivo), 4 headers OK, health OK.
+- **Rate limiting (S8) NO implementado en codigo**: delegado a Cloudflare (edge). Documentado en el plan.
+
+### 4. CLERK dev → PRODUCCION (S7) — COMPLETADO Y VERIFICADO EN VIVO
+- Instancia de produccion creada (clonada de dev). Dominio recontrata.cl conectado.
+- **Cloudflare: 5 CNAME en DNS only (nube gris)**: `clerk`→frontend-api.clerk.services, `accounts`→accounts.clerk.services, `clkmail`→mail.mwgqdbmmudlz.clerk.services, `clk._domainkey`→dkim1..., `clk2._domainkey`→dkim2... (los recontrata.cl/www proxied a Railway NO se tocaron).
+- **Railway (servicio `faenascore`): 4 vars `_live_`**: `VITE_CLERK_PUBLISHABLE_KEY=pk_live_Y2xlcmsu...`, `CLERK_SECRET_KEY=sk_live_...`, `CLERK_ISSUER=https://clerk.recontrata.cl`, `CLERK_JWKS_URL=https://clerk.recontrata.cl/.well-known/jwks.json`. Set con `railway variables --set ... --skip-deploys` + `railway up --detach` (rebuild necesario: VITE_ es build-arg). Bundle nuevo `index-CMqLqCxR.js`.
+- **Login = email + magic link/contraseña (camino B, SIN Google)**. Google deshabilitado (toggle "Enable for sign-up and sign-in" OFF; NO se pudo borrar la conexion por validacion Client ID/Secret, pero con el toggle off basta). App renombrada FaenaScore→Recontrata.
+- **Verificado E2E con Playwright en recontrata.cl/sign-in**: banner "development mode" DESAPARECIDO, `frontendApi=clerk.recontrata.cl`, `isProd=true`/`pk_live_`, sin boton Google, "para continuar a **Recontrata**", JWKS prod 200 RS256 (kid `ins_3EakJ6wu...`), 0 errores consola.
+- Trampa SDK: el bundle tiene 1 ref a `pk_test_` que es solo string interno del SDK para detectar tipo de llave, NO una llave hardcodeada.
+
+### PENDIENTES (retomar manana, en orden de prioridad)
+1. **Prueba de login real** (German, requiere bandeja de entrada): registrarse con correo real en recontrata.cl/sign-up y confirmar que llega el email de verificacion (ahora por dominio propio + DKIM) y entra al dashboard. Es lo unico que necesita un humano.
+2. **FASE 1 del plan (legal/confianza)** — siguiente bloque grande antes de lanzamiento publico:
+   - Quitar disclaimer "Borrador inicial" de Privacy.tsx/Terms.tsx + citar **Ley 21.719** (no 19.628).
+   - `rehire_reason` OBLIGATORIO en backend cuando `would_rehire != "yes"` (hoy solo valida el front; un `@model_validator` en `schemas/evaluation.py`).
+   - Soft-delete + audit log en evaluaciones (hoy DELETE fisico sin traza).
+   - Consentimiento del trabajador (tabla `worker_consent`); separar perfil intra-org vs cross-org.
+   - Time-lock edicion evals (72h) + versionado.
+3. **Fases 2-5 del plan** (`PLAN_ACCION_CLASE_MUNDIAL.md`): conversion landing (prueba social, ROI, SEO), UX terreno (bottom-nav, toasts, offline), pan-LATAM (RUT→id_type/id_country, pricing USD), apuestas grandes (score defensible, Portal del Trabajador, anti-sesgo, CI aislamiento tenant).
+4. **Clerk opcionales (no bloquean)**: pasar a solo-magic-link (Configure→Authentication→Email) si se quiere quitar el campo contraseña; la conexion Google quedo deshabilitada-no-borrada.
+5. **AccessGate de pre-lanzamiento sigue activo** (codigo `recontrata2211`): cuando se lance publico, ejecutar el checklist "QUITAR al lanzar" (ver seccion sesion 1 jun).
 
 ## Sesion 1 jun 2026 — Gate de acceso pre-lanzamiento (DEPLOYADO + verificado E2E)
 - **Objetivo**: recontrata.cl NO es publico todavia (estamos puliendolo). Replicar el gate de pre-lanzamiento de casilisto.cl, con codigo propio.
@@ -16,8 +57,9 @@
 - **AL LANZAR** (checklist, buscar comentario "QUITAR al lanzar"): (1) quitar `<AccessGate>` de ambas ramas de App.tsx o `VITE_ACCESS_GATE=false`; (2) quitar meta noindex de index.html; (3) revertir el check `!unlocked` del inline script de index.html; (4) borrar/abrir public/robots.txt.
 - **Recordatorio**: sigue pendiente pasar **Clerk a produccion** (banner dev), unico otro pendiente del rebrand. Ver paso a paso abajo.
 
-## PENDIENTE — Pasar Clerk de desarrollo a produccion (documentado 1 jun 2026, ejecutar DESPUES)
-- **Por que**: prod usa hoy `VITE_CLERK_PUBLISHABLE_KEY=pk_test_...` + `CLERK_ISSUER=https://willing-monitor-52...` (instancia de DESARROLLO de Clerk). Por eso sale el banner "development mode". `AUTH_MOCK_ENABLED=False` ya esta OK (login real activo).
+## [✅ HECHO 2 jun 2026 — ver seccion arriba] Pasar Clerk de desarrollo a produccion (documentado 1 jun 2026)
+> COMPLETADO: instancia prod + 5 CNAME Cloudflare + 4 vars `_live_` Railway + rebuild + Google off + rename. Verificado en vivo. Detalle en la sesion 2 jun arriba. (Historico del plan original abajo.)
+- **Por que**: prod usaba `VITE_CLERK_PUBLISHABLE_KEY=pk_test_...` + `CLERK_ISSUER=https://willing-monitor-52...` (instancia de DESARROLLO de Clerk). Por eso sale el banner "development mode". `AUTH_MOCK_ENABLED=False` ya esta OK (login real activo).
 - **Vars en Railway involucradas**: `VITE_CLERK_PUBLISHABLE_KEY` (build-arg en Dockerfile), `CLERK_SECRET_KEY`, `CLERK_ISSUER`, `CLERK_JWKS_URL`.
 - **El codigo NO cambia**: usa `<SignIn>`/`<SignUp>` prediseñados; los metodos de login se configuran en el dashboard de Clerk, no aqui. Login social NO esta forzado en codigo.
 - **Pasos de German (dashboard, requiere su cuenta)**:
