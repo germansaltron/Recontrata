@@ -43,13 +43,13 @@ export default function Landing({ isSignedIn }: LandingProps) {
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-24 text-center">
         <motion.h2 {...heroIn(0)} className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
-          Deja de recontratar
+          Tu mejor equipo,
           <br className="hidden md:block" />
-          <span className="text-blue-600"> al que ya te falló.</span>
+          <span className="text-blue-600"> en cada proyecto.</span>
         </motion.h2>
         <motion.p {...heroIn(1)} className="mt-5 md:mt-6 text-base md:text-xl text-gray-600 max-w-xl md:max-w-2xl mx-auto leading-relaxed">
-          Tu próximo proyecto es tan bueno como la gente que vuelve. Recontrata recuerda
-          quién rindió y quién no, para que repitas a tus mejores y dejes fuera al problema.
+          La gente que vuelve es lo que hace grande a tu próximo proyecto. Recontrata recuerda
+          quién rindió y te ayuda a repetir a tus mejores, proyecto tras proyecto.
           Todo desde el celular, en terreno — con datos reales, no memoria ni WhatsApp.
         </motion.p>
         <motion.div {...heroIn(2)} className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -95,13 +95,13 @@ export default function Landing({ isSignedIn }: LandingProps) {
       <section className="bg-gray-50 py-16">
         <div className="max-w-4xl mx-auto px-4 md:px-6 text-center">
           <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Más de 1 millón de trabajadores subcontratados en Chile.
+            Tu mejor activo ya trabajó contigo.
           </h3>
           <p className="mt-4 text-lg text-gray-600">
-            Un trabajador que rinde mal no solo atrasa: cuesta retrabajos, días perdidos y,
-            en terreno, hasta un accidente. Hoy la mayoría decide a quién recontratar por
-            memoria del supervisor y cadenas de WhatsApp. Resultado: el mismo problema
-            vuelve en el siguiente proyecto.
+            En cada proyecto hay gente que marca la diferencia: llega a tiempo, hace bien su trabajo
+            y cuida al equipo. Hoy ese talento se diluye en la memoria del supervisor y en
+            cadenas de WhatsApp. Recontrata lo convierte en tu ventaja: un historial de
+            desempeño real que te acompaña proyecto tras proyecto.
           </p>
         </div>
       </section>
@@ -124,8 +124,8 @@ export default function Landing({ isSignedIn }: LandingProps) {
           />
           <FeatureCard
             icon={History}
-            title="El historial que no se va con el supervisor"
-            body="Quién trabajó dónde y con qué desempeño queda registrado. Importa tu base desde Excel y empieza hoy."
+            title="El historial que se queda contigo"
+            body="Quién trabajó dónde y con qué desempeño queda registrado para siempre. Importa tu base desde Excel y empieza hoy."
           />
           <FeatureCard
             icon={ShieldCheck}

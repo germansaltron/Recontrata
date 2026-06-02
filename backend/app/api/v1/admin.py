@@ -2,6 +2,7 @@
 
 import os
 import random
+import secrets
 import uuid
 from datetime import date, timedelta
 
@@ -62,7 +63,11 @@ def _gen_rut(seed: int) -> str:
 
 def _check_admin_token(x_admin_token: str | None) -> None:
     expected = os.getenv("ADMIN_TOKEN", "")
-    if not expected or x_admin_token != expected:
+    # Falla cerrado: sin un token fuerte (>=32 chars) configurado, el endpoint
+    # destructivo queda inaccesible. Comparación de tiempo constante (anti-timing).
+    if len(expected) < 32:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    if not x_admin_token or not secrets.compare_digest(x_admin_token, expected):
         raise HTTPException(status_code=403, detail="Forbidden")
 
 

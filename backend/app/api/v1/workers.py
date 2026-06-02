@@ -30,6 +30,23 @@ from app.services.rut_validator import format_rut, validate_rut
 
 router = APIRouter(prefix="/organizations/{org_id}/workers", tags=["workers"])
 
+# Columnas permitidas para ordenar (allowlist contra ORM column injection).
+_SORTABLE_COLUMNS = {
+    "last_name": Worker.last_name,
+    "first_name": Worker.first_name,
+    "specialty": Worker.specialty,
+    "created_at": Worker.created_at,
+}
+
+# Límites de seguridad para el import de Excel.
+_MAX_IMPORT_BYTES = 5 * 1024 * 1024  # 5 MB
+_MAX_IMPORT_ROWS = 5000
+_XLSX_CONTENT_TYPES = {
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-excel",
+    "application/octet-stream",  # algunos navegadores no setean el tipo correcto
+}
+
 
 @router.get("", response_model=PaginatedResponse[WorkerResponse])
 async def list_workers(
@@ -72,7 +89,8 @@ async def list_workers(
     count_query = select(func.count()).select_from(query.subquery())
     total = (await db.execute(count_query)).scalar() or 0
 
-    sort_col = getattr(Worker, sort_by, Worker.last_name)
+    # Allowlist de columnas ordenables (evita enumerar atributos arbitrarios del modelo).
+    sort_col = _SORTABLE_COLUMNS.get(sort_by, Worker.last_name)
     query = query.order_by(sort_col.desc() if sort_order == "desc" else sort_col.asc())
 
     offset = (page - 1) * size
@@ -169,11 +187,30 @@ async def import_workers(
 ):
     import openpyxl
 
+    # Validación de tipo MIME (defensa básica; el contenido se valida al parsear).
+    if file.content_type and file.content_type not in _XLSX_CONTENT_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"detail": "El archivo debe ser un Excel (.xlsx)", "code": ErrorCode.VALIDATION_ERROR},
+        )
+
     content = await file.read()
-    wb = openpyxl.load_workbook(io.BytesIO(content), read_only=True)
+    if len(content) > _MAX_IMPORT_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"detail": "El archivo supera el tamaño máximo de 5 MB", "code": ErrorCode.VALIDATION_ERROR},
+        )
+
+    try:
+        wb = openpyxl.load_workbook(io.BytesIO(content), read_only=True)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"detail": "No se pudo leer el archivo Excel", "code": ErrorCode.VALIDATION_ERROR},
+        )
     ws = wb.active
 
-    rows = list(ws.iter_rows(min_row=2, values_only=True))
+    rows = list(ws.iter_rows(min_row=2, max_row=_MAX_IMPORT_ROWS + 1, values_only=True))
     created, updated, errors = 0, 0, []
 
     for i, row in enumerate(rows, start=2):
@@ -217,8 +254,8 @@ async def import_workers(
                 )
                 db.add(worker)
                 created += 1
-        except Exception as e:
-            errors.append(f"Fila {i}: {str(e)}")
+        except Exception:
+            errors.append(f"Fila {i}: error al procesar la fila")
 
     await db.commit()
     wb.close()

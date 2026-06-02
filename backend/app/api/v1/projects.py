@@ -164,6 +164,8 @@ async def unassign_worker(
     db: AsyncSession = Depends(get_db),
     _member: OrgMember = Depends(get_org_member),
 ):
+    # Verifica que el proyecto pertenezca a la org (evita IDOR cross-tenant).
+    await _get_project(org_id, project_id, db)
     result = await db.execute(
         select(ProjectWorker).where(ProjectWorker.project_id == project_id, ProjectWorker.worker_id == worker_id)
     )
@@ -188,7 +190,7 @@ async def list_project_workers(
             Evaluation,
             (Evaluation.project_id == project_id) & (Evaluation.worker_id == Worker.id),
         )
-        .where(ProjectWorker.project_id == project_id)
+        .where(ProjectWorker.project_id == project_id, Worker.org_id == org_id)
         .order_by(Worker.last_name)
     )
     rows = result.all()

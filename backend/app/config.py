@@ -8,13 +8,15 @@ class Settings(BaseSettings):
 
     # App
     APP_NAME: str = "Recontrata"
-    DEBUG: bool = True
+    # Secure-by-default: prod debe dejar DEBUG y AUTH_MOCK_ENABLED en False.
+    # Si la env var falta en Railway, falla cerrado (sin logs SQL, sin mock auth).
+    DEBUG: bool = False
 
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://faenascore:faenascore_dev@localhost:5432/faenascore"
 
     # Auth
-    AUTH_MOCK_ENABLED: bool = True
+    AUTH_MOCK_ENABLED: bool = False
     ALLOW_MOCK_IN_PROD: bool = False
     CLERK_SECRET_KEY: str = ""
     CLERK_JWKS_URL: str = ""
