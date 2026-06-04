@@ -8,13 +8,16 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.dependencies import get_org_member
+from app.dependencies import get_current_user, get_org_member
 from app.errors import ErrorCode
 from app.models.evaluation import Evaluation
 from app.models.organization import OrgMember
 from app.models.project import Project
+from app.models.user import User
 from app.models.worker import Worker
+from app.models.worker_consent import WorkerConsent
 from app.schemas.pagination import PaginatedResponse
+from app.schemas.worker_consent import WorkerConsentResponse, WorkerConsentUpsert
 from app.schemas.worker import (
     EvaluationSummary,
     RehireStats,
@@ -48,6 +51,25 @@ _XLSX_CONTENT_TYPES = {
 }
 
 
+async def _build_consent_response(worker_id: uuid.UUID, db: AsyncSession) -> WorkerConsentResponse:
+    """Devuelve el consentimiento del trabajador, o un estado 'pending' por defecto."""
+    result = await db.execute(select(WorkerConsent).where(WorkerConsent.worker_id == worker_id))
+    consent = result.scalar_one_or_none()
+    if not consent:
+        return WorkerConsentResponse(worker_id=worker_id, status="pending")
+
+    recorded_by_name = None
+    if consent.recorded_by:
+        u = await db.execute(select(User.full_name).where(User.id == consent.recorded_by))
+        recorded_by_name = u.scalar_one_or_none()
+
+    return WorkerConsentResponse(
+        worker_id=worker_id, status=consent.status, method=consent.method,
+        consent_date=consent.consent_date, notes=consent.notes,
+        recorded_by_name=recorded_by_name, updated_at=consent.updated_at,
+    )
+
+
 @router.get("", response_model=PaginatedResponse[WorkerResponse])
 async def list_workers(
     org_id: uuid.UUID,
@@ -67,7 +89,7 @@ async def list_workers(
 
     query = (
         select(Worker, eval_count, avg_score)
-        .outerjoin(Evaluation, Evaluation.worker_id == Worker.id)
+        .outerjoin(Evaluation, (Evaluation.worker_id == Worker.id) & (Evaluation.deleted_at.is_(None)))
         .where(Worker.org_id == org_id)
         .group_by(Worker.id)
     )
@@ -150,7 +172,7 @@ async def export_workers_csv(
             func.count(Evaluation.id).label("eval_count"),
             func.avg(Evaluation.score_average).label("avg_score"),
         )
-        .outerjoin(Evaluation, Evaluation.worker_id == Worker.id)
+        .outerjoin(Evaluation, (Evaluation.worker_id == Worker.id) & (Evaluation.deleted_at.is_(None)))
         .where(Worker.org_id == org_id)
         .group_by(Worker.id)
         .order_by(Worker.last_name.asc(), Worker.first_name.asc())
@@ -278,7 +300,7 @@ async def get_worker_detail(
     eval_result = await db.execute(
         select(Evaluation, Project.name, Project.end_date)
         .join(Project, Evaluation.project_id == Project.id)
-        .where(Evaluation.worker_id == worker_id)
+        .where(Evaluation.worker_id == worker_id, Evaluation.deleted_at.is_(None))
         .order_by(Evaluation.created_at.desc())
     )
     eval_rows = eval_result.all()
@@ -330,6 +352,8 @@ async def get_worker_detail(
     # Reverse trend to chronological order
     score_trend.reverse()
 
+    consent = await _build_consent_response(worker_id, db)
+
     return WorkerDetailResponse(
         id=worker.id, rut=worker.rut, first_name=worker.first_name, last_name=worker.last_name,
         specialty=worker.specialty, phone=worker.phone, email=worker.email, is_active=worker.is_active,
@@ -337,7 +361,7 @@ async def get_worker_detail(
         evaluation_count=n, avg_score=avg_score, created_at=worker.created_at,
         avg_scores=avg_scores, score_trend=score_trend,
         rehire_stats=RehireStats(yes=rehire_yes, reservations=rehire_res, no=rehire_no),
-        evaluations=evaluations,
+        evaluations=evaluations, consent=consent,
     )
 
 
@@ -379,3 +403,46 @@ async def delete_worker(
         raise HTTPException(status_code=404, detail={"detail": "Worker not found", "code": ErrorCode.WORKER_NOT_FOUND})
     worker.is_active = False
     await db.commit()
+
+
+@router.get("/{worker_id}/consent", response_model=WorkerConsentResponse)
+async def get_worker_consent(
+    org_id: uuid.UUID,
+    worker_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _member: OrgMember = Depends(get_org_member),
+):
+    result = await db.execute(select(Worker.id).where(Worker.id == worker_id, Worker.org_id == org_id))
+    if not result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail={"detail": "Worker not found", "code": ErrorCode.WORKER_NOT_FOUND})
+    return await _build_consent_response(worker_id, db)
+
+
+@router.put("/{worker_id}/consent", response_model=WorkerConsentResponse)
+async def upsert_worker_consent(
+    org_id: uuid.UUID,
+    worker_id: uuid.UUID,
+    body: WorkerConsentUpsert,
+    db: AsyncSession = Depends(get_db),
+    _member: OrgMember = Depends(get_org_member),
+    user: User = Depends(get_current_user),
+):
+    """Registra o actualiza el consentimiento intra-organización del trabajador (Ley 21.719)."""
+    wresult = await db.execute(select(Worker.id).where(Worker.id == worker_id, Worker.org_id == org_id))
+    if not wresult.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail={"detail": "Worker not found", "code": ErrorCode.WORKER_NOT_FOUND})
+
+    result = await db.execute(select(WorkerConsent).where(WorkerConsent.worker_id == worker_id))
+    consent = result.scalar_one_or_none()
+    if consent is None:
+        consent = WorkerConsent(worker_id=worker_id, org_id=org_id)
+        db.add(consent)
+
+    consent.status = body.status
+    consent.method = body.method
+    consent.consent_date = body.consent_date
+    consent.notes = body.notes
+    consent.recorded_by = user.id
+
+    await db.commit()
+    return await _build_consent_response(worker_id, db)

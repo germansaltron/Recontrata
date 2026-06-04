@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Phone, Mail, Pencil, ClipboardCheck } from 'lucide-react'
-import { api, type WorkerDetail as WorkerDetailType } from '../lib/api'
+import { ArrowLeft, Phone, Mail, Pencil, ClipboardCheck, ShieldCheck } from 'lucide-react'
+import { api, type WorkerDetail as WorkerDetailType, type WorkerConsent, type ConsentStatus, type ConsentMethod } from '../lib/api'
 import { useOrg } from '../lib/org'
 import StarRating from '../components/ui/StarRating'
 import ScoreBadge from '../components/ui/ScoreBadge'
@@ -50,6 +50,126 @@ function ScoreSparkline({ points }: { points: TrendPoint[] }) {
         </g>
       ))}
     </svg>
+  )
+}
+
+const CONSENT_STATUS: Record<ConsentStatus, { label: string; cls: string }> = {
+  pending: { label: 'Pendiente', cls: 'bg-gray-100 text-gray-700' },
+  informed: { label: 'Informado', cls: 'bg-blue-100 text-blue-700' },
+  granted: { label: 'Otorgado', cls: 'bg-green-100 text-green-700' },
+  revoked: { label: 'Revocado', cls: 'bg-red-100 text-red-700' },
+}
+
+const CONSENT_METHOD: Record<ConsentMethod, string> = {
+  verbal: 'Verbal',
+  written: 'Escrito',
+  email: 'Correo',
+  contract: 'Contrato',
+  platform: 'Plataforma',
+}
+
+function ConsentCard({ orgId, workerId, consent, onSaved }: { orgId: string; workerId: string; consent: WorkerConsent | null; onSaved: () => void }) {
+  const current = consent ?? { worker_id: workerId, status: 'pending' as ConsentStatus, method: null, consent_date: null, notes: null, recorded_by_name: null, updated_at: null }
+  const [editing, setEditing] = useState(false)
+  const [status, setStatus] = useState<ConsentStatus>(current.status)
+  const [method, setMethod] = useState<ConsentMethod | ''>(current.method ?? '')
+  const [notes, setNotes] = useState(current.notes ?? '')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const startEdit = () => {
+    setStatus(current.status); setMethod(current.method ?? ''); setNotes(current.notes ?? '')
+    setError(null); setEditing(true)
+  }
+
+  const save = async () => {
+    setSaving(true); setError(null)
+    try {
+      const consentDate = (status === 'granted' || status === 'informed') ? new Date().toISOString() : null
+      await api.setWorkerConsent(orgId, workerId, {
+        status,
+        method: method || null,
+        consent_date: consentDate,
+        notes: notes.trim() || null,
+      })
+      setEditing(false)
+      onSaved()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al guardar')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const badge = CONSENT_STATUS[current.status]
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-gray-500" /> Consentimiento del trabajador
+        </h2>
+        {!editing && (
+          <button onClick={startEdit} className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+            {consent ? 'Editar' : 'Registrar'}
+          </button>
+        )}
+      </div>
+
+      {!editing ? (
+        <div className="space-y-1 text-sm">
+          <div className="flex items-center gap-2">
+            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${badge.cls}`}>{badge.label}</span>
+            {current.method && <span className="text-gray-500">· {CONSENT_METHOD[current.method]}</span>}
+          </div>
+          {current.notes && <p className="text-gray-600">{current.notes}</p>}
+          {current.recorded_by_name && (
+            <p className="text-xs text-gray-400">
+              Registrado por {current.recorded_by_name}
+              {current.updated_at && ` · ${new Date(current.updated_at).toLocaleDateString('es-CL')}`}
+            </p>
+          )}
+          {current.status === 'pending' && (
+            <p className="text-xs text-gray-400">
+              Registra el consentimiento del trabajador para evaluar su desempeño (Ley N° 21.719).
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Estado</label>
+            <select value={status} onChange={(e) => setStatus(e.target.value as ConsentStatus)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              {(Object.keys(CONSENT_STATUS) as ConsentStatus[]).map((s) => (
+                <option key={s} value={s}>{CONSENT_STATUS[s].label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Vía (opcional)</label>
+            <select value={method} onChange={(e) => setMethod(e.target.value as ConsentMethod | '')} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="">—</option>
+              {(Object.keys(CONSENT_METHOD) as ConsentMethod[]).map((m) => (
+                <option key={m} value={m}>{CONSENT_METHOD[m]}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Notas (opcional)</label>
+            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <div className="flex gap-2">
+            <button onClick={save} disabled={saving} className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg px-4 py-2">
+              {saving ? 'Guardando…' : 'Guardar'}
+            </button>
+            <button onClick={() => setEditing(false)} disabled={saving} className="text-gray-600 hover:bg-gray-100 text-sm rounded-lg px-4 py-2">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -110,6 +230,11 @@ export default function WorkerDetail() {
           </a>
         )}
       </div>
+
+      {/* Consent */}
+      {ORG_ID && id && (
+        <ConsentCard orgId={ORG_ID} workerId={id} consent={worker.consent} onSaved={load} />
+      )}
 
       {/* Scores breakdown */}
       {avg_scores && (

@@ -57,7 +57,7 @@ async def get_dashboard_stats(
             func.count(Evaluation.id),
             func.avg(Evaluation.score_average),
             func.count(case((Evaluation.would_rehire == "yes", 1))),
-        ).where(Evaluation.org_id == org_id)
+        ).where(Evaluation.org_id == org_id, Evaluation.deleted_at.is_(None))
     )).one()
     eval_count = eval_row[0] or 0
     avg_score = round(eval_row[1], 2) if eval_row[1] else None
@@ -93,7 +93,7 @@ async def get_top_workers(
             func.count(Evaluation.id).label("eval_count"),
             func.count(case((Evaluation.would_rehire == "yes", 1))).label("rehire_yes"),
         )
-        .join(Evaluation, Evaluation.worker_id == Worker.id)
+        .join(Evaluation, (Evaluation.worker_id == Worker.id) & (Evaluation.deleted_at.is_(None)))
         .where(Worker.org_id == org_id, Worker.is_active == True)  # noqa: E712
         .group_by(Worker.id, Worker.first_name, Worker.last_name, Worker.specialty)
         .having(func.count(Evaluation.id) >= 1)
@@ -121,7 +121,7 @@ async def get_next_pending_evaluation(
 
     evaluated_subq = (
         select(Evaluation.project_id, Evaluation.worker_id)
-        .where(Evaluation.org_id == org_id)
+        .where(Evaluation.org_id == org_id, Evaluation.deleted_at.is_(None))
         .subquery()
     )
 
@@ -189,7 +189,7 @@ async def get_projects_pending(
     unevaluated worker. Powers the Evaluate page in 2 queries total (no N+1)."""
     evaluated_subq = (
         select(Evaluation.project_id, Evaluation.worker_id)
-        .where(Evaluation.org_id == org_id)
+        .where(Evaluation.org_id == org_id, Evaluation.deleted_at.is_(None))
         .subquery()
     )
 
@@ -257,7 +257,7 @@ async def get_recent_evaluations(
         select(Evaluation, Worker.id, Worker.first_name, Worker.last_name, Project.name)
         .join(Worker, Evaluation.worker_id == Worker.id)
         .join(Project, Evaluation.project_id == Project.id)
-        .where(Evaluation.org_id == org_id)
+        .where(Evaluation.org_id == org_id, Evaluation.deleted_at.is_(None))
         .order_by(Evaluation.created_at.desc())
         .limit(10)
     )

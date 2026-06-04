@@ -14,21 +14,21 @@ export default function Privacy() {
       </header>
       <article className="max-w-3xl mx-auto px-4 md:px-6 py-10 md:py-16 prose prose-sm md:prose-base">
         <h1 className="text-3xl font-bold text-gray-900">Política de Privacidad</h1>
-        <p className="text-sm text-gray-500">Última actualización: 17 de abril de 2026</p>
+        <p className="text-sm text-gray-500">Última actualización: 4 de junio de 2026</p>
 
         <p className="mt-6">
           Esta Política describe cómo Recontrata ("nosotros") trata los datos personales
           que los usuarios del Servicio ("Usuario") ingresan o generan al usar la plataforma.
-          Respetamos la Ley N° 19.628 sobre Protección de la Vida Privada y, para usuarios de
-          la Unión Europea, el Reglamento General de Protección de Datos (RGPD) en lo que sea
-          aplicable.
+          Respetamos la Ley N° 21.719, que regula la protección y el tratamiento de los datos
+          personales y moderniza la Ley N° 19.628, y, para usuarios de la Unión Europea, el
+          Reglamento General de Protección de Datos (RGPD) en lo que sea aplicable.
         </p>
 
         <h2 className="text-xl font-semibold mt-8">1. Responsable del tratamiento</h2>
         <p>
           El Usuario (empresa contratista) es el responsable del tratamiento de los datos de
           trabajadores que carga en la plataforma. Recontrata actúa como encargado de dichos
-          datos en los términos del artículo 8 de la Ley N° 19.628.
+          datos, en los términos que establece la Ley N° 21.719.
         </p>
         <p>
           Respecto de los datos del propio Usuario (nombre, correo electrónico, datos de
@@ -93,8 +93,8 @@ export default function Privacy() {
         <h2 className="text-xl font-semibold mt-8">8. Derechos de los titulares</h2>
         <p>
           Los titulares de datos personales pueden ejercer los derechos de acceso,
-          rectificación, cancelación y oposición (derechos ARCO) previstos en la Ley N°
-          19.628, enviando un correo a{' '}
+          rectificación, supresión (cancelación), oposición y portabilidad reconocidos en la
+          Ley N° 21.719, enviando un correo a{' '}
           <a href="mailto:contacto@recontrata.cl" className="text-blue-600 hover:underline">
             contacto@recontrata.cl
           </a>
@@ -134,11 +134,6 @@ export default function Privacy() {
             contacto@recontrata.cl
           </a>{' '}
           para ejercer derechos o resolver dudas sobre esta Política.
-        </p>
-
-        <p className="mt-10 text-xs text-gray-400">
-          Borrador inicial. Este documento es referencial y no reemplaza asesoría legal
-          específica para su empresa.
         </p>
       </article>
     </div>

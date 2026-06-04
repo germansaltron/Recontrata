@@ -1,22 +1,39 @@
 import uuid
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user, get_org_member
 from app.errors import ErrorCode
 from app.models.evaluation import Evaluation
+from app.models.evaluation_audit import EvaluationAuditLog
 from app.models.organization import OrgMember
 from app.models.project import Project
 from app.models.user import User
 from app.models.worker import Worker
-from app.schemas.evaluation import EvaluationBatchCreate, EvaluationCreate, EvaluationResponse, EvaluationUpdate
+from app.schemas.evaluation import (
+    EvaluationAuditEntry,
+    EvaluationBatchCreate,
+    EvaluationCreate,
+    EvaluationResponse,
+    EvaluationUpdate,
+    validate_rehire_reason,
+)
 from app.schemas.pagination import PaginatedResponse
+from app.services.evaluation_audit import record_evaluation_audit
 from app.services.score_calculator import compute_average
 
 router = APIRouter(prefix="/organizations/{org_id}/evaluations", tags=["evaluations"])
+
+# Campos editables que, al cambiar, cuentan como una nueva versión.
+_EDITABLE_FIELDS = (
+    "score_quality", "score_safety", "score_punctuality", "score_teamwork",
+    "score_technical", "would_rehire", "rehire_reason", "comment",
+)
 
 
 async def _build_response(ev: Evaluation, db: AsyncSession) -> EvaluationResponse:
@@ -43,10 +60,14 @@ async def _build_response(ev: Evaluation, db: AsyncSession) -> EvaluationRespons
     )
 
 
-async def _create_single(org_id: uuid.UUID, body: EvaluationCreate, evaluator_id: uuid.UUID, db: AsyncSession) -> Evaluation:
-    # Check duplicate
+async def _create_single(org_id: uuid.UUID, body: EvaluationCreate, evaluator: User, db: AsyncSession) -> Evaluation:
+    # Check duplicate (ignora evaluaciones borradas: se puede re-evaluar tras un soft-delete)
     existing = await db.execute(
-        select(Evaluation).where(Evaluation.project_id == body.project_id, Evaluation.worker_id == body.worker_id)
+        select(Evaluation).where(
+            Evaluation.project_id == body.project_id,
+            Evaluation.worker_id == body.worker_id,
+            Evaluation.deleted_at.is_(None),
+        )
     )
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=409, detail={"detail": "Ya existe una evaluacion para este trabajador en este proyecto", "code": ErrorCode.EVALUATION_DUPLICATE})
@@ -57,7 +78,7 @@ async def _create_single(org_id: uuid.UUID, body: EvaluationCreate, evaluator_id
         org_id=org_id,
         project_id=body.project_id,
         worker_id=body.worker_id,
-        evaluator_id=evaluator_id,
+        evaluator_id=evaluator.id,
         score_quality=body.score_quality,
         score_safety=body.score_safety,
         score_punctuality=body.score_punctuality,
@@ -69,6 +90,8 @@ async def _create_single(org_id: uuid.UUID, body: EvaluationCreate, evaluator_id
         comment=body.comment,
     )
     db.add(ev)
+    await db.flush()  # asigna ev.id antes de registrar la auditoría
+    record_evaluation_audit(db, ev, "create", evaluator)
     return ev
 
 
@@ -80,7 +103,7 @@ async def create_evaluation(
     _member: OrgMember = Depends(get_org_member),
     user: User = Depends(get_current_user),
 ):
-    ev = await _create_single(org_id, body, user.id, db)
+    ev = await _create_single(org_id, body, user, db)
     await db.commit()
     await db.refresh(ev)
     return await _build_response(ev, db)
@@ -98,8 +121,7 @@ async def create_evaluations_batch(
     errors = []
     for i, ev_data in enumerate(body.evaluations):
         try:
-            ev = await _create_single(org_id, ev_data, user.id, db)
-            await db.flush()
+            ev = await _create_single(org_id, ev_data, user, db)
             results.append(str(ev.id))
         except HTTPException as e:
             errors.append({"index": i, "worker_id": str(ev_data.worker_id), "error": e.detail})
@@ -120,8 +142,8 @@ async def list_evaluations(
 ):
     from sqlalchemy import func
 
-    query = select(Evaluation).where(Evaluation.org_id == org_id)
-    count_query = select(func.count(Evaluation.id)).where(Evaluation.org_id == org_id)
+    query = select(Evaluation).where(Evaluation.org_id == org_id, Evaluation.deleted_at.is_(None))
+    count_query = select(func.count(Evaluation.id)).where(Evaluation.org_id == org_id, Evaluation.deleted_at.is_(None))
 
     if project_id:
         query = query.where(Evaluation.project_id == project_id)
@@ -146,17 +168,45 @@ async def update_evaluation(
     body: EvaluationUpdate,
     db: AsyncSession = Depends(get_db),
     _member: OrgMember = Depends(get_org_member),
+    user: User = Depends(get_current_user),
 ):
-    result = await db.execute(select(Evaluation).where(Evaluation.id == eval_id, Evaluation.org_id == org_id))
+    result = await db.execute(
+        select(Evaluation).where(
+            Evaluation.id == eval_id, Evaluation.org_id == org_id, Evaluation.deleted_at.is_(None)
+        )
+    )
     ev = result.scalar_one_or_none()
     if not ev:
         raise HTTPException(status_code=404, detail={"detail": "Evaluation not found", "code": ErrorCode.EVALUATION_NOT_FOUND})
 
-    for field, value in body.model_dump(exclude_unset=True).items():
+    # Time-lock (L5): pasada la ventana de edición, la evaluación queda bloqueada.
+    window = timedelta(hours=settings.EVALUATION_EDIT_WINDOW_HOURS)
+    created_at = ev.created_at
+    if created_at.tzinfo is None:
+        created_at = created_at.replace(tzinfo=timezone.utc)
+    if datetime.now(timezone.utc) - created_at > window:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "detail": f"Esta evaluación ya no puede editarse (la edición se permite hasta {settings.EVALUATION_EDIT_WINDOW_HOURS} horas después de crearla).",
+                "code": ErrorCode.EVALUATION_EDIT_WINDOW_EXPIRED,
+            },
+        )
+
+    changes = body.model_dump(exclude_unset=True)
+    changed_fields = [f for f in changes if f in _EDITABLE_FIELDS and getattr(ev, f) != changes[f]]
+
+    for field, value in changes.items():
         setattr(ev, field, value)
+
+    # Regla rehire_reason sobre el estado FINAL (puede depender de campos no enviados).
+    validate_rehire_reason(ev.would_rehire, ev.rehire_reason)
 
     # Recompute average
     ev.score_average = compute_average(ev.score_quality, ev.score_safety, ev.score_punctuality, ev.score_teamwork, ev.score_technical)
+
+    if changed_fields:
+        record_evaluation_audit(db, ev, "update", user, changed_fields=changed_fields)
 
     await db.commit()
     await db.refresh(ev)
@@ -169,10 +219,34 @@ async def delete_evaluation(
     eval_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
     _member: OrgMember = Depends(get_org_member),
+    user: User = Depends(get_current_user),
 ):
-    result = await db.execute(select(Evaluation).where(Evaluation.id == eval_id, Evaluation.org_id == org_id))
+    result = await db.execute(
+        select(Evaluation).where(
+            Evaluation.id == eval_id, Evaluation.org_id == org_id, Evaluation.deleted_at.is_(None)
+        )
+    )
     ev = result.scalar_one_or_none()
     if not ev:
         raise HTTPException(status_code=404, detail={"detail": "Evaluation not found", "code": ErrorCode.EVALUATION_NOT_FOUND})
-    await db.delete(ev)
+
+    # Soft-delete (L3): conserva la fila y deja rastro en el audit log.
+    record_evaluation_audit(db, ev, "delete", user)
+    ev.deleted_at = datetime.now(timezone.utc)
     await db.commit()
+
+
+@router.get("/{eval_id}/history", response_model=list[EvaluationAuditEntry])
+async def get_evaluation_history(
+    org_id: uuid.UUID,
+    eval_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _member: OrgMember = Depends(get_org_member),
+):
+    """Historial de versiones/acciones de una evaluación (incluye borradas)."""
+    result = await db.execute(
+        select(EvaluationAuditLog)
+        .where(EvaluationAuditLog.evaluation_id == eval_id, EvaluationAuditLog.org_id == org_id)
+        .order_by(EvaluationAuditLog.created_at.asc())
+    )
+    return list(result.scalars().all())

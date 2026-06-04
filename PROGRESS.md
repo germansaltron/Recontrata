@@ -1,6 +1,45 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-02T15:20:00-04:00
+## Ultima actualizacion: 2026-06-04T15:40:00-04:00
+
+## Sesion 4 jun 2026 — FASE 1 del plan (confianza y riesgo legal) — COMPLETA, verificada E2E contra PG real
+
+Implementados los 5 items L1-L5 del `PLAN_ACCION_CLASE_MUNDIAL.md`. Verificado: 40/40 tests backend, build frontend OK, migracion aplicada+revertida+reaplicada contra Postgres real (docker), y smoke test E2E HTTP de todos los flujos. **Pendiente: deploy a Railway + verificacion en prod.**
+
+### L1 — Paginas legales (frontend)
+- `frontend/src/pages/Privacy.tsx` + `Terms.tsx`: citada **Ley N° 21.719** (no la 19.628 derogada; se menciona solo como "moderniza la Ley 19.628"). Derechos ampliados a acceso/rectificacion/supresion/oposicion/portabilidad. Eliminado el disclaimer "Borrador inicial / referencial / no reemplaza asesoria legal" de ambas. Fecha actualizada a 4 jun 2026.
+
+### L2 — rehire_reason obligatorio en backend
+- `schemas/evaluation.py`: `validate_rehire_reason()` + `@model_validator`. Si `would_rehire != "yes"`, el motivo es obligatorio (>=3 chars, normalizado/trim). Se valida al CREAR (schema) y al EDITAR (endpoint, sobre estado final). Verificado: crear "no" sin motivo -> 422.
+
+### L3 — Soft-delete + audit log
+- `models/evaluation.py`: nueva col `deleted_at`. **La unicidad (project_id, worker_id) paso de UNIQUE CONSTRAINT a INDICE UNICO PARCIAL** `uq_evaluation_project_worker_active ... WHERE deleted_at IS NULL` (clave: permite re-evaluar tras soft-delete; el bug del constraint full salio en el smoke test y se corrigio).
+- `models/evaluation_audit.py` (NUEVO): tabla `evaluation_audit_log` (action create/update/delete, actor_id+actor_name, snapshot JSONB, changed_fields JSONB). FK a evaluations ondelete SET NULL (el rastro sobrevive).
+- `services/evaluation_audit.py` (NUEVO): `evaluation_snapshot()` + `record_evaluation_audit()`.
+- DELETE de evaluacion ahora es soft (set `deleted_at`) + traza. **Filtro `deleted_at IS NULL` propagado a TODAS las agregaciones**: evaluations (list/get/dup-check/update/delete), workers (list/export/detail), dashboard (stats/top/next-eval/projects-pending/recent), projects (ec_subq, get, list_project_workers). En outerjoins el filtro va en el ON (no en WHERE) para no perder trabajadores sin evals.
+
+### L4 — Consentimiento del trabajador
+- `models/worker_consent.py` (NUEVO): tabla `worker_consent` (status pending/informed/granted/revoked, method, consent_date, notes, recorded_by). Unique por worker_id. **Alcance: INTRA-org** (cada org tiene su perfil aislado por org_id). La portabilidad cross-org (Portal del Trabajador, Fase 5) requerira consentimiento separado — documentado en el docstring.
+- `schemas/worker_consent.py` (NUEVO). Endpoints `GET/PUT /organizations/{org}/workers/{id}/consent` en `workers.py`. `consent` agregado a `WorkerDetailResponse`.
+- Frontend: `WorkerDetail.tsx` nueva tarjeta `ConsentCard` (badge de estado + editar status/via/notas). Tipos+funciones en `api.ts`.
+
+### L5 — Time-lock 72h + versionado
+- `config.py`: `EVALUATION_EDIT_WINDOW_HOURS=72`. `update_evaluation` rechaza con **409 `EVALUATION_EDIT_WINDOW_EXPIRED`** si la eval tiene mas de 72h. Verificado forzando created_at a -100h.
+- Versionado: cada update (con cambios reales) escribe un snapshot en `evaluation_audit_log`. Nuevo endpoint `GET /organizations/{org}/evaluations/{id}/history` devuelve el historial (incluye borradas). Smoke: history mostro [create, update, delete].
+
+### Migracion
+- `alembic/versions/f1a2b3c4d5e6_phase1_legal_trust.py`: add col deleted_at + swap constraint->indice parcial + crea evaluation_audit_log + worker_consent. Downgrade completo. **Verificada upgrade/downgrade/re-upgrade contra PG real.** El deploy de Railway la corre solo (`alembic upgrade head &&` en el CMD del Dockerfile).
+
+### Nota frontend
+- Las evaluaciones NO son editables/borrables desde la UI todavia (endpoints PATCH/DELETE existen pero no cableados), asi que el time-lock 409 no se dispara aun desde el front; el backend ya lo protege. UI de historial de versiones: endpoint listo, pendiente de cablear cuando se agregue edicion en la UI.
+
+### PENDIENTE inmediato
+1. **Deploy a Railway** (`railway service faenascore` -> `railway up --detach`) + verificar: migracion aplicada (pollear `/workers/{id}/consent` o `/evaluations/{id}/history` -> 401/403 = ruta nueva viva, no 404), health OK, bundle nuevo sirviendo la tarjeta de consentimiento.
+2. Seguir con **Fase 2** (conversion landing) del plan.
+
+---
+
+## Ultima actualizacion previa: 2026-06-02T15:20:00-04:00
 
 ## Sesion 2 jun 2026 — Landing aspiracional + Auditoria multi-rol + Fase 0 seguridad + Clerk PROD (TODO DEPLOYADO Y VERIFICADO)
 

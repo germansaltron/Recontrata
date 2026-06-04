@@ -60,7 +60,7 @@ async def list_projects(
     )
     ec_subq = (
         select(func.count(Evaluation.id))
-        .where(Evaluation.project_id == Project.id)
+        .where(Evaluation.project_id == Project.id, Evaluation.deleted_at.is_(None))
         .correlate(Project)
         .scalar_subquery()
     )
@@ -105,7 +105,7 @@ async def get_project(
 ):
     project = await _get_project(org_id, project_id, db)
     wc = (await db.execute(select(func.count(ProjectWorker.id)).where(ProjectWorker.project_id == project.id))).scalar() or 0
-    ec = (await db.execute(select(func.count(Evaluation.id)).where(Evaluation.project_id == project.id))).scalar() or 0
+    ec = (await db.execute(select(func.count(Evaluation.id)).where(Evaluation.project_id == project.id, Evaluation.deleted_at.is_(None)))).scalar() or 0
     resp = ProjectResponse.model_validate(project)
     resp.worker_count = wc
     resp.evaluation_count = ec
@@ -188,7 +188,7 @@ async def list_project_workers(
         .join(ProjectWorker, ProjectWorker.worker_id == Worker.id)
         .outerjoin(
             Evaluation,
-            (Evaluation.project_id == project_id) & (Evaluation.worker_id == Worker.id),
+            (Evaluation.project_id == project_id) & (Evaluation.worker_id == Worker.id) & (Evaluation.deleted_at.is_(None)),
         )
         .where(ProjectWorker.project_id == project_id, Worker.org_id == org_id)
         .order_by(Worker.last_name)

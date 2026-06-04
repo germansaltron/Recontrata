@@ -3,6 +3,7 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, Field, field_validator
 
+from app.schemas.worker_consent import WorkerConsentResponse
 from app.services.rut_validator import validate_rut, format_rut
 
 
@@ -88,6 +89,7 @@ class WorkerDetailResponse(WorkerResponse):
     score_trend: list[ScoreTrendPoint] = []
     rehire_stats: RehireStats = RehireStats(yes=0, reservations=0, no=0)
     evaluations: list[EvaluationSummary] = []
+    consent: WorkerConsentResponse | None = None
 
 
 class WorkerImportResult(BaseModel):

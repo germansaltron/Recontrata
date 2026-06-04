@@ -14,7 +14,7 @@ export default function Terms() {
       </header>
       <article className="max-w-3xl mx-auto px-4 md:px-6 py-10 md:py-16 prose prose-sm md:prose-base">
         <h1 className="text-3xl font-bold text-gray-900">Términos de Servicio</h1>
-        <p className="text-sm text-gray-500">Última actualización: 17 de abril de 2026</p>
+        <p className="text-sm text-gray-500">Última actualización: 4 de junio de 2026</p>
 
         <p className="mt-6">
           Estos Términos de Servicio ("Términos") regulan el uso de la plataforma Recontrata
@@ -41,7 +41,7 @@ export default function Terms() {
         <ul className="list-disc pl-5 space-y-1">
           <li>Usar el Servicio para fines ilícitos o que vulneren derechos de terceros.</li>
           <li>Realizar ingeniería inversa, descompilar o intentar vulnerar la seguridad de la plataforma.</li>
-          <li>Cargar datos de terceros sin contar con base de licitud conforme a la Ley N° 19.628.</li>
+          <li>Cargar datos de terceros sin contar con base de licitud conforme a la Ley N° 21.719.</li>
           <li>Usar el Servicio para discriminar a trabajadores por razones no objetivas o en infracción al Código del Trabajo.</li>
         </ul>
 
@@ -49,7 +49,7 @@ export default function Terms() {
         <p>
           El Usuario es el responsable del tratamiento de los datos personales que ingrese en
           el Servicio (nombres, RUT, teléfono, email de trabajadores, evaluaciones). Nosotros
-          actuamos como encargado del tratamiento conforme al artículo 8 de la Ley N° 19.628.
+          actuamos como encargado del tratamiento conforme a la Ley N° 21.719.
           El Usuario declara contar con la base legal para tratar dichos datos y se obliga a
           informar a los titulares en los términos que exija la ley vigente.
         </p>
@@ -107,11 +107,6 @@ export default function Terms() {
             contacto@recontrata.cl
           </a>
           .
-        </p>
-
-        <p className="mt-10 text-xs text-gray-400">
-          Borrador inicial. Este documento es referencial y no reemplaza asesoría legal
-          específica para su empresa.
         </p>
       </article>
     </div>

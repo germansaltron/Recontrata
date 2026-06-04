@@ -12,3 +12,5 @@ from app.models.project import Project  # noqa: E402, F401
 from app.models.worker import Worker  # noqa: E402, F401
 from app.models.project_worker import ProjectWorker  # noqa: E402, F401
 from app.models.evaluation import Evaluation  # noqa: E402, F401
+from app.models.evaluation_audit import EvaluationAuditLog  # noqa: E402, F401
+from app.models.worker_consent import WorkerConsent  # noqa: E402, F401

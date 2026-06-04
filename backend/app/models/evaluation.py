@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, Index, SmallInteger, String, Text, UniqueConstraint, func
+from sqlalchemy import DateTime, Float, ForeignKey, Index, SmallInteger, String, Text, func, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -11,7 +11,11 @@ from app.models import Base
 class Evaluation(Base):
     __tablename__ = "evaluations"
     __table_args__ = (
-        UniqueConstraint("project_id", "worker_id", name="uq_evaluation_project_worker"),
+        # Unicidad solo entre evaluaciones ACTIVAS: permite re-evaluar tras un soft-delete.
+        Index(
+            "uq_evaluation_project_worker_active", "project_id", "worker_id",
+            unique=True, postgresql_where=text("deleted_at IS NULL"),
+        ),
         Index("ix_evaluations_worker_id", "worker_id"),
         Index("ix_evaluations_org_id", "org_id"),
         Index("ix_evaluations_project_id", "project_id"),
@@ -37,6 +41,9 @@ class Evaluation(Base):
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    # Soft-delete: una evaluacion borrada no se cuenta ni se muestra, pero queda su rastro
+    # (traza en evaluation_audit_log) por exigencia de trazabilidad/derecho a replica.
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     project: Mapped["Project"] = relationship("Project", back_populates="evaluations")
     worker: Mapped["Worker"] = relationship("Worker", back_populates="evaluations")

@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://faenascore:faenascore_dev@localhost:5432/faenascore"
 
+    # Evaluaciones
+    # Ventana (horas) durante la cual una evaluación puede editarse tras crearse.
+    # Pasado este plazo queda bloqueada para preservar la integridad del historial.
+    EVALUATION_EDIT_WINDOW_HOURS: int = 72
+
     # Auth
     AUTH_MOCK_ENABLED: bool = False
     ALLOW_MOCK_IN_PROD: bool = False

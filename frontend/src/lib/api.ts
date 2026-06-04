@@ -118,6 +118,20 @@ export interface WorkerDetail extends Worker {
   score_trend: { project_name: string; date: string | null; score_average: number }[]
   rehire_stats: { yes: number; reservations: number; no: number }
   evaluations: EvaluationSummary[]
+  consent: WorkerConsent | null
+}
+
+export type ConsentStatus = 'pending' | 'informed' | 'granted' | 'revoked'
+export type ConsentMethod = 'verbal' | 'written' | 'email' | 'contract' | 'platform'
+
+export interface WorkerConsent {
+  worker_id: string
+  status: ConsentStatus
+  method: ConsentMethod | null
+  consent_date: string | null
+  notes: string | null
+  recorded_by_name: string | null
+  updated_at: string | null
 }
 
 export interface EvaluationSummary {
@@ -236,6 +250,10 @@ export const api = {
   getWorker: (orgId: string, workerId: string) => apiFetch<WorkerDetail>(`/organizations/${orgId}/workers/${workerId}`),
   updateWorker: (orgId: string, workerId: string, data: Record<string, unknown>) =>
     apiFetch<Worker>(`/organizations/${orgId}/workers/${workerId}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  getWorkerConsent: (orgId: string, workerId: string) =>
+    apiFetch<WorkerConsent>(`/organizations/${orgId}/workers/${workerId}/consent`),
+  setWorkerConsent: (orgId: string, workerId: string, data: { status: ConsentStatus; method?: ConsentMethod | null; consent_date?: string | null; notes?: string | null }) =>
+    apiFetch<WorkerConsent>(`/organizations/${orgId}/workers/${workerId}/consent`, { method: 'PUT', body: JSON.stringify(data) }),
   importWorkers: async (orgId: string, file: File) => {
     const formData = new FormData()
     formData.append('file', file)
