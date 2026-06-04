@@ -2,9 +2,12 @@
 
 ## Ultima actualizacion: 2026-06-04T15:40:00-04:00
 
-## Sesion 4 jun 2026 — FASE 1 del plan (confianza y riesgo legal) — COMPLETA, verificada E2E contra PG real
+## Sesion 4 jun 2026 — FASE 1 del plan (confianza y riesgo legal) — COMPLETA Y DEPLOYADA A PROD ✅
 
-Implementados los 5 items L1-L5 del `PLAN_ACCION_CLASE_MUNDIAL.md`. Verificado: 40/40 tests backend, build frontend OK, migracion aplicada+revertida+reaplicada contra Postgres real (docker), y smoke test E2E HTTP de todos los flujos. **Pendiente: deploy a Railway + verificacion en prod.**
+Implementados los 5 items L1-L5 del `PLAN_ACCION_CLASE_MUNDIAL.md`. Verificado: 40/40 tests backend, build frontend OK, migracion aplicada+revertida+reaplicada contra Postgres real (docker), smoke test E2E HTTP de todos los flujos, **y DEPLOYADO + verificado en prod**.
+- **master `9a1a9ea`** (pusheado). Deploy Railway servicio `faenascore` (deployment `d190d44a`).
+- **Migracion `f1a2b3c4d5e6` corrio contra Supabase prod**: logs muestran `Running upgrade d4b28c6514bc -> f1a2b3c4d5e6` + `Uvicorn running`. Rutas nuevas `/workers/{id}/consent` y `/evaluations/{id}/history` pasaron de 404 (antes) a **401** (despues) = codigo+migracion vivos. Health OK, frontend root 200.
+- **Probe de deploy usado** (reusable): pollear una ruta NUEVA de API hasta que pase de 404→401 (Railway mantiene el contenedor viejo sirviendo 404 hasta que el nuevo arranca; si la migracion falla el contenedor no arranca y se queda en 404).
 
 ### L1 — Paginas legales (frontend)
 - `frontend/src/pages/Privacy.tsx` + `Terms.tsx`: citada **Ley N° 21.719** (no la 19.628 derogada; se menciona solo como "moderniza la Ley 19.628"). Derechos ampliados a acceso/rectificacion/supresion/oposicion/portabilidad. Eliminado el disclaimer "Borrador inicial / referencial / no reemplaza asesoria legal" de ambas. Fecha actualizada a 4 jun 2026.
@@ -33,9 +36,25 @@ Implementados los 5 items L1-L5 del `PLAN_ACCION_CLASE_MUNDIAL.md`. Verificado: 
 ### Nota frontend
 - Las evaluaciones NO son editables/borrables desde la UI todavia (endpoints PATCH/DELETE existen pero no cableados), asi que el time-lock 409 no se dispara aun desde el front; el backend ya lo protege. UI de historial de versiones: endpoint listo, pendiente de cablear cuando se agregue edicion en la UI.
 
-### PENDIENTE inmediato
-1. **Deploy a Railway** (`railway service faenascore` -> `railway up --detach`) + verificar: migracion aplicada (pollear `/workers/{id}/consent` o `/evaluations/{id}/history` -> 401/403 = ruta nueva viva, no 404), health OK, bundle nuevo sirviendo la tarjeta de consentimiento.
-2. Seguir con **Fase 2** (conversion landing) del plan.
+### ARRANCAR MAÑANA AQUI — Fase 2 (conversion landing), quick wins <1 dia
+Fase 0 (seguridad) y Fase 1 (legal) ya estan EN PROD. Sigue **Fase 2** del `PLAN_ACCION_CLASE_MUNDIAL.md`:
+- **M1**: `<title>` + meta description + OG (keyword + propuesta de valor) en `frontend/index.html`.
+- **M2**: seccion de prueba social (caso 0 Faymex / stat-bar INE + "$750K por mala recontratacion").
+- **M3**: inyectar el ROI concreto ($750K) en el hero y bajo el precio Profesional.
+- **M4**: angulo "la alternativa legal a las listas negras" (diferenciador pan-LATAM).
+- **M5**: nav links (Funciones/Precios) + 2do CTA + CTA de cierre con urgencia.
+- **M6**: plan Empresa con CTA self-serve (trial) en vez de `mailto:`.
+Todo es `frontend/src/pages/Landing.tsx` + `index.html`. Verificar con `npm run build` y deploy `railway up --detach` (servicio `faenascore`).
+
+### Pendientes menores arrastrados de Fase 1 (no bloquean)
+- Cablear en la UI la **edicion/borrado de evaluaciones** (endpoints PATCH/DELETE existen; al hacerlo, manejar el 409 `EVALUATION_EDIT_WINDOW_EXPIRED` con un toast claro) + mostrar el **historial de versiones** (`GET .../evaluations/{id}/history`, endpoint ya vivo).
+- AccessGate de pre-lanzamiento sigue activo (codigo `recontrata2211`); checklist "QUITAR al lanzar" cuando se abra al publico.
+- Prueba de login real con correo (lo unico que necesita un humano; arrastrado de la sesion 2 jun).
+
+### Como verificar Fase 1 manualmente (si se quiere)
+- Ir a la ficha de un trabajador en prod -> tarjeta "Consentimiento del trabajador" (badge + boton Registrar/Editar).
+- Al evaluar con "No"/"Con reservas" sin motivo, el backend ahora lo rechaza (el front ya lo pedia).
+- Setup local para tocar schema: `docker compose up -d` (PG en :5433), `DATABASE_URL=postgresql+asyncpg://faenascore:faenascore_dev@localhost:5433/faenascore`, `alembic upgrade head`, server en :8009 con `AUTH_MOCK_ENABLED=true ALLOW_MOCK_IN_PROD=true`.
 
 ---
 
