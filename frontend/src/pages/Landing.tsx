@@ -112,7 +112,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
       <section className="border-y border-gray-200 bg-gray-50 py-12 md:py-14">
         <div className="max-w-6xl mx-auto px-4 md:px-6">
           <p className="text-center text-xs md:text-sm font-semibold uppercase tracking-wide text-blue-600">
-            Nacido en faena — creado por Faymex, contratista industrial
+            El problema, en cifras reales
           </p>
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
             <Stat value="1.071.128" label="trabajadores subcontratados en Chile" source="INE, 2024" />
