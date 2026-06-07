@@ -137,8 +137,14 @@ export interface WorkerConsent {
 export interface EvaluationSummary {
   id: string
   project_name: string
+  score_quality: number
+  score_safety: number
+  score_punctuality: number
+  score_teamwork: number
+  score_technical: number
   score_average: number
   would_rehire: string
+  rehire_reason: string | null
   comment: string | null
   evaluator_name: string | null
   created_at: string

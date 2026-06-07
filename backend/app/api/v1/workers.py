@@ -318,8 +318,12 @@ async def get_worker_detail(
             evaluator_name = u.scalar_one_or_none()
 
         evaluations.append(EvaluationSummary(
-            id=ev.id, project_name=proj_name, score_average=ev.score_average,
-            would_rehire=ev.would_rehire, comment=ev.comment, evaluator_name=evaluator_name,
+            id=ev.id, project_name=proj_name,
+            score_quality=ev.score_quality, score_safety=ev.score_safety,
+            score_punctuality=ev.score_punctuality, score_teamwork=ev.score_teamwork,
+            score_technical=ev.score_technical, score_average=ev.score_average,
+            would_rehire=ev.would_rehire, rehire_reason=ev.rehire_reason,
+            comment=ev.comment, evaluator_name=evaluator_name,
             created_at=ev.created_at,
         ))
         score_trend.append(ScoreTrendPoint(project_name=proj_name, date=proj_end, score_average=ev.score_average))

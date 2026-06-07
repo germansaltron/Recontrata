@@ -6,6 +6,7 @@ import { api } from '../lib/api'
 import { useOrg } from '../lib/org'
 import { SCORE_DIMENSIONS, REHIRE_OPTIONS } from '../lib/constants'
 import { formatRelative } from '../lib/dates'
+import { toast } from '../lib/toast'
 
 const draftKey = (projectId: string, workerId: string) => `faenascore:draft:${projectId}:${workerId}`
 
@@ -131,6 +132,25 @@ export default function EvaluateWorker() {
         comment: comment || undefined,
       })
       localStorage.removeItem(draftKey(projectId, workerId))
+
+      // Buscar el siguiente trabajador pendiente del mismo proyecto para encadenar la evaluación.
+      let nextPendingId: string | null = null
+      try {
+        const pending = await api.getProjectsPending(ORG_ID!)
+        const proj = pending.find((p) => p.id === projectId)
+        if (proj && proj.first_pending_worker_id && proj.first_pending_worker_id !== workerId) {
+          nextPendingId = proj.first_pending_worker_id
+        }
+      } catch { /* best-effort: si falla, igual confirmamos el guardado */ }
+
+      if (nextPendingId) {
+        toast.success('Evaluación guardada', 'Queda gente pendiente en este proyecto.', {
+          label: 'Evaluar siguiente',
+          onClick: () => navigate(`/app/evaluate/${projectId}/${nextPendingId}`),
+        })
+      } else {
+        toast.success('Evaluación guardada', 'Proyecto al día: no quedan pendientes.')
+      }
       navigate(`/app/projects/${projectId}`)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al guardar')

@@ -75,8 +75,14 @@ class RehireStats(BaseModel):
 class EvaluationSummary(BaseModel):
     id: uuid.UUID
     project_name: str
+    score_quality: int
+    score_safety: int
+    score_punctuality: int
+    score_teamwork: int
+    score_technical: int
     score_average: float
     would_rehire: str
+    rehire_reason: str | None
     comment: str | None
     evaluator_name: str | None
     created_at: datetime

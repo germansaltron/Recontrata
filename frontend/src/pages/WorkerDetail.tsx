@@ -1,13 +1,49 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Phone, Mail, Pencil, ClipboardCheck, ShieldCheck } from 'lucide-react'
-import { api, type WorkerDetail as WorkerDetailType, type WorkerConsent, type ConsentStatus, type ConsentMethod } from '../lib/api'
+import { ArrowLeft, Phone, Mail, Pencil, ClipboardCheck, ShieldCheck, Download } from 'lucide-react'
+import { api, type WorkerDetail as WorkerDetailType, type WorkerConsent, type ConsentStatus, type ConsentMethod, type EvaluationSummary } from '../lib/api'
 import { useOrg } from '../lib/org'
+import { REHIRE_OPTIONS } from '../lib/constants'
 import StarRating from '../components/ui/StarRating'
 import ScoreBadge from '../components/ui/ScoreBadge'
 import Modal from '../components/ui/Modal'
 import NewWorkerForm from '../components/forms/NewWorkerForm'
 import { toast } from '../lib/toast'
+
+// Dimensiones por evaluación, con etiqueta corta para la grilla del historial.
+const EVAL_DIMS: { key: keyof EvaluationSummary; short: string; full: string }[] = [
+  { key: 'score_quality', short: 'Cal', full: 'Calidad' },
+  { key: 'score_safety', short: 'Seg', full: 'Seguridad' },
+  { key: 'score_punctuality', short: 'Pun', full: 'Puntualidad' },
+  { key: 'score_teamwork', short: 'Eq', full: 'Equipo' },
+  { key: 'score_technical', short: 'Téc', full: 'Técnica' },
+]
+
+const REHIRE_LABEL: Record<string, string> = { yes: 'Sí', reservations: 'Con reservas', no: 'No' }
+
+function csvCell(v: unknown): string {
+  const s = v == null ? '' : String(v)
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+}
+
+function exportEvaluationsCsv(worker: WorkerDetailType) {
+  const headers = ['Proyecto', 'Calidad', 'Seguridad', 'Puntualidad', 'Equipo', 'Tecnica', 'Promedio', 'Recontratacion', 'Motivo', 'Comentario', 'Evaluador', 'Fecha']
+  const rows = worker.evaluations.map((ev) => [
+    ev.project_name, ev.score_quality, ev.score_safety, ev.score_punctuality, ev.score_teamwork,
+    ev.score_technical, ev.score_average, REHIRE_LABEL[ev.would_rehire] ?? ev.would_rehire,
+    ev.rehire_reason ?? '', ev.comment ?? '', ev.evaluator_name ?? '',
+    new Date(ev.created_at).toLocaleDateString('es-CL'),
+  ])
+  const csv = [headers, ...rows].map((r) => r.map(csvCell).join(',')).join('\n')
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `evaluaciones_${worker.last_name}_${worker.first_name}.csv`.toLowerCase().replace(/\s+/g, '_')
+  a.click()
+  URL.revokeObjectURL(url)
+  toast.success('Historial exportado')
+}
 
 type TrendPoint = { project_name: string; date: string | null; score_average: number }
 
@@ -311,7 +347,18 @@ export default function WorkerDetail() {
 
       {/* Evaluation history */}
       <div className="bg-white rounded-xl border border-gray-200 p-4">
-        <h2 className="font-semibold text-gray-900 mb-3">Historial de Evaluaciones</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold text-gray-900">Historial de Evaluaciones</h2>
+          {evaluations.length > 0 && (
+            <button
+              onClick={() => exportEvaluationsCsv(worker)}
+              className="flex items-center gap-1.5 text-sm text-gray-600 border border-gray-300 rounded-lg px-2.5 py-1.5 hover:bg-gray-50"
+              title="Exportar historial a CSV"
+            >
+              <Download className="w-4 h-4" /> <span className="hidden sm:inline">CSV</span>
+            </button>
+          )}
+        </div>
         {evaluations.length === 0 ? (
           <div className="text-sm text-gray-500">
             <p>Sin evaluaciones todavía</p>
@@ -321,16 +368,35 @@ export default function WorkerDetail() {
           </div>
         ) : (
           <div className="space-y-3">
-            {evaluations.map((ev) => (
-              <div key={ev.id} className="border border-gray-100 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-900">{ev.project_name}</span>
-                  <ScoreBadge score={ev.score_average} size="sm" />
+            {evaluations.map((ev) => {
+              const rehire = REHIRE_OPTIONS.find((o) => o.value === ev.would_rehire)
+              return (
+                <div key={ev.id} className="border border-gray-100 rounded-lg p-3">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-sm font-medium text-gray-900 truncate">{ev.project_name}</span>
+                    <ScoreBadge score={ev.score_average} size="sm" />
+                  </div>
+                  {/* 5 dimensiones (no solo el promedio) */}
+                  <div className="grid grid-cols-5 gap-1.5 text-center">
+                    {EVAL_DIMS.map((d) => (
+                      <div key={d.key} className="bg-gray-50 rounded-md py-1.5">
+                        <div className="text-[10px] uppercase tracking-wide text-gray-400">{d.short}</div>
+                        <div className="text-sm font-semibold text-gray-800 tabular-nums">{ev[d.key]}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {rehire && (
+                    <p className="mt-2 text-xs">
+                      <span className="text-gray-500">Recontratación: </span>
+                      <span className={`px-1.5 py-0.5 rounded-full font-medium ${rehire.color}`}>{rehire.label}</span>
+                      {ev.rehire_reason && <span className="text-gray-500"> — {ev.rehire_reason}</span>}
+                    </p>
+                  )}
+                  {ev.comment && <p className="text-xs text-gray-600 mt-1.5">{ev.comment}</p>}
+                  <p className="text-xs text-gray-400 mt-1">{ev.evaluator_name || 'Sin evaluador'} · {new Date(ev.created_at).toLocaleDateString('es-CL')}</p>
                 </div>
-                {ev.comment && <p className="text-xs text-gray-600 mt-1">{ev.comment}</p>}
-                <p className="text-xs text-gray-400 mt-1">{ev.evaluator_name || 'Sin evaluador'} · {new Date(ev.created_at).toLocaleDateString('es-CL')}</p>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
