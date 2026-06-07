@@ -13,6 +13,11 @@ const navItems = [
   { to: '/app/evaluate', icon: ClipboardCheck, label: 'Evaluar' },
 ]
 
+// UserButton solo funciona dentro de <ClerkProvider>. En modo mock (sin Clerk)
+// no debe montarse, o crashea toda la app.
+const clerkEnabled = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) &&
+  import.meta.env.VITE_AUTH_MOCK_ENABLED !== 'true'
+
 export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { orgId, loading, error, retry } = useOrg()
@@ -67,11 +72,15 @@ export default function AppShell() {
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1" />
-          <UserButton
-            afterSignOutUrl="/"
-            showName
-            appearance={{ elements: { userButtonBox: 'flex-row-reverse gap-2', userButtonOuterIdentifier: 'text-sm text-gray-700' } }}
-          />
+          {clerkEnabled ? (
+            <UserButton
+              afterSignOutUrl="/"
+              showName
+              appearance={{ elements: { userButtonBox: 'flex-row-reverse gap-2', userButtonOuterIdentifier: 'text-sm text-gray-700' } }}
+            />
+          ) : (
+            <span className="text-sm text-gray-400">Modo demo</span>
+          )}
         </header>
         {/* pb-20 en móvil deja espacio para la bottom-nav */}
         <main className="flex-1 overflow-auto p-4 md:p-6 pb-20 md:pb-6">
