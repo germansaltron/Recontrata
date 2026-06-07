@@ -1,6 +1,42 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-04T15:40:00-04:00
+## Ultima actualizacion: 2026-06-07T11:32:00-04:00
+
+## Sesion 7 jun 2026 — FASE 2 del plan (conversion de landing M1-M6) — COMPLETA Y DEPLOYADA A PROD ✅
+
+Implementados los 6 items M1-M6 del `PLAN_ACCION_CLASE_MUNDIAL.md` (Fase 2). Solo frontend (`Landing.tsx` + `index.html`). Build OK, verificado local (Playwright desktop+mobile 375px) y **DEPLOYADO + verificado en prod** (recontrata.cl).
+- **master `db32480`** (pusheado). Deploy Railway servicio `faenascore` (build `03911dae`).
+- **Probe de deploy**: pollear el `<title>` nuevo en el HTML servido por prod (cambio M1 en index.html, va en el dist). Pasó al intento 12 (~4 min). Luego E2E Playwright cruzando el gate confirmó las 5 secciones nuevas vivas (legal/stat/roi/cierre/nav = todos true).
+
+### Cifras usadas (todas reales y citables, de `JUSTIFICACION_FAENASCORE.md`)
+- 1.071.128 trabajadores subcontratados en Chile (INE 2024) · 50% rotacion construccion (INE) · ~$750.000 reemplazar un operario (≈50% sueldo anual) · 2.854+ nombres en listas negras ilegales (Federacion Minera / DT). ROI Profesional: evitar 5 malas recontrataciones/año ahorra ~$3,75M vs ~$600K/año del plan = ROI 6x.
+
+### M1 — SEO (`index.html`)
+- `<title>` keyword-rich ("Evaluación de desempeño para contratistas | A quién recontratar"), meta description con keyword+propuesta, meta keywords, OG/Twitter description alineadas a la voz del hero.
+
+### M2 — Prueba social / stat-bar (`Landing.tsx`)
+- Seccion nueva tras el hero: banda "Nacido en faena — creado por Faymex, contratista industrial" + 4 stats (componente `Stat` con value/label/source) con las cifras de arriba. Sin testimonios falsos (pre-lanzamiento, caso 0 = Faymex).
+
+### M3 — ROI concreto ($750K)
+- Hero: linea "Reemplazar a un mal operario cuesta ~$750.000". PricingCard extendido con prop `roi` (caja destacada bajo la descripcion): Profesional muestra "ROI de 6x", Empresa muestra "14 dias de prueba, sin tarjeta".
+
+### M4 — Alternativa legal a las listas negras
+- Banda oscura (gray-900) nueva antes de Pricing: titular "La alternativa legal a las listas negras." + parrafo (DT, criterios objetivos, consentimiento, derecho a replica) + 3 chips con ShieldCheck. Diferenciador pan-LATAM, convierte el riesgo legal en feature.
+
+### M5 — Nav + 2do CTA + cierre con urgencia
+- Header: `<nav>` con links Funciones/Precios (md:inline) + "Iniciar sesion" (sm:inline, solo si !signedIn) + CTA primario. CTA de cierre reescrito a urgencia ("Tu proxima cuadrilla se arma esta semana") + sub-linea de garantias (listo en minutos / import Excel / 14 dias prueba).
+
+### M6 — Empresa self-serve
+- Plan Empresa: CTA pasó de `mailto:` a trial self-serve (primaryCta → /sign-in o /app). El mailto de Enterprise (>500) sigue en el footnote.
+
+### Notas / pendientes que NO toca Fase 2
+- El heading de Pricing sigue "Precios en pesos chilenos" y los precios solo CLP → es **Fase 4 (pan-LATAM, P2)**, intencional dejarlo.
+- `dashboard-preview.png` es `loading="lazy"`; en screenshots rapidos sale en blanco pero carga bien (verificado, archivo existe).
+
+### ARRANCAR AQUI — proximo: Fase 3 (UX de terreno) o prueba de login real
+Fases 0+1+2 EN PROD. Sigue **Fase 3** (UX terreno: bottom-nav, toasts Sonner, targets tactiles 68px, dead-end org, cards moviles, post-eval "siguiente pendiente", 5 dimensiones en historial). Pendiente humano arrastrado: **prueba de login real con correo** en recontrata.cl/sign-up. AccessGate sigue activo (`recontrata2211`); checklist "QUITAR al lanzar" al abrir publico.
+
+---
 
 ## Sesion 4 jun 2026 — FASE 1 del plan (confianza y riesgo legal) — COMPLETA Y DEPLOYADA A PROD ✅
 
