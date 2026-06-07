@@ -15,7 +15,8 @@ Implementados los 6 items M1-M6 del `PLAN_ACCION_CLASE_MUNDIAL.md` (Fase 2). Sol
 - `<title>` keyword-rich ("Evaluación de desempeño para contratistas | A quién recontratar"), meta description con keyword+propuesta, meta keywords, OG/Twitter description alineadas a la voz del hero.
 
 ### M2 — Prueba social / stat-bar (`Landing.tsx`)
-- Seccion nueva tras el hero: banda "Nacido en faena — creado por Faymex, contratista industrial" + 4 stats (componente `Stat` con value/label/source) con las cifras de arriba. Sin testimonios falsos (pre-lanzamiento, caso 0 = Faymex).
+- Seccion nueva tras el hero: banda "El problema, en cifras reales" + 4 stats (componente `Stat` con value/label/source) con las cifras de arriba. Sin testimonios falsos (pre-lanzamiento).
+- **CORRECCION (7 jun, commit `e266dde`)**: la banda decia "creado por Faymex" — **ERROR**. **Recontrata NO tiene relacion con Faymex; es proyecto PERSONAL de German Saltron Mellado.** Quitada toda atribucion a Faymex de la landing (grep `[Ff]aymex` en frontend = 0). Las cifras del stat-bar siguen siendo validas (vienen de fuentes publicas INE/DT, no de Faymex). NO atribuir Recontrata a Faymex en copy, docs ni memoria.
 
 ### M3 — ROI concreto ($750K)
 - Hero: linea "Reemplazar a un mal operario cuesta ~$750.000". PricingCard extendido con prop `roi` (caja destacada bajo la descripcion): Profesional muestra "ROI de 6x", Empresa muestra "14 dias de prueba, sin tarjeta".
