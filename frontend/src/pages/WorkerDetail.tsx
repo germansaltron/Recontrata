@@ -7,6 +7,7 @@ import StarRating from '../components/ui/StarRating'
 import ScoreBadge from '../components/ui/ScoreBadge'
 import Modal from '../components/ui/Modal'
 import NewWorkerForm from '../components/forms/NewWorkerForm'
+import { toast } from '../lib/toast'
 
 type TrendPoint = { project_name: string; date: string | null; score_average: number }
 
@@ -93,6 +94,7 @@ function ConsentCard({ orgId, workerId, consent, onSaved }: { orgId: string; wor
         notes: notes.trim() || null,
       })
       setEditing(false)
+      toast.success('Consentimiento actualizado')
       onSaved()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al guardar')
@@ -187,7 +189,14 @@ export default function WorkerDetail() {
 
   useEffect(() => { load() }, [load])
 
-  if (loading) return <div className="animate-pulse text-gray-400">Cargando...</div>
+  if (loading) return (
+    <div className="space-y-6" aria-busy="true" aria-label="Cargando trabajador">
+      <div className="h-7 w-56 bg-gray-200 rounded animate-pulse" />
+      <div className="h-24 bg-gray-100 rounded-xl border border-gray-200 animate-pulse" />
+      <div className="h-40 bg-gray-100 rounded-xl border border-gray-200 animate-pulse" />
+      <div className="h-40 bg-gray-100 rounded-xl border border-gray-200 animate-pulse" />
+    </div>
+  )
   if (!worker) return <div className="text-gray-500">Trabajador no encontrado</div>
 
   const { avg_scores, score_trend, rehire_stats, evaluations } = worker

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { ClerkProvider } from '@clerk/clerk-react'
 import { esES } from '@clerk/localizations'
+import { Toaster } from 'sonner'
 import './index.css'
 import App from './App'
 
@@ -30,5 +31,6 @@ function Root() {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Root />
+    <Toaster position="top-center" richColors closeButton toastOptions={{ duration: 4000 }} />
   </StrictMode>,
 )

@@ -10,6 +10,7 @@ import Modal from '../components/ui/Modal'
 import { RowSkeleton } from '../components/ui/Skeleton'
 import NewWorkerForm from '../components/forms/NewWorkerForm'
 import ImportWorkersForm from '../components/forms/ImportWorkersForm'
+import { toast } from '../lib/toast'
 
 const PAGE_SIZE = 20
 
@@ -74,8 +75,9 @@ export default function Workers() {
                 a.download = 'trabajadores.csv'
                 a.click()
                 URL.revokeObjectURL(url)
+                toast.success('Exportación lista', 'Se descargó trabajadores.csv')
               } catch (e) {
-                alert(e instanceof Error ? e.message : 'Error al exportar')
+                toast.fromError(e, 'Error al exportar')
               }
             }}
             className="flex items-center gap-2 border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-50"
@@ -225,7 +227,7 @@ export default function Workers() {
       {ORG_ID && (
         <>
           <Modal open={showNew} onClose={() => setShowNew(false)} title="Nuevo Trabajador">
-            <NewWorkerForm orgId={ORG_ID} onCreated={() => { setShowNew(false); load() }} onCancel={() => setShowNew(false)} />
+            <NewWorkerForm orgId={ORG_ID} onCreated={() => { setShowNew(false); toast.success('Trabajador agregado'); load() }} onCancel={() => setShowNew(false)} />
           </Modal>
           <Modal open={showImport} onClose={() => setShowImport(false)} title="Importar Trabajadores">
             <ImportWorkersForm orgId={ORG_ID} onDone={() => { setShowImport(false); load() }} onCancel={() => setShowImport(false)} />
