@@ -1,6 +1,36 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-07T11:32:00-04:00
+## Ultima actualizacion: 2026-06-07T12:50:00-04:00
+
+## Sesion 7 jun 2026 (parte 2) — FASE 3 del plan (UX de terreno U1-U9) — COMPLETA Y VERIFICADA ✅
+
+Implementados los 9 items U1-U9 del `PLAN_ACCION_CLASE_MUNDIAL.md` (UX de terreno). Build frontend OK + **40/40 tests backend** + **verificacion visual E2E real** (Playwright, modo mock + fetch interceptado con datos). Commits en master, pusheados.
+- **OJO Recontrata != Faymex** (proyecto personal de German Saltron Mellado).
+
+### Items (todos verificados con screenshot o DOM)
+- **U1 — bottom-nav movil**: `AppShell.tsx`, nav fija inferior (Dashboard/Proyectos/Trabajadores/Evaluar) en `md:hidden`, `pb-20` en main para no tapar contenido. Verificado.
+- **U2 — toasts (Sonner)**: instalado `sonner`, `<Toaster>` montado en `main.tsx` (top-center, richColors), wrapper `lib/toast.ts` (success/error/info/fromError + action). Reemplazado el unico `alert()` (export Workers). Toasts en export, alta de trabajador, consentimiento, guardado de eval. Verificado (DOM).
+- **U3 — targets tactiles**: `StarRating.tsx` interactivo a min 68px (lg) para guantes. Verificado (screenshot).
+- **U4 — dead-end de org**: `org.tsx` ahora expone `error` + `retry`; `AppShell` muestra tarjeta de error con boton **Reintentar** en vez de pantalla en blanco cuando `getProfile` falla. Verificado (screenshot, con backend caido).
+- **U5 — cards moviles de trabajadores**: `Workers.tsx`, cards en `md:hidden` + tabla en `hidden md:block`. Verificado (screenshot).
+- **U6 — post-eval "evaluar siguiente"**: `EvaluateWorker.handleSubmit` busca el siguiente pendiente del proyecto (getProjectsPending) y muestra toast de exito con accion **"Evaluar siguiente"** si lo hay. Verificado (DOM: toast + boton de accion presentes).
+- **U7 — 5 dimensiones en historial + CSV**: backend `EvaluationSummary` ahora incluye las 5 dims + `rehire_reason` (schema + endpoint worker-detail). Frontend: grilla CAL/SEG/PUN/EQ/TEC por eval + estado de recontratacion + motivo + boton export CSV (client-side). Verificado (screenshot). **Prerequisito natural de la Fase 5 (score ponderado).**
+- **U8 — anclas de comportamiento (BARS)**: `constants.ts` nuevo `SCORE_DIMENSIONS` con hint + ancla por nivel 1-5 por dimension. El form muestra el hint bajo cada dimension y el descriptor del nivel seleccionado ("3/5 · Maneja su especialidad con autonomia"). Mas objetivo/defendible. Verificado (screenshot).
+- **U9 — skeletons/a11y**: skeleton de carga en `WorkerDetail`; aria-labels en botones de menu de `AppShell`. (Modal y StarRating ya tenian a11y basica.)
+
+### Fix colateral (necesario para poder verificar en local)
+- **`AppShell` crasheaba en modo mock**: renderizaba `<UserButton>` de Clerk sin `ClerkProvider`. Guard `clerkEnabled` → en mock muestra "Modo demo". Bug PREEXISTENTE (no de Fase 3). Commit aparte.
+
+### Como se verifico (Docker inutilizable en este entorno)
+Docker estaba colgado (no levantaba PG). Se verifico con **dev server en modo mock** (`VITE_AUTH_MOCK_ENABLED=true npm run dev`, puerto 5180) + **interceptacion de `window.fetch` en el navegador** con datos mock (workers, worker-detail con 5 dims, proyecto, pending) y disparando "Reintentar". Asi se renderizaron los componentes reales con datos controlados, sin backend. **Truco reusable** para futuras verificaciones de pantallas autenticadas sin DB (prod usa Clerk real, no se puede E2E con login).
+
+### Pendiente de Fase 3 que NO se cableo (menor)
+- Edicion/borrado de evals en la UI (endpoints PATCH/DELETE existen desde Fase 1; al cablear, manejar 409 `EVALUATION_EDIT_WINDOW_EXPIRED` con toast + mostrar historial de versiones).
+
+### ARRANCAR AQUI — proximo
+Fases 0+1+2+3 listas (0/1/2 en prod; 3 commiteada, deploy en curso). Opciones: **Fase 4 (pan-LATAM)** o **Fase 5 / "Fase 5-lite" (score ponderado: Seguridad pesa mas que Puntualidad)** — U7 ya dejo las 5 dims visibles, prerequisito cumplido. Pendiente humano: **prueba de login real con correo** en recontrata.cl/sign-up.
+
+---
 
 ## Sesion 7 jun 2026 — FASE 2 del plan (conversion de landing M1-M6) — COMPLETA Y DEPLOYADA A PROD ✅
 
