@@ -4,7 +4,7 @@ import { Save, ArrowLeft, Check } from 'lucide-react'
 import StarRating from '../components/ui/StarRating'
 import { api } from '../lib/api'
 import { useOrg } from '../lib/org'
-import { SCORE_LABELS, REHIRE_OPTIONS } from '../lib/constants'
+import { SCORE_DIMENSIONS, REHIRE_OPTIONS } from '../lib/constants'
 import { formatRelative } from '../lib/dates'
 
 const draftKey = (projectId: string, workerId: string) => `faenascore:draft:${projectId}:${workerId}`
@@ -180,13 +180,27 @@ export default function EvaluateWorker() {
       </div>
 
       {/* Score dimensions */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-5">
-        {SCORE_LABELS.map((label, i) => (
-          <div key={label} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <span className="text-sm font-medium text-gray-700">{label}</span>
-            <StarRating value={scores[i]} onChange={(v) => { const n = [...scores]; n[i] = v; setScores(n) }} size="lg" />
-          </div>
-        ))}
+      <div className="bg-white rounded-xl border border-gray-200 p-4 divide-y divide-gray-100">
+        {SCORE_DIMENSIONS.map((dim, i) => {
+          const current = scores[i] as 0 | 1 | 2 | 3 | 4 | 5
+          return (
+            <div key={dim.label} className="py-4 first:pt-0 last:pb-0">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <span className="text-sm font-medium text-gray-700">{dim.label}</span>
+                  <p className="text-xs text-gray-400 mt-0.5">{dim.hint}</p>
+                </div>
+                <StarRating value={current} onChange={(v) => { const n = [...scores]; n[i] = v; setScores(n) }} size="lg" />
+              </div>
+              {/* Ancla del nivel seleccionado: evaluación más objetiva (BARS) */}
+              {current > 0 && (
+                <p className="mt-1.5 text-xs text-gray-600 bg-gray-50 rounded-md px-2.5 py-1.5">
+                  <span className="font-semibold text-gray-700">{current}/5 ·</span> {dim.anchors[current as 1 | 2 | 3 | 4 | 5]}
+                </p>
+              )}
+            </div>
+          )
+        })}
       </div>
 
       {/* Rehire */}

@@ -153,7 +153,28 @@ export default function Workers() {
         </div>
       ) : (
         <>
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          {/* Móvil: cards (más cómodo en terreno que una tabla con scroll horizontal) */}
+          <div className="grid gap-3 md:hidden">
+            {workers.map((w) => (
+              <Link
+                key={w.id}
+                to={`/app/workers/${w.id}`}
+                className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between gap-3 active:bg-gray-50"
+              >
+                <div className="min-w-0">
+                  <p className="font-medium text-gray-900 truncate">{w.first_name} {w.last_name}</p>
+                  <p className="text-sm text-gray-500 truncate">{w.specialty}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {w.rut} · {w.evaluation_count} evaluación{w.evaluation_count === 1 ? '' : 'es'}
+                  </p>
+                </div>
+                <ScoreBadge score={w.avg_score} size="sm" />
+              </Link>
+            ))}
+          </div>
+
+          {/* Desktop: tabla */}
+          <div className="hidden md:block bg-white rounded-xl border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
