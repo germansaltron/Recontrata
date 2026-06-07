@@ -31,12 +31,25 @@ export default function Landing({ isSignedIn }: LandingProps) {
               className="h-8 w-auto"
             />
           </Link>
-          <Link
-            to={primaryCta.to}
-            className="text-sm font-medium px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-          >
-            {primaryCta.label}
-          </Link>
+          <nav className="flex items-center gap-2 sm:gap-5">
+            <a href="#features" className="hidden md:inline text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
+              Funciones
+            </a>
+            <a href="#pricing" className="hidden md:inline text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
+              Precios
+            </a>
+            {!isSignedIn && (
+              <Link to="/sign-in" className="hidden sm:inline text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
+                Iniciar sesión
+              </Link>
+            )}
+            <Link
+              to={primaryCta.to}
+              className="text-sm font-medium px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            >
+              {primaryCta.label}
+            </Link>
+          </nav>
         </div>
       </header>
 
@@ -66,6 +79,10 @@ export default function Landing({ isSignedIn }: LandingProps) {
             Ver cómo funciona
           </a>
         </motion.div>
+        <motion.p {...heroIn(2)} className="mt-5 text-sm text-gray-500">
+          Reemplazar a un mal operario cuesta <span className="font-semibold text-gray-700">~$750.000</span>.
+          Recontrata te ayuda a no repetir el error.
+        </motion.p>
 
         {/* Product showcase: la faena + la app en el celular */}
         <motion.div {...heroIn(3)} className="mt-14 md:mt-20 relative max-w-5xl mx-auto">
@@ -89,6 +106,24 @@ export default function Landing({ isSignedIn }: LandingProps) {
             className="absolute -bottom-8 right-2 sm:right-5 md:right-8 w-32 sm:w-48 md:w-64 drop-shadow-2xl"
           />
         </motion.div>
+      </section>
+
+      {/* Prueba social / stat-bar — el problema en cifras reales */}
+      <section className="border-y border-gray-200 bg-gray-50 py-12 md:py-14">
+        <div className="max-w-6xl mx-auto px-4 md:px-6">
+          <p className="text-center text-xs md:text-sm font-semibold uppercase tracking-wide text-blue-600">
+            Nacido en faena — creado por Faymex, contratista industrial
+          </p>
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
+            <Stat value="1.071.128" label="trabajadores subcontratados en Chile" source="INE, 2024" />
+            <Stat value="50%" label="rotación laboral en construcción, la más alta del país" source="INE" />
+            <Stat value="~$750.000" label="cuesta reemplazar a un operario que no debió volver" source="≈50% de su sueldo anual" />
+            <Stat value="2.854+" label="nombres en listas negras ilegales denunciadas en minería" source="Federación Minera / DT" />
+          </div>
+          <p className="mt-8 text-center text-sm text-gray-500 max-w-2xl mx-auto">
+            Hoy esas decisiones se toman con memoria y WhatsApp. Recontrata las convierte en datos.
+          </p>
+        </div>
       </section>
 
       {/* Problem */}
@@ -169,6 +204,29 @@ export default function Landing({ isSignedIn }: LandingProps) {
         </div>
       </section>
 
+      {/* Diferenciador: alternativa legal a las listas negras */}
+      <section className="bg-gray-900 py-16 md:py-20">
+        <div className="max-w-4xl mx-auto px-4 md:px-6 text-center">
+          <span className="inline-block text-xs font-semibold uppercase tracking-wide text-blue-400">
+            La diferencia
+          </span>
+          <h3 className="mt-4 text-2xl md:text-4xl font-bold text-white leading-tight">
+            La alternativa legal a las listas negras.
+          </h3>
+          <p className="mt-5 text-base md:text-lg text-gray-300 leading-relaxed max-w-2xl mx-auto">
+            Las listas negras son ilegales y la Dirección del Trabajo las persigue, pero siguen
+            existiendo porque no había una alternativa estructurada. Recontrata es esa alternativa:
+            evaluaciones de desempeño objetivas, con motivo registrado, consentimiento del trabajador
+            y derecho a réplica. Decisiones que puedes defender — no rumores que te exponen.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-gray-400">
+            <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-blue-400" /> Criterios objetivos, no rumores</span>
+            <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-blue-400" /> Consentimiento y derecho a réplica</span>
+            <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-blue-400" /> Trazable y auditable</span>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing */}
       <section id="pricing" className="bg-gray-50 py-16 md:py-24">
         <div className="max-w-6xl mx-auto px-4 md:px-6">
@@ -207,6 +265,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
                 'Alertas y exportación',
                 '14 días de prueba gratis',
               ]}
+              roi="Evita 5 malas recontrataciones al año y ahorras ~$3,75M. El plan cuesta ~$600K/año: ROI de 6x."
               cta={primaryCta.label}
               ctaTo={primaryCta.to}
             />
@@ -222,9 +281,9 @@ export default function Landing({ isSignedIn }: LandingProps) {
                 'Insights con IA y onboarding asistido',
                 'Soporte prioritario',
               ]}
-              cta="Contactar"
-              ctaTo="mailto:contacto@recontrata.cl?subject=Plan%20Empresa"
-              external
+              roi="14 días de prueba gratis. Sin tarjeta de crédito."
+              cta={primaryCta.label}
+              ctaTo={primaryCta.to}
             />
           </div>
           <p className="mt-8 text-center text-xs text-gray-500">
@@ -239,10 +298,11 @@ export default function Landing({ isSignedIn }: LandingProps) {
       <section className="bg-blue-600 py-16">
         <div className="max-w-3xl mx-auto px-4 md:px-6 text-center">
           <h3 className="text-2xl md:text-3xl font-bold text-white">
-            Construye tu mejor equipo, proyecto tras proyecto.
+            Tu próxima cuadrilla se arma esta semana.
           </h3>
           <p className="mt-4 text-blue-100 text-lg">
-            Crea tu organización gratis. Sin tarjeta de crédito.
+            Ármala con datos, no con memoria. Empieza gratis hoy, sin tarjeta de crédito,
+            y cada evaluación queda registrada para siempre.
           </p>
           <Link
             to={primaryCta.to}
@@ -250,6 +310,9 @@ export default function Landing({ isSignedIn }: LandingProps) {
           >
             {primaryCta.label}
           </Link>
+          <p className="mt-4 text-sm text-blue-200">
+            Listo en minutos · Importa tu base desde Excel · 14 días de prueba en planes de pago
+          </p>
         </div>
       </section>
 
@@ -295,6 +358,7 @@ function PricingCard({
   period,
   description,
   features,
+  roi,
   cta,
   ctaTo,
   featured,
@@ -305,6 +369,7 @@ function PricingCard({
   period: string
   description: string
   features: string[]
+  roi?: string
   cta: string
   ctaTo: string
   featured?: boolean
@@ -329,6 +394,11 @@ function PricingCard({
         <span className="text-sm text-gray-500">{period}</span>
       </div>
       <p className="mt-3 text-sm text-gray-600">{description}</p>
+      {roi && (
+        <p className={`mt-4 rounded-lg px-3 py-2 text-xs leading-relaxed ${featured ? 'bg-blue-50 text-blue-800' : 'bg-gray-50 text-gray-600'}`}>
+          {roi}
+        </p>
+      )}
       <ul className="mt-5 space-y-2">
         {features.map((f) => (
           <li key={f} className="flex items-start gap-2 text-sm text-gray-700">
@@ -352,6 +422,16 @@ function PricingCard({
           {cta}
         </Link>
       )}
+    </div>
+  )
+}
+
+function Stat({ value, label, source }: { value: string; label: string; source: string }) {
+  return (
+    <div className="text-center">
+      <div className="text-2xl md:text-4xl font-bold text-gray-900 tracking-tight">{value}</div>
+      <p className="mt-2 text-xs md:text-sm text-gray-600 leading-snug">{label}</p>
+      <p className="mt-1 text-[11px] text-gray-400">{source}</p>
     </div>
   )
 }
