@@ -19,6 +19,7 @@ const ScoreFormula = lazy(() => import('./pages/ScoreFormula'))
 const Terms = lazy(() => import('./pages/Terms'))
 const Privacy = lazy(() => import('./pages/Privacy'))
 const WorkerPortal = lazy(() => import('./pages/WorkerPortal'))
+const WorkerCertificate = lazy(() => import('./pages/WorkerCertificate'))
 
 const clerkEnabled = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) &&
   import.meta.env.VITE_AUTH_MOCK_ENABLED !== 'true'
@@ -66,6 +67,7 @@ export default function App() {
     <Routes>
       {/* Portal del Trabajador: público por token, FUERA del AccessGate */}
       <Route path="/p/:token" element={<Suspense fallback={<PageFallback />}><WorkerPortal /></Suspense>} />
+      <Route path="/p/:token/certificado" element={<Suspense fallback={<PageFallback />}><WorkerCertificate /></Suspense>} />
 
       <Route element={<GateLayout />}>
         {!clerkEnabled ? (

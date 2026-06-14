@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { Scale, ShieldCheck, MessageSquare, Info } from 'lucide-react'
+import { useParams, Link } from 'react-router-dom'
+import { Scale, ShieldCheck, MessageSquare, Info, FileDown } from 'lucide-react'
 import { api, type PortalProfile, type PortalEvaluation, type ScoringProfile } from '../lib/api'
 import { toast } from '../lib/toast'
 
@@ -217,6 +217,12 @@ export default function WorkerPortal() {
               <p className="text-xs text-gray-500">No</p>
             </div>
           </div>
+          <Link
+            to={`/p/${token}/certificado`}
+            className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
+          >
+            <FileDown className="w-4 h-4" /> Descargar mi certificado
+          </Link>
         </div>
 
         {revoked && (
