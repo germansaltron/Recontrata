@@ -1,6 +1,29 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-14T15:05:00-04:00
+## Ultima actualizacion: 2026-06-14T15:35:00-04:00
+
+## Sesion 14 jun 2026 (parte 5) — FASE 5 apuesta #5: AISLAMIENTO MULTI-TENANT COMO CI GATE + AUDITORIA PII — COMPLETO Y VERIFICADO ✅ (CI verde en GitHub)
+
+Apuesta #5 de Fase 5 (seguridad): tests que garantizan aislamiento entre organizaciones + auditoria de PII, corriendo como **CI gate** en GitHub Actions. **master `7efe538`**. **NO requiere deploy a prod** (son tests/CI, no tocan el runtime).
+
+### Que se hizo
+- **Harness de integracion con DB real** (lo que faltaba: todos los tests previos eran puros): `tests/integration/conftest.py` — engine a `TEST_DATABASE_URL` con `create_all`/`drop_all` por test, `AsyncClient` (ASGITransport) sobre la app real, **override de `get_db`** (sesion de test) **y de `get_current_user`** (actuar como cualquier usuario via `hx.act_as(user)`). Si `TEST_DATABASE_URL` no esta, los tests de integracion se **SALTAN** (los unitarios siguen sin DB). `pytest.ini` con `asyncio_mode=auto`. `pytest`/`pytest-asyncio` agregados a requirements.
+- **`tests/integration/test_tenant_isolation.py`** (16 tests): usuario de org A NO puede LEER (GET org, dashboard/stats, top-workers, workers, evaluations, scoring/formula, calibration) ni ESCRIBIR (crear worker, PATCH industria, generar portal-link) en org B -> **403**; IDOR (worker de B bajo el path de A) -> **404**; control positivo (el dueño SI accede, 200). **PII del Portal**: la respuesta publica NO incluye `evaluator_name`/`evaluator_id`, el token solo devuelve su propio worker, token falso -> 404.
+- **`.github/workflows/ci.yml`**: gate en push/PR a master. Job **backend** con servicio `postgres:16` + `TEST_DATABASE_URL` corre `pytest -q` (unit + aislamiento). Job **frontend** `npm ci` + `npm run build`. Si alguien rompe el scoping por org_id, el CI falla y bloquea el merge.
+
+### Como se verifico (real)
+- Local contra PG (DB de test `faenascore_test`): **77 passed CON DB** (61 unit + 16 integracion); **61 passed + 16 skipped SIN DB** (degrada limpio).
+- **CI en GitHub VERDE** (run 27508913799, 1m2s): Backend (tests + aislamiento) 37s ✓ + Frontend (build) 59s ✓. (Solo aviso de deprecacion Node20 en runners; las acciones ya son ultima version, GitHub maneja el runtime.)
+
+### Estado Fase 5: 4 de 5 apuestas hechas. Falta solo #3 offline-first.
+### ARRANCAR AQUI — proximo
+1. **#3 offline-first en terreno** (unica apuesta pendiente): service worker + cola IndexedDB + sync. Es la mas pesada; merece sesion propia y es la mas dificil de verificar aqui.
+2. Pendiente humano: prueba de login real con correo en recontrata.cl/sign-up.
+3. Opcional CI: bump de actions a Node24 cuando GitHub lo exija (16 jun 2026).
+
+---
+
+## Ultima actualizacion previa: 2026-06-14T15:05:00-04:00
 
 ## Sesion 14 jun 2026 (parte 4) — FASE 5 apuesta #4: MODULO ANTI-SESGO / CALIBRACION DE EVALUADORES — COMPLETO Y VERIFICADO ✅ (commit+push, deploy PENDIENTE)
 
