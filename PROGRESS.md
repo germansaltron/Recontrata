@@ -1,6 +1,37 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-07T12:50:00-04:00
+## Ultima actualizacion: 2026-06-14T12:35:00-04:00
+
+## Sesion 14 jun 2026 — FASE 5 apuesta #1: MOTOR DE SCORE PONDERADO DEFENSIBLE — COMPLETA Y VERIFICADA ✅ (commit+push, deploy PENDIENTE)
+
+Implementada la apuesta #1 de Fase 5 del `PLAN_ACCION_CLASE_MUNDIAL.md`: el score deja de ser un promedio plano (lo que la auditoria llamo "indefendible") y pasa a ser un **promedio ponderado por industria** con **formula publica**. Alcance acordado con German: ponderado + formula publica, industria a nivel de organizacion.
+- **master `4c8138e`** (pusheado a origin). **53/53 tests backend OK**, build frontend OK, migracion verificada contra PG real (docker), y **E2E real con Playwright** (dev mock + backend local + PG real).
+- **OJO Recontrata != Faymex** (proyecto personal de German Saltron Mellado).
+
+### Que se hizo
+- **`services/score_calculator.py`**: registro `WEIGHT_PROFILES` por industria. Default `construccion_mineria`: **Seguridad 30% > Calidad 25% > Tecnica 20% > Equipo 15% > Puntualidad 10%** (Seguridad pesa mas que Puntualidad = el corazon de la defensa legal). Tambien `energia`, `logistica` (Puntualidad sube a 25%), `manufactura` (Calidad 30%), `general` (promedio simple). `compute_weighted()` + validacion al import de que cada perfil suma 1.0. `compute_average()` se conserva como referencia.
+- **DB**: `organizations.industry` (default construccion_mineria) + `evaluations.score_weighted` (+ indice `ix_evaluations_score_weighted`). Migracion **`a7c3e9f1b2d4`** (down_revision f1a2b3c4d5e6): add columns + backfill score_weighted con el perfil default (correcto porque toda org existente nace construccion_mineria) + NOT NULL. **Verificada upgrade/downgrade/re-upgrade contra Postgres local real.**
+- **Backend**: el puntaje "oficial" (ranking + headline) pasa a **ponderado** en dashboard (stats avg, top-workers order+value, recent), workers (list, export csv, detail headline via linealidad sobre los promedios por dimension), projects (list_project_workers). `score_average` se sigue calculando y exponiendo como referencia. `evaluations.py` create/update calculan score_weighted con el perfil de la org (helper `_get_org_industry`). admin seed + 3 scripts de seed sincronizados. **Endpoint `GET /organizations/{org}/scoring/formula`** (perfil activo + catalogo, transparencia art. 16 Ley 21.719) y **`PATCH /organizations/{org}`** para fijar industria (solo admin, valida contra WEIGHT_PROFILES -> 422 si invalida).
+- **Frontend**: nueva pagina **`/app/formula`** (`ScoreFormula.tsx`): barras de peso por dimension ordenadas desc, formula `puntaje = Σ(dimension × peso)`, selector de industria (5 perfiles) que hace PATCH + recarga, nota legal Ley 21.719. Link "Fórmula del puntaje" en el sidebar (NO en la bottom-nav movil, que se queda en 4 para no romper grid-cols-4). `api.ts`: tipos score_weighted, industry en Organization, ScoringFormula, getScoringFormula/getOrg/updateOrg. Dashboard KPI "Score Ponderado" + badges de evals recientes ponderados. WorkerDetail: headline ponderado, card "Promedio por dimension" con nota + link "Cómo se pondera", badge ponderado por eval, columna "Ponderado" en CSV.
+
+### Como se verifico (E2E real, NO imaginado)
+- Docker estaba caido al inicio; **se levanto Docker Desktop** (engine up ~18s) -> PG en :5433.
+- Backend en :8011 con PG real + mock auth. Smoke HTTP: org nace `industry=construccion_mineria`; eval (q4 s5 p2 t3 tec4) -> **score_average=3.6, score_weighted=3.95** (exacto al test unitario). Formula endpoint OK (5 perfiles). Worker-detail headline=3.95 weighted vs avg_scores.overall=3.6 simple. Dashboard avg=3.95. PATCH industry->logistica OK; industria invalida->422. Nueva eval (q5 s1 p5 t1 tec1) tras el cambio -> **weighted=2.8 (logistica)** vs 2.4 que daria construccion = el perfil por-org se aplica dinamicamente.
+- **Playwright** (dev :5173 mock + backend :8011): `/app/formula` renderiza perfil activo + pesos ordenados + selector + nota legal; click "Energia/Electrico" -> perfil activo cambia a Energia (Tecnica sube a 25%). WorkerDetail muestra headline ponderado + link "Cómo se pondera" + nota. 0 errores de consola.
+
+### Decisiones tomadas
+- **Industria a nivel de organizacion** (no proyecto): cubre el caso real hoy, un solo campo/selector. El score ponderado se guarda por-eval con el perfil vigente al evaluar; cambiar la industria afecta evals NUEVAS (las viejas conservan su peso historico = defendible).
+- **Headline = ponderado, se conserva el promedio simple** como referencia visible (transparencia).
+
+### ARRANCAR AQUI — proximo
+1. **DEPLOY A PROD pendiente**: `railway service faenascore` -> `railway up --detach`. La migracion `a7c3e9f1b2d4` corre sola en el CMD del Dockerfile contra Supabase prod (additiva + backfill, no destructiva). Verificar pollendo ruta nueva `/scoring/formula` (404 viejo -> 401/403 nuevo) y bundle nuevo. **NO se alcanzo a deployar esta sesion.**
+2. Resto de Fase 5 (roadmap): Portal del Trabajador (#2), offline-first (#3), modulo anti-sesgo (#4), tests aislamiento multi-tenant CI (#5).
+3. Pendiente humano arrastrado: **prueba de login real con correo** en recontrata.cl/sign-up.
+4. Menor: cablear edicion/borrado de evals en UI (endpoints existen; manejar 409 EVALUATION_EDIT_WINDOW_EXPIRED).
+
+---
+
+## Ultima actualizacion previa: 2026-06-07T12:50:00-04:00
 
 ## Sesion 7 jun 2026 (parte 2) — FASE 3 del plan (UX de terreno U1-U9) — COMPLETA Y VERIFICADA ✅
 
