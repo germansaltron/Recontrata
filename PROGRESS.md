@@ -1,6 +1,41 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-14T12:35:00-04:00
+## Ultima actualizacion: 2026-06-14T14:10:00-04:00
+
+## Sesion 14 jun 2026 (parte 2) — FASE 5 apuesta #2: PORTAL DEL TRABAJADOR — COMPLETA Y VERIFICADA ✅ (commit+push, deploy PENDIENTE)
+
+Implementada la apuesta #2 de Fase 5: el **Portal del Trabajador** (transparencia + derecho a replica + opt-out), intra-organizacion, acceso por **token sin login**. Convierte la herramienta del contratista en un activo del trabajador y neutraliza el mayor riesgo legal.
+- **master `df6a9d4`** (pusheado). **53/53 tests backend OK**, build OK, migracion verificada contra PG real, **E2E real (HTTP + Playwright)**.
+
+### Decisiones (recomendadas por Claude, aprobadas por German)
+- **Acceso por link con token unico** (sin login; el contratista lo comparte; revocable/regenerable).
+- **Privacidad**: el trabajador ve sus puntajes (5 dims + ponderado), recontratacion, motivo/comentario y la formula; **NUNCA el nombre del evaluador**.
+- **Replica permanente y visible para ambas partes**.
+- **Cross-org sigue fuera** (Fase 1 lo difirio; requiere consentimiento separado). Certificado descargable **diferido** a follow-up.
+
+### Que se hizo
+- **DB**: `workers.portal_token` (unico, lazy, String(64)) + `evaluations.worker_reply` + `worker_reply_at`. Migracion **`b8d4f0a2c6e1`** (down_revision a7c3e9f1b2d4). Verificada upgrade/downgrade/re-upgrade contra PG real.
+- **Backend router PUBLICO** `app/api/v1/portal.py` montado en `/api/v1/portal/{token}` (NO usa Clerk ni get_org_member): `GET /{token}` (perfil + evals con 5 dims + ponderado + motivo/comentario + formula activa + consent + rehire stats, **sin evaluator_name**), `POST /{token}/evaluations/{id}/reply` (derecho a replica), `POST /{token}/opt-out` (worker_consent -> revoked, method=platform). Contratista: `POST /organizations/{org}/workers/{id}/portal-link?regenerate=` (genera/rota token, reusa get_org_member). `schemas/portal.py`. WorkerDetail expone `portal_token` + `worker_reply`/`worker_reply_at` por eval.
+- **Frontend**: ruta publica **`/p/:token` FUERA del AccessGate** — App.tsx reestructurado con layout-route `GateLayout` (AccessGate+BootIntro via Outlet) que envuelve TODO menos el portal. `WorkerPortal.tsx` (branded, score ponderado, resumen recontratacion, formula con barras, responder por eval, solicitar baja, aviso si revocado). WorkerDetail: card "Portal del trabajador" (generar/copiar/regenerar enlace, copia al clipboard) + replicas visibles en el historial. api.ts: tipos PortalProfile/PortalEvaluation/PortalLink + getPortal/portalReply/portalOptOut/createPortalLink + portal_token en WorkerDetail + worker_reply en EvaluationSummary.
+
+### Como se verifico (E2E real)
+- Migracion round-trip OK; columnas + `uq_workers_portal_token` creados.
+- HTTP (PG real, :8011): generar portal-link OK; **GET portal publico SIN auth** -> worker + org + avg ponderado 3.3 (q4 s2 p5 t4 tec3, perfil construccion) + motivo visible + **evaluator_name ausente**; reply -> worker_reply guardado; opt-out -> 204 + consent_status=revoked; token invalido -> 404; contratista worker-detail ve portal_token + consent revoked + worker_reply (replica visible ambos lados).
+- **Playwright** (`/p/<token>` con gate desactivado): la pagina publica renderiza FUERA del gate — identidad, score 3.3, formula con pesos, evaluacion con motivo + "Tu respuesta", aviso de opt-out, sin nombre de evaluador. 0 errores de consola.
+
+### ARRANCAR AQUI — proximo
+1. **DEPLOY A PROD pendiente** (apuestas #1 score ponderado YA esta en prod; #2 portal NO): `railway service faenascore` -> `railway up --detach`. Migracion `b8d4f0a2c6e1` corre sola en el CMD (additiva). Verificar pollendo `/api/v1/portal/xxx` (404 token invalido = ruta viva) + bundle nuevo. **REQUIERE AUTORIZACION de German (deploy a prod / migracion en Supabase).**
+2. Follow-up corto: **certificado descargable** del portal (pagina imprimible / "CV de faena").
+3. Resto Fase 5: offline-first (#3), modulo anti-sesgo (#4), tests aislamiento multi-tenant CI (#5).
+4. Pendiente humano: prueba de login real con correo en recontrata.cl/sign-up.
+
+---
+
+## Sesion 14 jun 2026 — FASE 5 apuesta #1: MOTOR DE SCORE PONDERADO DEFENSIBLE — COMPLETA, VERIFICADA Y EN PROD ✅
+
+> Actualizacion: el motor de score ponderado **SE DEPLOYO A PROD** (railway up, migracion a7c3e9f1b2d4 corrio en Supabase prod; ruta /scoring/formula 404->401; health OK). Detalle abajo.
+
+## Ultima actualizacion previa: 2026-06-14T12:35:00-04:00
 
 ## Sesion 14 jun 2026 — FASE 5 apuesta #1: MOTOR DE SCORE PONDERADO DEFENSIBLE — COMPLETA Y VERIFICADA ✅ (commit+push, deploy PENDIENTE)
 
