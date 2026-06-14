@@ -20,6 +20,7 @@ class Evaluation(Base):
         Index("ix_evaluations_org_id", "org_id"),
         Index("ix_evaluations_project_id", "project_id"),
         Index("ix_evaluations_score_avg", "score_average"),
+        Index("ix_evaluations_score_weighted", "score_weighted"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
@@ -34,6 +35,9 @@ class Evaluation(Base):
     score_teamwork: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     score_technical: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     score_average: Mapped[float] = mapped_column(Float, nullable=False)
+    # Puntaje ponderado por el perfil de industria de la org al momento de evaluar
+    # (ver app.services.score_calculator). Es el puntaje "oficial" para ranking/decisión.
+    score_weighted: Mapped[float] = mapped_column(Float, nullable=False, server_default="0")
 
     would_rehire: Mapped[str] = mapped_column(String(20), nullable=False)
     rehire_reason: Mapped[str | None] = mapped_column(Text, nullable=True)

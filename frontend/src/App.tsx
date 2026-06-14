@@ -15,6 +15,7 @@ const Workers = lazy(() => import('./pages/Workers'))
 const WorkerDetail = lazy(() => import('./pages/WorkerDetail'))
 const Evaluate = lazy(() => import('./pages/Evaluate'))
 const EvaluateWorker = lazy(() => import('./pages/EvaluateWorker'))
+const ScoreFormula = lazy(() => import('./pages/ScoreFormula'))
 const Terms = lazy(() => import('./pages/Terms'))
 const Privacy = lazy(() => import('./pages/Privacy'))
 
@@ -35,6 +36,7 @@ function ProtectedApp() {
           <Route path="workers/:id" element={<Suspense fallback={<PageFallback />}><WorkerDetail /></Suspense>} />
           <Route path="evaluate" element={<Suspense fallback={<PageFallback />}><Evaluate /></Suspense>} />
           <Route path="evaluate/:projectId/:workerId" element={<Suspense fallback={<PageFallback />}><EvaluateWorker /></Suspense>} />
+          <Route path="formula" element={<Suspense fallback={<PageFallback />}><ScoreFormula /></Suspense>} />
         </Route>
       </Routes>
     </OrgProvider>

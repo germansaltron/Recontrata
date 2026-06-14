@@ -55,7 +55,7 @@ async def get_dashboard_stats(
     eval_row = (await db.execute(
         select(
             func.count(Evaluation.id),
-            func.avg(Evaluation.score_average),
+            func.avg(Evaluation.score_weighted),
             func.count(case((Evaluation.would_rehire == "yes", 1))),
         ).where(Evaluation.org_id == org_id, Evaluation.deleted_at.is_(None))
     )).one()
@@ -89,7 +89,7 @@ async def get_top_workers(
     result = await db.execute(
         select(
             Worker.id, Worker.first_name, Worker.last_name, Worker.specialty,
-            func.avg(Evaluation.score_average).label("avg_score"),
+            func.avg(Evaluation.score_weighted).label("avg_score"),
             func.count(Evaluation.id).label("eval_count"),
             func.count(case((Evaluation.would_rehire == "yes", 1))).label("rehire_yes"),
         )
@@ -97,7 +97,7 @@ async def get_top_workers(
         .where(Worker.org_id == org_id, Worker.is_active == True)  # noqa: E712
         .group_by(Worker.id, Worker.first_name, Worker.last_name, Worker.specialty)
         .having(func.count(Evaluation.id) >= 1)
-        .order_by(func.avg(Evaluation.score_average).desc())
+        .order_by(func.avg(Evaluation.score_weighted).desc())
         .limit(10)
     )
     return [
@@ -266,7 +266,8 @@ async def get_recent_evaluations(
     return [
         RecentEvaluationItem(
             id=ev.id, worker_id=wid, worker_name=f"{fname} {lname}", project_name=pname,
-            score_average=ev.score_average, would_rehire=ev.would_rehire, created_at=ev.created_at,
+            score_average=ev.score_average, score_weighted=ev.score_weighted,
+            would_rehire=ev.would_rehire, created_at=ev.created_at,
         )
         for ev, wid, fname, lname, pname in rows
     ]

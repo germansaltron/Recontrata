@@ -184,7 +184,7 @@ async def list_project_workers(
 ):
     await _get_project(org_id, project_id, db)
     result = await db.execute(
-        select(Worker, ProjectWorker.role_in_project, ProjectWorker.assigned_at, Evaluation.score_average)
+        select(Worker, ProjectWorker.role_in_project, ProjectWorker.assigned_at, Evaluation.score_weighted)
         .join(ProjectWorker, ProjectWorker.worker_id == Worker.id)
         .outerjoin(
             Evaluation,

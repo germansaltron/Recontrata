@@ -74,7 +74,27 @@ export interface Organization {
   id: string
   name: string
   slug: string
+  industry: string
   created_at: string
+}
+
+export interface DimensionWeight {
+  key: string
+  label: string
+  weight: number
+}
+
+export interface ScoringProfile {
+  industry: string
+  label: string
+  description: string
+  weights: DimensionWeight[]
+}
+
+export interface ScoringFormula {
+  active_industry: string
+  active_profile: ScoringProfile
+  profiles: ScoringProfile[]
 }
 
 export interface UserProfile {
@@ -143,6 +163,7 @@ export interface EvaluationSummary {
   score_teamwork: number
   score_technical: number
   score_average: number
+  score_weighted: number
   would_rehire: string
   rehire_reason: string | null
   comment: string | null
@@ -163,6 +184,7 @@ export interface Evaluation {
   score_teamwork: number
   score_technical: number
   score_average: number
+  score_weighted: number
   would_rehire: string
   rehire_reason: string | null
   comment: string | null
@@ -194,6 +216,7 @@ export interface RecentEvaluation {
   worker_name: string
   project_name: string
   score_average: number
+  score_weighted: number
   would_rehire: string
   created_at: string
 }
@@ -216,6 +239,14 @@ export const api = {
   // Auth
   getProfile: () => apiFetch<UserProfile>('/me'),
   createOrg: (name: string) => apiFetch<Organization>('/organizations', { method: 'POST', body: JSON.stringify({ name }) }),
+
+  // Organization
+  getOrg: (orgId: string) => apiFetch<Organization>(`/organizations/${orgId}`),
+  updateOrg: (orgId: string, data: { name?: string; industry?: string }) =>
+    apiFetch<Organization>(`/organizations/${orgId}`, { method: 'PATCH', body: JSON.stringify(data) }),
+
+  // Scoring (fórmula pública del puntaje)
+  getScoringFormula: (orgId: string) => apiFetch<ScoringFormula>(`/organizations/${orgId}/scoring/formula`),
 
   // Projects
   listProjects: (orgId: string, params?: { page?: number; size?: number; status?: string; search?: string }) => {

@@ -6,11 +6,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.dependencies import get_current_user, get_org_member
+from app.dependencies import get_current_user, get_org_admin, get_org_member
 from app.errors import ErrorCode
 from app.models.organization import Organization, OrgMember
 from app.models.user import User
-from app.schemas.organization import OrganizationCreate, OrganizationResponse
+from app.schemas.organization import OrganizationCreate, OrganizationResponse, OrganizationUpdate
+from app.services.score_calculator import WEIGHT_PROFILES
 
 router = APIRouter(prefix="/organizations", tags=["organizations"])
 
@@ -60,4 +61,37 @@ async def get_organization(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"detail": "Organization not found", "code": ErrorCode.ORG_NOT_FOUND},
         )
+    return OrganizationResponse.model_validate(org)
+
+
+@router.patch("/{org_id}", response_model=OrganizationResponse)
+async def update_organization(
+    org_id: uuid.UUID,
+    body: OrganizationUpdate,
+    db: AsyncSession = Depends(get_db),
+    _admin: OrgMember = Depends(get_org_admin),
+):
+    """Actualiza datos de la organización. La industria define el perfil de pesos
+    del puntaje, por eso solo un admin puede cambiarla."""
+    result = await db.execute(select(Organization).where(Organization.id == org_id))
+    org = result.scalar_one_or_none()
+    if not org:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"detail": "Organization not found", "code": ErrorCode.ORG_NOT_FOUND},
+        )
+
+    data = body.model_dump(exclude_unset=True)
+    if "industry" in data and data["industry"] is not None:
+        if data["industry"] not in WEIGHT_PROFILES:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={"detail": "Industria no válida", "code": ErrorCode.VALIDATION_ERROR},
+            )
+        org.industry = data["industry"]
+    if data.get("name"):
+        org.name = data["name"]
+
+    await db.commit()
+    await db.refresh(org)
     return OrganizationResponse.model_validate(org)

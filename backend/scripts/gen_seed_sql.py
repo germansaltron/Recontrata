@@ -92,6 +92,8 @@ def main(org_id: str):
         seen.add((pid, wid))
         scores = [rng.choices([1, 2, 3, 4, 5], weights=[2, 5, 20, 40, 33])[0] for _ in range(5)]
         avg = round(sum(scores) / 5.0, 2)
+        # Ponderado perfil construccion_mineria (default): seg .30 > cal .25 > tec .20 > eq .15 > pun .10
+        weighted = round(scores[0] * 0.25 + scores[1] * 0.30 + scores[2] * 0.10 + scores[3] * 0.15 + scores[4] * 0.20, 2)
         if avg >= 4.0:
             rehire = rng.choices(["yes", "reservations"], weights=[85, 15])[0]
         elif avg >= 3.0:
@@ -101,10 +103,10 @@ def main(org_id: str):
         comment = rng.choice(REHIRE_COMMENTS[rehire]) if rng.random() < 0.6 else None
         reason = comment if rehire != "yes" and comment else None
         print(f"INSERT INTO evaluations (org_id, project_id, worker_id, score_quality, score_safety, "
-              f"score_punctuality, score_teamwork, score_technical, score_average, would_rehire, "
+              f"score_punctuality, score_teamwork, score_technical, score_average, score_weighted, would_rehire, "
               f"rehire_reason, comment) VALUES "
               f"('{org_id}', '{pid}', '{wid}', {scores[0]}, {scores[1]}, {scores[2]}, {scores[3]}, "
-              f"{scores[4]}, {avg}, {q(rehire)}, {q(reason)}, {q(comment)});")
+              f"{scores[4]}, {avg}, {weighted}, {q(rehire)}, {q(reason)}, {q(comment)});")
         count += 1
 
     print("COMMIT;")

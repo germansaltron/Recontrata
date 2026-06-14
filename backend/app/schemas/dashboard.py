@@ -34,5 +34,6 @@ class RecentEvaluationItem(BaseModel):
     worker_name: str
     project_name: str
     score_average: float
+    score_weighted: float = 0.0
     would_rehire: str
     created_at: datetime

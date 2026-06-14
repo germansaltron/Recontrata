@@ -11,7 +11,7 @@ from app.dependencies import get_current_user, get_org_member
 from app.errors import ErrorCode
 from app.models.evaluation import Evaluation
 from app.models.evaluation_audit import EvaluationAuditLog
-from app.models.organization import OrgMember
+from app.models.organization import Organization, OrgMember
 from app.models.project import Project
 from app.models.user import User
 from app.models.worker import Worker
@@ -25,9 +25,15 @@ from app.schemas.evaluation import (
 )
 from app.schemas.pagination import PaginatedResponse
 from app.services.evaluation_audit import record_evaluation_audit
-from app.services.score_calculator import compute_average
+from app.services.score_calculator import DEFAULT_INDUSTRY, compute_average, compute_weighted
 
 router = APIRouter(prefix="/organizations/{org_id}/evaluations", tags=["evaluations"])
+
+
+async def _get_org_industry(org_id: uuid.UUID, db: AsyncSession) -> str:
+    """Industria de la org, que determina el perfil de pesos del puntaje."""
+    result = await db.execute(select(Organization.industry).where(Organization.id == org_id))
+    return result.scalar_one_or_none() or DEFAULT_INDUSTRY
 
 # Campos editables que, al cambiar, cuentan como una nueva versión.
 _EDITABLE_FIELDS = (
@@ -55,6 +61,7 @@ async def _build_response(ev: Evaluation, db: AsyncSession) -> EvaluationRespons
         score_quality=ev.score_quality, score_safety=ev.score_safety,
         score_punctuality=ev.score_punctuality, score_teamwork=ev.score_teamwork,
         score_technical=ev.score_technical, score_average=ev.score_average,
+        score_weighted=ev.score_weighted,
         would_rehire=ev.would_rehire, rehire_reason=ev.rehire_reason,
         comment=ev.comment, created_at=ev.created_at,
     )
@@ -72,7 +79,10 @@ async def _create_single(org_id: uuid.UUID, body: EvaluationCreate, evaluator: U
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=409, detail={"detail": "Ya existe una evaluacion para este trabajador en este proyecto", "code": ErrorCode.EVALUATION_DUPLICATE})
 
-    avg = compute_average(body.score_quality, body.score_safety, body.score_punctuality, body.score_teamwork, body.score_technical)
+    dims = (body.score_quality, body.score_safety, body.score_punctuality, body.score_teamwork, body.score_technical)
+    avg = compute_average(*dims)
+    industry = await _get_org_industry(org_id, db)
+    weighted = compute_weighted(*dims, industry=industry)
 
     ev = Evaluation(
         org_id=org_id,
@@ -85,6 +95,7 @@ async def _create_single(org_id: uuid.UUID, body: EvaluationCreate, evaluator: U
         score_teamwork=body.score_teamwork,
         score_technical=body.score_technical,
         score_average=avg,
+        score_weighted=weighted,
         would_rehire=body.would_rehire,
         rehire_reason=body.rehire_reason,
         comment=body.comment,
@@ -202,8 +213,10 @@ async def update_evaluation(
     # Regla rehire_reason sobre el estado FINAL (puede depender de campos no enviados).
     validate_rehire_reason(ev.would_rehire, ev.rehire_reason)
 
-    # Recompute average
-    ev.score_average = compute_average(ev.score_quality, ev.score_safety, ev.score_punctuality, ev.score_teamwork, ev.score_technical)
+    # Recompute average + weighted (con el perfil de industria actual de la org)
+    dims = (ev.score_quality, ev.score_safety, ev.score_punctuality, ev.score_teamwork, ev.score_technical)
+    ev.score_average = compute_average(*dims)
+    ev.score_weighted = compute_weighted(*dims, industry=await _get_org_industry(org_id, db))
 
     if changed_fields:
         record_evaluation_audit(db, ev, "update", user, changed_fields=changed_fields)

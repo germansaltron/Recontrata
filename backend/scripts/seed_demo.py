@@ -34,7 +34,7 @@ from app.models.project import Project
 from app.models.project_worker import ProjectWorker
 from app.models.worker import Worker
 from app.services.rut_validator import format_rut
-from app.services.score_calculator import compute_average
+from app.services.score_calculator import DEFAULT_INDUSTRY, compute_average, compute_weighted
 
 FIRST_NAMES = [
     "José", "Juan", "Luis", "Carlos", "Pedro", "Miguel", "Jorge", "Manuel",
@@ -221,6 +221,7 @@ async def seed(org: Organization, wipe: bool) -> dict:
         seen.add(key)
         scores = [rng.choices([1, 2, 3, 4, 5], weights=[2, 5, 20, 40, 33])[0] for _ in range(5)]
         avg = compute_average(*scores)
+        weighted = compute_weighted(*scores, industry=DEFAULT_INDUSTRY)
         if avg >= 4.0:
             rehire = rng.choices(["yes", "reservations"], weights=[85, 15])[0]
         elif avg >= 3.0:
@@ -239,6 +240,7 @@ async def seed(org: Organization, wipe: bool) -> dict:
             "score_teamwork": scores[3],
             "score_technical": scores[4],
             "score_average": avg,
+            "score_weighted": weighted,
             "would_rehire": rehire,
             "rehire_reason": reason,
             "comment": comment,

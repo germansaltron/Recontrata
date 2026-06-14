@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, FolderKanban, Users, ClipboardCheck, Menu, X, AlertTriangle } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Users, ClipboardCheck, Scale, Menu, X, AlertTriangle } from 'lucide-react'
 import { UserButton } from '@clerk/clerk-react'
 import { useOrg } from '../../lib/org'
 import { api } from '../../lib/api'
@@ -11,6 +11,12 @@ const navItems = [
   { to: '/app/projects', icon: FolderKanban, label: 'Proyectos' },
   { to: '/app/workers', icon: Users, label: 'Trabajadores' },
   { to: '/app/evaluate', icon: ClipboardCheck, label: 'Evaluar' },
+]
+
+// Items secundarios: solo en el sidebar de escritorio (la bottom-nav móvil
+// mantiene 4 accesos para no romper su grilla).
+const secondaryNavItems = [
+  { to: '/app/formula', icon: Scale, label: 'Fórmula del puntaje' },
 ]
 
 // UserButton solo funciona dentro de <ClerkProvider>. En modo mock (sin Clerk)
@@ -51,6 +57,22 @@ export default function AppShell() {
               key={to}
               to={to}
               end={to === '/app'}
+              onClick={() => setSidebarOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`
+              }
+            >
+              <Icon className="w-5 h-5" />
+              {label}
+            </NavLink>
+          ))}
+          <div className="my-2 border-t border-gray-100" />
+          {secondaryNavItems.map(({ to, icon: Icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${

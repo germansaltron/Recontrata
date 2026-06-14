@@ -96,7 +96,7 @@ export default function Dashboard() {
         <KPICard icon={<FolderKanban className="w-5 h-5 text-blue-600" />} label="Proyectos" value={stats?.project_count ?? 0} sub={`${stats?.active_project_count ?? 0} activos`} />
         <KPICard icon={<Users className="w-5 h-5 text-emerald-600" />} label="Trabajadores" value={stats?.worker_count ?? 0} />
         <KPICard icon={<ClipboardCheck className="w-5 h-5 text-violet-600" />} label="Evaluaciones" value={stats?.evaluation_count ?? 0} />
-        <KPICard icon={<TrendingUp className="w-5 h-5 text-amber-600" />} label="Score Promedio" value={stats?.avg_score_overall != null ? `${stats.avg_score_overall.toFixed(1)} / 5` : '—'} sub={stats?.rehire_rate != null ? `${(stats.rehire_rate * 100).toFixed(0)}% recomienda recontratar` : undefined} />
+        <KPICard icon={<TrendingUp className="w-5 h-5 text-amber-600" />} label="Score Ponderado" value={stats?.avg_score_overall != null ? `${stats.avg_score_overall.toFixed(1)} / 5` : '—'} sub={stats?.rehire_rate != null ? `${(stats.rehire_rate * 100).toFixed(0)}% recomienda recontratar` : undefined} />
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -147,7 +147,7 @@ export default function Dashboard() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <ScoreBadge score={e.score_average} size="sm" />
+                    <ScoreBadge score={e.score_weighted} size="sm" />
                     <span className={`text-xs px-1.5 py-0.5 rounded-full ${e.would_rehire === 'yes' ? 'bg-green-100 text-green-700' : e.would_rehire === 'no' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
                       {e.would_rehire === 'yes' ? 'Sí' : e.would_rehire === 'no' ? 'No' : 'Reservas'}
                     </span>

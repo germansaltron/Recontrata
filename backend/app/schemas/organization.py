@@ -8,10 +8,16 @@ class OrganizationCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
 
 
+class OrganizationUpdate(BaseModel):
+    name: str | None = Field(None, min_length=1, max_length=255)
+    industry: str | None = Field(None, max_length=50)
+
+
 class OrganizationResponse(BaseModel):
     id: uuid.UUID
     name: str
     slug: str
+    industry: str = "construccion_mineria"
     created_at: datetime
     model_config = {"from_attributes": True}
 

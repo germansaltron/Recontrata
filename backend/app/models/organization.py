@@ -14,6 +14,9 @@ class Organization(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    # Industria de la organización: determina el perfil de pesos del puntaje
+    # (ver app.services.score_calculator.WEIGHT_PROFILES).
+    industry: Mapped[str] = mapped_column(String(50), nullable=False, server_default="construccion_mineria")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

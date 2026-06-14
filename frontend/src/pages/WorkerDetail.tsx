@@ -27,10 +27,10 @@ function csvCell(v: unknown): string {
 }
 
 function exportEvaluationsCsv(worker: WorkerDetailType) {
-  const headers = ['Proyecto', 'Calidad', 'Seguridad', 'Puntualidad', 'Equipo', 'Tecnica', 'Promedio', 'Recontratacion', 'Motivo', 'Comentario', 'Evaluador', 'Fecha']
+  const headers = ['Proyecto', 'Calidad', 'Seguridad', 'Puntualidad', 'Equipo', 'Tecnica', 'Promedio', 'Ponderado', 'Recontratacion', 'Motivo', 'Comentario', 'Evaluador', 'Fecha']
   const rows = worker.evaluations.map((ev) => [
     ev.project_name, ev.score_quality, ev.score_safety, ev.score_punctuality, ev.score_teamwork,
-    ev.score_technical, ev.score_average, REHIRE_LABEL[ev.would_rehire] ?? ev.would_rehire,
+    ev.score_technical, ev.score_average, ev.score_weighted, REHIRE_LABEL[ev.would_rehire] ?? ev.would_rehire,
     ev.rehire_reason ?? '', ev.comment ?? '', ev.evaluator_name ?? '',
     new Date(ev.created_at).toLocaleDateString('es-CL'),
   ])
@@ -284,7 +284,15 @@ export default function WorkerDetail() {
       {/* Scores breakdown */}
       {avg_scores && (
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h2 className="font-semibold text-gray-900 mb-3">Scores Promedio</h2>
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <h2 className="font-semibold text-gray-900">Promedio por dimensión</h2>
+            <Link to="/app/formula" className="text-xs text-blue-600 hover:text-blue-700 font-medium whitespace-nowrap">
+              Cómo se pondera
+            </Link>
+          </div>
+          <p className="text-xs text-gray-400 mb-3">
+            El puntaje destacado ({worker.avg_score?.toFixed(1)}) es ponderado por industria; abajo, el promedio simple de cada dimensión.
+          </p>
           <div className="space-y-3">
             {[
               { label: 'Calidad', value: avg_scores.quality },
@@ -374,7 +382,7 @@ export default function WorkerDetail() {
                 <div key={ev.id} className="border border-gray-100 rounded-lg p-3">
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <span className="text-sm font-medium text-gray-900 truncate">{ev.project_name}</span>
-                    <ScoreBadge score={ev.score_average} size="sm" />
+                    <ScoreBadge score={ev.score_weighted} size="sm" />
                   </div>
                   {/* 5 dimensiones (no solo el promedio) */}
                   <div className="grid grid-cols-5 gap-1.5 text-center">

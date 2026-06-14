@@ -96,6 +96,7 @@ class EvaluationResponse(BaseModel):
     score_teamwork: int
     score_technical: int
     score_average: float
+    score_weighted: float = 0.0
     would_rehire: str
     rehire_reason: str | None
     comment: str | None

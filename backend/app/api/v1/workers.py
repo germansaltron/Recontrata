@@ -11,7 +11,7 @@ from app.database import get_db
 from app.dependencies import get_current_user, get_org_member
 from app.errors import ErrorCode
 from app.models.evaluation import Evaluation
-from app.models.organization import OrgMember
+from app.models.organization import Organization, OrgMember
 from app.models.project import Project
 from app.models.user import User
 from app.models.worker import Worker
@@ -30,6 +30,7 @@ from app.schemas.worker import (
     WorkerUpdate,
 )
 from app.services.rut_validator import format_rut, validate_rut
+from app.services.score_calculator import DEFAULT_INDUSTRY, compute_weighted
 
 router = APIRouter(prefix="/organizations/{org_id}/workers", tags=["workers"])
 
@@ -85,7 +86,7 @@ async def list_workers(
     _member: OrgMember = Depends(get_org_member),
 ):
     eval_count = func.count(Evaluation.id).label("eval_count")
-    avg_score = func.avg(Evaluation.score_average).label("avg_score")
+    avg_score = func.avg(Evaluation.score_weighted).label("avg_score")
 
     query = (
         select(Worker, eval_count, avg_score)
@@ -170,7 +171,7 @@ async def export_workers_csv(
             Worker.email,
             Worker.is_active,
             func.count(Evaluation.id).label("eval_count"),
-            func.avg(Evaluation.score_average).label("avg_score"),
+            func.avg(Evaluation.score_weighted).label("avg_score"),
         )
         .outerjoin(Evaluation, (Evaluation.worker_id == Worker.id) & (Evaluation.deleted_at.is_(None)))
         .where(Worker.org_id == org_id)
@@ -296,6 +297,11 @@ async def get_worker_detail(
     if not worker:
         raise HTTPException(status_code=404, detail={"detail": "Worker not found", "code": ErrorCode.WORKER_NOT_FOUND})
 
+    # Industria de la org → perfil de pesos del puntaje ponderado.
+    industry = (await db.execute(
+        select(Organization.industry).where(Organization.id == org_id)
+    )).scalar_one_or_none() or DEFAULT_INDUSTRY
+
     # Get evaluations with project info
     eval_result = await db.execute(
         select(Evaluation, Project.name, Project.end_date)
@@ -322,11 +328,13 @@ async def get_worker_detail(
             score_quality=ev.score_quality, score_safety=ev.score_safety,
             score_punctuality=ev.score_punctuality, score_teamwork=ev.score_teamwork,
             score_technical=ev.score_technical, score_average=ev.score_average,
+            score_weighted=ev.score_weighted,
             would_rehire=ev.would_rehire, rehire_reason=ev.rehire_reason,
             comment=ev.comment, evaluator_name=evaluator_name,
             created_at=ev.created_at,
         ))
-        score_trend.append(ScoreTrendPoint(project_name=proj_name, date=proj_end, score_average=ev.score_average))
+        # La tendencia usa el puntaje ponderado (el "oficial").
+        score_trend.append(ScoreTrendPoint(project_name=proj_name, date=proj_end, score_average=ev.score_weighted))
 
         if ev.would_rehire == "yes":
             rehire_yes += 1
@@ -351,7 +359,13 @@ async def get_worker_detail(
             technical=round(sum_tech / n, 2),
             overall=round((sum_q + sum_s + sum_p + sum_t + sum_tech) / (n * 5), 2),
         )
-        avg_score = avg_scores.overall
+        # El puntaje "oficial" del trabajador es el PONDERADO. Por linealidad de la
+        # ponderación, ponderar los promedios por dimensión equivale al promedio de
+        # los puntajes ponderados de cada evaluación.
+        avg_score = compute_weighted(
+            avg_scores.quality, avg_scores.safety, avg_scores.punctuality,
+            avg_scores.teamwork, avg_scores.technical, industry=industry,
+        )
 
     # Reverse trend to chronological order
     score_trend.reverse()
