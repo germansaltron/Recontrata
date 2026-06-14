@@ -1,6 +1,30 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-14T14:40:00-04:00
+## Ultima actualizacion: 2026-06-14T15:05:00-04:00
+
+## Sesion 14 jun 2026 (parte 4) — FASE 5 apuesta #4: MODULO ANTI-SESGO / CALIBRACION DE EVALUADORES — COMPLETO Y VERIFICADO ✅ (commit+push, deploy PENDIENTE)
+
+Apuesta #4 de Fase 5: detecta sesgos sistematicos de quien evalua, para que el puntaje sea mas justo/defendible. **Analitica pura, SIN migracion**. **master `b867f9d`**. **61/61 tests backend OK**, build OK, E2E verificado.
+- Refuerza la narrativa de "score defendible": no cambia los puntajes, es herramienta de consistencia para hablar con supervisores.
+
+### Que se hizo
+- **`services/evaluator_calibration.py`** (puro, testeable sin DB): por evaluador computa promedio, `leniency_delta` vs media de la org (indulgencia/severidad), `dimension_spread` = dispersion interna promedio entre las 5 dims (efecto halo). Flags: `lenient` (Δ ≥ +0.5), `severe` (Δ ≤ -0.5), `halo` (spread < 0.5), `low_sample` (< 5 evals, no se marca sesgo). 8 tests deterministas.
+- **`GET /organizations/{org}/calibration`** (solo admin via get_org_admin): agrupa evals por evaluator_id (outerjoin a users), llama al servicio, devuelve org_mean + umbrales + lista. `schemas/calibration.py`. Router en main.py.
+- **Frontend** `/app/calibracion` (+ nav secundario en sidebar, junto a Formula): tabla de evaluadores (promedio, Δ vs org coloreado, dispersion, badges de señales con tooltip), tarjetas org_mean + #evaluadores, leyenda explicativa, estado vacio, guard de solo-admin, enlace a la formula. `api.getCalibration`.
+
+### Como se verifico (E2E real)
+- 8 unit tests del servicio (lenient/severe/halo/low_sample/orden por |Δ|).
+- **Endpoint con datos reales** (PG local, sembre 2 evaluadores via SQL DO block en org "Calibracion Demo"): Dev User 6 evals mean 4.6 Δ+1.3 -> lenient+halo; Ana Severa 6 evals mean 2.0 Δ-1.3 -> severe. **Agrupacion SQL por evaluator_id correcta** (lo que los unit tests NO cubren).
+- **Playwright**: la pagina renderiza 3 evaluadores con sus señales (badges Indulgente/Halo/Severo/Pocos datos), org_mean 3.30, leyenda. 0 errores consola. (Se uso interceptacion de fetch para forzar la org con datos, ya que el OrgProvider toma organizations[0].)
+
+### ARRANCAR AQUI — proximo
+1. **DEPLOY PENDIENTE** (backend + frontend, SIN migracion, bajo riesgo): `railway up --detach`. Verificar `/openapi.json` contiene `/calibration` + bundle nuevo. Requiere autorizacion de German.
+2. Resto Fase 5: **offline-first (#3)** — la mas pesada (service worker + cola IndexedDB + sync); merece sesion propia. **Tests aislamiento multi-tenant CI (#5)** — contenida.
+3. Pendiente humano: prueba de login real con correo en recontrata.cl/sign-up.
+
+---
+
+## Ultima actualizacion previa: 2026-06-14T14:40:00-04:00
 
 ## Sesion 14 jun 2026 (parte 3) — Certificado descargable del portal — COMPLETO Y VERIFICADO ✅ (commit+push, deploy PENDIENTE)
 
