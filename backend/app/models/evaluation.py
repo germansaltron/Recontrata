@@ -42,6 +42,10 @@ class Evaluation(Base):
     would_rehire: Mapped[str] = mapped_column(String(20), nullable=False)
     rehire_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     comment: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Derecho a réplica (Portal del Trabajador, Fase 5): respuesta del trabajador a
+    # esta evaluación. Permanente y visible para ambas partes.
+    worker_reply: Mapped[str | None] = mapped_column(Text, nullable=True)
+    worker_reply_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

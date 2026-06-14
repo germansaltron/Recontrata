@@ -28,6 +28,10 @@ class Worker(Base):
     certifications: Mapped[str | None] = mapped_column(Text, nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
+    # Token del Portal del Trabajador (Fase 5): enlace privado e impredecible que el
+    # contratista comparte para que el trabajador vea su propio historial (sin login).
+    # Se genera bajo demanda (lazy) y es revocable/regenerable.
+    portal_token: Mapped[str | None] = mapped_column(String(64), nullable=True, unique=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

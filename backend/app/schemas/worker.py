@@ -86,12 +86,15 @@ class EvaluationSummary(BaseModel):
     rehire_reason: str | None
     comment: str | None
     evaluator_name: str | None
+    worker_reply: str | None = None
+    worker_reply_at: datetime | None = None
     created_at: datetime
 
 
 class WorkerDetailResponse(WorkerResponse):
     certifications: str | None
     notes: str | None
+    portal_token: str | None = None
     avg_scores: ScoreBreakdown | None = None
     score_trend: list[ScoreTrendPoint] = []
     rehire_stats: RehireStats = RehireStats(yes=0, reservations=0, no=0)

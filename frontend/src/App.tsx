@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { SignedIn, SignedOut, SignIn, SignUp, useAuth } from '@clerk/clerk-react'
 import { OrgProvider } from './lib/org'
 import AppShell from './components/layout/AppShell'
@@ -18,6 +18,7 @@ const EvaluateWorker = lazy(() => import('./pages/EvaluateWorker'))
 const ScoreFormula = lazy(() => import('./pages/ScoreFormula'))
 const Terms = lazy(() => import('./pages/Terms'))
 const Privacy = lazy(() => import('./pages/Privacy'))
+const WorkerPortal = lazy(() => import('./pages/WorkerPortal'))
 
 const clerkEnabled = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) &&
   import.meta.env.VITE_AUTH_MOCK_ENABLED !== 'true'
@@ -49,72 +50,82 @@ function AuthenticatedApp() {
   return <ProtectedApp />
 }
 
-export default function App() {
-  if (!clerkEnabled) {
-    return (
-      <AccessGate>
-      <BootIntro />
-      <Routes>
-        <Route path="/" element={<Landing isSignedIn={true} />} />
-        <Route path="/terminos" element={<Suspense fallback={<PageFallback />}><Terms /></Suspense>} />
-        <Route path="/privacidad" element={<Suspense fallback={<PageFallback />}><Privacy /></Suspense>} />
-        <Route path="/app/*" element={<ProtectedApp />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-      </AccessGate>
-    )
-  }
-
+// Layout que aplica el gate de pre-lanzamiento + intro de marca a todo MENOS el
+// Portal del Trabajador (que debe ser accesible públicamente por su token).
+function GateLayout() {
   return (
     <AccessGate>
-    <BootIntro />
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <>
-            <SignedIn>
-              <Landing isSignedIn={true} />
-            </SignedIn>
-            <SignedOut>
-              <Landing isSignedIn={false} />
-            </SignedOut>
-          </>
-        }
-      />
-      <Route path="/terminos" element={<Suspense fallback={<PageFallback />}><Terms /></Suspense>} />
-      <Route path="/privacidad" element={<Suspense fallback={<PageFallback />}><Privacy /></Suspense>} />
-      <Route
-        path="/sign-in/*"
-        element={
-          <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-            <SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" afterSignInUrl="/app" afterSignUpUrl="/app" />
-          </div>
-        }
-      />
-      <Route
-        path="/sign-up/*"
-        element={
-          <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-            <SignUp routing="path" path="/sign-up" signInUrl="/sign-in" afterSignUpUrl="/app" afterSignInUrl="/app" />
-          </div>
-        }
-      />
-      <Route
-        path="/app/*"
-        element={
-          <>
-            <SignedIn>
-              <AuthenticatedApp />
-            </SignedIn>
-            <SignedOut>
-              <Navigate to="/sign-in" replace />
-            </SignedOut>
-          </>
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      <BootIntro />
+      <Outlet />
     </AccessGate>
+  )
+}
+
+export default function App() {
+  return (
+    <Routes>
+      {/* Portal del Trabajador: público por token, FUERA del AccessGate */}
+      <Route path="/p/:token" element={<Suspense fallback={<PageFallback />}><WorkerPortal /></Suspense>} />
+
+      <Route element={<GateLayout />}>
+        {!clerkEnabled ? (
+          <>
+            <Route path="/" element={<Landing isSignedIn={true} />} />
+            <Route path="/terminos" element={<Suspense fallback={<PageFallback />}><Terms /></Suspense>} />
+            <Route path="/privacidad" element={<Suspense fallback={<PageFallback />}><Privacy /></Suspense>} />
+            <Route path="/app/*" element={<ProtectedApp />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        ) : (
+          <>
+            <Route
+              path="/"
+              element={
+                <>
+                  <SignedIn>
+                    <Landing isSignedIn={true} />
+                  </SignedIn>
+                  <SignedOut>
+                    <Landing isSignedIn={false} />
+                  </SignedOut>
+                </>
+              }
+            />
+            <Route path="/terminos" element={<Suspense fallback={<PageFallback />}><Terms /></Suspense>} />
+            <Route path="/privacidad" element={<Suspense fallback={<PageFallback />}><Privacy /></Suspense>} />
+            <Route
+              path="/sign-in/*"
+              element={
+                <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+                  <SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" afterSignInUrl="/app" afterSignUpUrl="/app" />
+                </div>
+              }
+            />
+            <Route
+              path="/sign-up/*"
+              element={
+                <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+                  <SignUp routing="path" path="/sign-up" signInUrl="/sign-in" afterSignUpUrl="/app" afterSignInUrl="/app" />
+                </div>
+              }
+            />
+            <Route
+              path="/app/*"
+              element={
+                <>
+                  <SignedIn>
+                    <AuthenticatedApp />
+                  </SignedIn>
+                  <SignedOut>
+                    <Navigate to="/sign-in" replace />
+                  </SignedOut>
+                </>
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        )}
+      </Route>
+    </Routes>
   )
 }

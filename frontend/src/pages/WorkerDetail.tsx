@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Phone, Mail, Pencil, ClipboardCheck, ShieldCheck, Download } from 'lucide-react'
+import { ArrowLeft, Phone, Mail, Pencil, ClipboardCheck, ShieldCheck, Download, Link2, Copy, MessageSquare } from 'lucide-react'
 import { api, type WorkerDetail as WorkerDetailType, type WorkerConsent, type ConsentStatus, type ConsentMethod, type EvaluationSummary } from '../lib/api'
 import { useOrg } from '../lib/org'
 import { REHIRE_OPTIONS } from '../lib/constants'
@@ -211,6 +211,60 @@ function ConsentCard({ orgId, workerId, consent, onSaved }: { orgId: string; wor
   )
 }
 
+function PortalShareCard({ orgId, workerId, token }: { orgId: string; workerId: string; token: string | null }) {
+  const [url, setUrl] = useState<string | null>(token ? `${window.location.origin}/p/${token}` : null)
+  const [busy, setBusy] = useState(false)
+
+  const generate = async (regenerate = false) => {
+    setBusy(true)
+    try {
+      const link = await api.createPortalLink(orgId, workerId, regenerate)
+      const full = `${window.location.origin}${link.path}`
+      setUrl(full)
+      await navigator.clipboard.writeText(full).catch(() => {})
+      toast.success(regenerate ? 'Enlace regenerado y copiado' : 'Enlace generado y copiado')
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'No se pudo generar el enlace')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const copy = async () => {
+    if (!url) return
+    await navigator.clipboard.writeText(url).catch(() => {})
+    toast.success('Enlace copiado')
+  }
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <h2 className="font-semibold text-gray-900 flex items-center gap-2 mb-1">
+        <Link2 className="w-4 h-4 text-gray-500" /> Portal del trabajador
+      </h2>
+      <p className="text-sm text-gray-500 mb-3">
+        Comparte un enlace privado para que el trabajador vea su historial, responda evaluaciones y ejerza sus derechos (Ley N° 21.719).
+      </p>
+      {url ? (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <input readOnly value={url} className="flex-1 min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-xs text-gray-600 bg-gray-50" />
+            <button onClick={copy} className="shrink-0 inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium border border-gray-300 rounded-lg px-3 py-2">
+              <Copy className="w-4 h-4" /> Copiar
+            </button>
+          </div>
+          <button onClick={() => generate(true)} disabled={busy} className="text-xs text-gray-400 hover:text-gray-600 underline">
+            Regenerar enlace (invalida el anterior)
+          </button>
+        </div>
+      ) : (
+        <button onClick={() => generate(false)} disabled={busy} className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg px-4 py-2">
+          <Link2 className="w-4 h-4" /> {busy ? 'Generando…' : 'Generar enlace'}
+        </button>
+      )}
+    </div>
+  )
+}
+
 export default function WorkerDetail() {
   const { orgId: ORG_ID } = useOrg()
   const { id } = useParams()
@@ -279,6 +333,11 @@ export default function WorkerDetail() {
       {/* Consent */}
       {ORG_ID && id && (
         <ConsentCard orgId={ORG_ID} workerId={id} consent={worker.consent} onSaved={load} />
+      )}
+
+      {/* Portal del trabajador */}
+      {ORG_ID && id && (
+        <PortalShareCard orgId={ORG_ID} workerId={id} token={worker.portal_token} />
       )}
 
       {/* Scores breakdown */}
@@ -401,6 +460,15 @@ export default function WorkerDetail() {
                     </p>
                   )}
                   {ev.comment && <p className="text-xs text-gray-600 mt-1.5">{ev.comment}</p>}
+                  {ev.worker_reply && (
+                    <div className="mt-2 border-l-2 border-blue-300 pl-2.5">
+                      <p className="text-[11px] font-medium text-blue-700 flex items-center gap-1">
+                        <MessageSquare className="w-3 h-3" /> Respuesta del trabajador
+                        {ev.worker_reply_at && ` · ${new Date(ev.worker_reply_at).toLocaleDateString('es-CL')}`}
+                      </p>
+                      <p className="text-xs text-gray-700">{ev.worker_reply}</p>
+                    </div>
+                  )}
                   <p className="text-xs text-gray-400 mt-1">{ev.evaluator_name || 'Sin evaluador'} · {new Date(ev.created_at).toLocaleDateString('es-CL')}</p>
                 </div>
               )

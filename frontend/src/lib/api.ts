@@ -97,6 +97,46 @@ export interface ScoringFormula {
   profiles: ScoringProfile[]
 }
 
+// --- Portal del Trabajador (acceso público por token) ---
+export interface PortalEvaluation {
+  id: string
+  project_name: string
+  score_quality: number
+  score_safety: number
+  score_punctuality: number
+  score_teamwork: number
+  score_technical: number
+  score_average: number
+  score_weighted: number
+  would_rehire: string
+  rehire_reason: string | null
+  comment: string | null
+  worker_reply: string | null
+  worker_reply_at: string | null
+  created_at: string
+}
+
+export interface PortalProfile {
+  worker_name: string
+  rut: string
+  specialty: string
+  org_name: string
+  evaluation_count: number
+  avg_score: number | null
+  consent_status: string
+  rehire_yes: number
+  rehire_reservations: number
+  rehire_no: number
+  formula: ScoringProfile
+  score_trend: { project_name: string; date: string | null; score_weighted: number }[]
+  evaluations: PortalEvaluation[]
+}
+
+export interface PortalLink {
+  token: string
+  path: string
+}
+
 export interface UserProfile {
   id: string
   email: string
@@ -134,6 +174,7 @@ export interface Worker {
 export interface WorkerDetail extends Worker {
   certifications: string | null
   notes: string | null
+  portal_token: string | null
   avg_scores: { quality: number; safety: number; punctuality: number; teamwork: number; technical: number; overall: number } | null
   score_trend: { project_name: string; date: string | null; score_average: number }[]
   rehire_stats: { yes: number; reservations: number; no: number }
@@ -168,6 +209,8 @@ export interface EvaluationSummary {
   rehire_reason: string | null
   comment: string | null
   evaluator_name: string | null
+  worker_reply: string | null
+  worker_reply_at: string | null
   created_at: string
 }
 
@@ -289,6 +332,15 @@ export const api = {
     apiFetch<Worker>(`/organizations/${orgId}/workers/${workerId}`, { method: 'PATCH', body: JSON.stringify(data) }),
   getWorkerConsent: (orgId: string, workerId: string) =>
     apiFetch<WorkerConsent>(`/organizations/${orgId}/workers/${workerId}/consent`),
+  createPortalLink: (orgId: string, workerId: string, regenerate = false) =>
+    apiFetch<PortalLink>(`/organizations/${orgId}/workers/${workerId}/portal-link${regenerate ? '?regenerate=true' : ''}`, { method: 'POST' }),
+
+  // Portal del Trabajador (público, por token — sin auth)
+  getPortal: (token: string) => apiFetch<PortalProfile>(`/portal/${token}`),
+  portalReply: (token: string, evalId: string, reply: string) =>
+    apiFetch<PortalEvaluation>(`/portal/${token}/evaluations/${evalId}/reply`, { method: 'POST', body: JSON.stringify({ reply }) }),
+  portalOptOut: (token: string, notes?: string) =>
+    apiFetch<void>(`/portal/${token}/opt-out`, { method: 'POST', body: JSON.stringify({ notes: notes ?? null }) }),
   setWorkerConsent: (orgId: string, workerId: string, data: { status: ConsentStatus; method?: ConsentMethod | null; consent_date?: string | null; notes?: string | null }) =>
     apiFetch<WorkerConsent>(`/organizations/${orgId}/workers/${workerId}/consent`, { method: 'PUT', body: JSON.stringify(data) }),
   importWorkers: async (orgId: string, file: File) => {

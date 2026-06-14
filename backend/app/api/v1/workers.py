@@ -1,5 +1,6 @@
 import csv
 import io
+import secrets
 import uuid
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
@@ -17,6 +18,7 @@ from app.models.user import User
 from app.models.worker import Worker
 from app.models.worker_consent import WorkerConsent
 from app.schemas.pagination import PaginatedResponse
+from app.schemas.portal import PortalLinkResponse
 from app.schemas.worker_consent import WorkerConsentResponse, WorkerConsentUpsert
 from app.schemas.worker import (
     EvaluationSummary,
@@ -331,6 +333,7 @@ async def get_worker_detail(
             score_weighted=ev.score_weighted,
             would_rehire=ev.would_rehire, rehire_reason=ev.rehire_reason,
             comment=ev.comment, evaluator_name=evaluator_name,
+            worker_reply=ev.worker_reply, worker_reply_at=ev.worker_reply_at,
             created_at=ev.created_at,
         ))
         # La tendencia usa el puntaje ponderado (el "oficial").
@@ -376,11 +379,38 @@ async def get_worker_detail(
         id=worker.id, rut=worker.rut, first_name=worker.first_name, last_name=worker.last_name,
         specialty=worker.specialty, phone=worker.phone, email=worker.email, is_active=worker.is_active,
         certifications=worker.certifications, notes=worker.notes,
+        portal_token=worker.portal_token,
         evaluation_count=n, avg_score=avg_score, created_at=worker.created_at,
         avg_scores=avg_scores, score_trend=score_trend,
         rehire_stats=RehireStats(yes=rehire_yes, reservations=rehire_res, no=rehire_no),
         evaluations=evaluations, consent=consent,
     )
+
+
+@router.post("/{worker_id}/portal-link", response_model=PortalLinkResponse)
+async def create_portal_link(
+    org_id: uuid.UUID,
+    worker_id: uuid.UUID,
+    regenerate: bool = False,
+    db: AsyncSession = Depends(get_db),
+    _member: OrgMember = Depends(get_org_member),
+):
+    """Genera (o devuelve) el enlace privado del Portal del Trabajador.
+
+    El token se crea bajo demanda y se reutiliza; `regenerate=true` lo rota
+    (invalida el enlace anterior).
+    """
+    result = await db.execute(select(Worker).where(Worker.id == worker_id, Worker.org_id == org_id))
+    worker = result.scalar_one_or_none()
+    if not worker:
+        raise HTTPException(status_code=404, detail={"detail": "Worker not found", "code": ErrorCode.WORKER_NOT_FOUND})
+
+    if not worker.portal_token or regenerate:
+        worker.portal_token = secrets.token_urlsafe(32)
+        await db.commit()
+        await db.refresh(worker)
+
+    return PortalLinkResponse(token=worker.portal_token, path=f"/p/{worker.portal_token}")
 
 
 @router.patch("/{worker_id}", response_model=WorkerResponse)
