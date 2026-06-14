@@ -137,6 +137,25 @@ export interface PortalLink {
   path: string
 }
 
+// --- Calibración de evaluadores (anti-sesgo) ---
+export interface EvaluatorCalibration {
+  evaluator_id: string | null
+  evaluator_name: string | null
+  evaluation_count: number
+  mean_score: number
+  leniency_delta: number
+  dimension_spread: number
+  flags: string[]
+}
+
+export interface CalibrationResponse {
+  org_mean: number | null
+  min_sample: number
+  leniency_threshold: number
+  halo_threshold: number
+  evaluators: EvaluatorCalibration[]
+}
+
 export interface UserProfile {
   id: string
   email: string
@@ -290,6 +309,9 @@ export const api = {
 
   // Scoring (fórmula pública del puntaje)
   getScoringFormula: (orgId: string) => apiFetch<ScoringFormula>(`/organizations/${orgId}/scoring/formula`),
+
+  // Calibración de evaluadores (admin)
+  getCalibration: (orgId: string) => apiFetch<CalibrationResponse>(`/organizations/${orgId}/calibration`),
 
   // Projects
   listProjects: (orgId: string, params?: { page?: number; size?: number; status?: string; search?: string }) => {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, FolderKanban, Users, ClipboardCheck, Scale, Menu, X, AlertTriangle } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Users, ClipboardCheck, Scale, Sliders, Menu, X, AlertTriangle } from 'lucide-react'
 import { UserButton } from '@clerk/clerk-react'
 import { useOrg } from '../../lib/org'
 import { api } from '../../lib/api'
@@ -17,6 +17,7 @@ const navItems = [
 // mantiene 4 accesos para no romper su grilla).
 const secondaryNavItems = [
   { to: '/app/formula', icon: Scale, label: 'Fórmula del puntaje' },
+  { to: '/app/calibracion', icon: Sliders, label: 'Calibración' },
 ]
 
 // UserButton solo funciona dentro de <ClerkProvider>. En modo mock (sin Clerk)

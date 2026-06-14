@@ -16,6 +16,7 @@ from app.api.v1.evaluations import router as evaluations_router
 from app.api.v1.dashboard import router as dashboard_router
 from app.api.v1.scoring import router as scoring_router
 from app.api.v1.portal import router as portal_router
+from app.api.v1.calibration import router as calibration_router
 from app.api.v1.admin import router as admin_router
 from app.config import settings
 from app.database import engine
@@ -78,6 +79,7 @@ app.include_router(evaluations_router, prefix="/api/v1")
 app.include_router(dashboard_router, prefix="/api/v1")
 app.include_router(scoring_router, prefix="/api/v1")
 app.include_router(portal_router, prefix="/api/v1")
+app.include_router(calibration_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
 
 # Serve frontend static files (production: built by Dockerfile)

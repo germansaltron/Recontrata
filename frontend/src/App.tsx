@@ -16,6 +16,7 @@ const WorkerDetail = lazy(() => import('./pages/WorkerDetail'))
 const Evaluate = lazy(() => import('./pages/Evaluate'))
 const EvaluateWorker = lazy(() => import('./pages/EvaluateWorker'))
 const ScoreFormula = lazy(() => import('./pages/ScoreFormula'))
+const Calibration = lazy(() => import('./pages/Calibration'))
 const Terms = lazy(() => import('./pages/Terms'))
 const Privacy = lazy(() => import('./pages/Privacy'))
 const WorkerPortal = lazy(() => import('./pages/WorkerPortal'))
@@ -39,6 +40,7 @@ function ProtectedApp() {
           <Route path="evaluate" element={<Suspense fallback={<PageFallback />}><Evaluate /></Suspense>} />
           <Route path="evaluate/:projectId/:workerId" element={<Suspense fallback={<PageFallback />}><EvaluateWorker /></Suspense>} />
           <Route path="formula" element={<Suspense fallback={<PageFallback />}><ScoreFormula /></Suspense>} />
+          <Route path="calibracion" element={<Suspense fallback={<PageFallback />}><Calibration /></Suspense>} />
         </Route>
       </Routes>
     </OrgProvider>
