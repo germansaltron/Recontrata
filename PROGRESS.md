@@ -1,6 +1,18 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-14T14:10:00-04:00
+## Ultima actualizacion: 2026-06-14T14:40:00-04:00
+
+## Sesion 14 jun 2026 (parte 3) — Certificado descargable del portal — COMPLETO Y VERIFICADO ✅ (commit+push, deploy PENDIENTE)
+
+Follow-up de la apuesta #2: el "CV de faena" descargable. **master `1defbf9`**. **Solo frontend (sin migracion)**, build OK, E2E Playwright OK.
+- Ruta publica **`/p/:token/certificado`** (fuera del AccessGate), `WorkerCertificate.tsx`: documento imprimible via `window.print()` (Guardar como PDF del navegador) con encabezado + fecha de emision, identidad, score ponderado, resumen de recontratacion, **tabla** de evaluaciones (5 dims + ponderado + recontratacion), formula ordenada por peso y nota legal. **CSS `@media print` oculta la barra de acciones** (.no-print) → al imprimir solo sale el documento limpio. Sin nombre del evaluador.
+- Boton "Descargar mi certificado" en `WorkerPortal`. 100% client-side, reutiliza `getPortal` (sin libreria PDF, sin backend nuevo).
+- Verificado: Playwright renderiza el certificado (identidad, tabla, formula, pie legal) + se confirmo por CSSOM que la regla `@media print { .no-print { display:none } }` esta activa sobre la barra de acciones. 0 errores consola.
+- **DEPLOY PENDIENTE** (solo frontend, bajo riesgo, sin migracion): `railway up --detach`, verificar bundle nuevo. Requiere autorizacion de German.
+
+---
+
+## Ultima actualizacion previa: 2026-06-14T14:10:00-04:00
 
 ## Sesion 14 jun 2026 (parte 2) — FASE 5 apuesta #2: PORTAL DEL TRABAJADOR — COMPLETA Y VERIFICADA ✅ (commit+push, deploy PENDIENTE)
 
