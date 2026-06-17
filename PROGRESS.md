@@ -21,8 +21,12 @@ Primer punto de la unica apuesta pendiente de Fase 5 (offline-first en terreno).
 - El banner offline depende de `navigator.onLine` (en la prueba seguia true porque matar el server no apaga la interfaz de red; en terreno sin señal `navigator.onLine` pasa a false). Logica simple y correcta; verificada por codigo.
 - El lint `react-refresh/only-export-components` en main.tsx es **preexistente** (componente Root ya estaba), no introducido aqui.
 
-### ARRANCAR AQUI — proximo
-1. **DEPLOY del punto 1** (solo frontend, sin migracion): `railway service faenascore` -> `railway up --detach`. **Riesgo a vigilar**: primer rollout de un SW; un SW con bug puede dejar clientes con cache vieja. Mitigado por `registerType:'prompt'` + `cleanupOutdatedCaches`. **REQUIERE AUTORIZACION de German** (patron de las sesiones previas). Verificar post-deploy: `curl https://recontrata.cl/sw.js` -> 200 + DevTools Application -> Service Workers activo.
+### DEPLOY — HECHO (17 jun), con 1 pendiente manual de Cloudflare
+- **Deployado a prod** (`railway up --detach`, service faenascore). Commits `9be282f` (SW) + `1c59ffd` (fix headers). Bundle prod nuevo `index-Dp1Bd8f1.js`, `workbox-9c191d2f.js` servido 200 JS.
+- **TRAMPA CLOUDFLARE (resuelta a futuro, pendiente puntual)**: al consultar `https://recontrata.cl/sw.js` ANTES del deploy, Cloudflare cacheo la respuesta del `spa_fallback` (HTML) bajo `/sw.js` (la extension .js hace que CF la trate como asset estatico). Quedo `cf-cache-status: HIT`, `Cache-Control: max-age=14400` (4h) sirviendo HTML => el navegador no puede registrar el SW (intenta registrar un HTML).
+  - **Fix de fondo deployado** (`1c59ffd`, backend `main.py`): `/sw.js` y el shell `index.html` ahora se sirven con `Cache-Control: no-cache, no-store, must-revalidate`. Verificado: por cache-buster `https://recontrata.cl/sw.js?cb=x` -> **200 `text/javascript`, `cf-cache-status: BYPASS`**, body = SW Workbox real (NavigationRoute + createHandlerBoundToURL + precache). CF ya NO cachea /sw.js a futuro.
+  - **PENDIENTE (requiere panel Cloudflare de German, no hay token en el repo)**: **purgar la URL `https://recontrata.cl/sw.js`** (Caching -> Configuration -> Purge Cached Content -> Custom Purge -> pegar la URL). Sin purge, el `/sw.js` canonico sigue sirviendo el HTML viejo hasta que expire (~3.3h desde el deploy) y el SW no se registra para usuarios reales. Tras purgar (o expirar), el no-store evita que vuelva a pasar.
+  - Verificar tras purge: `curl -I https://recontrata.cl/sw.js` -> `content-type: text/javascript` + `cf-cache-status: BYPASS/MISS` (no HIT con HTML).
 2. **Punto 2 de apuesta #3: cola IndexedDB** de evaluaciones creadas offline (POST a EvaluateWorker entra a cola si `!online`). Reusa `useOnlineStatus`.
 3. **Punto 3: sync** — vaciar la cola al volver online (background sync / al detectar evento `online`), con feedback de toasts.
 
