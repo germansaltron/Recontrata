@@ -7,6 +7,8 @@ import { useOrg } from '../lib/org'
 import { SCORE_DIMENSIONS, REHIRE_OPTIONS } from '../lib/constants'
 import { formatRelative } from '../lib/dates'
 import { toast } from '../lib/toast'
+import { enqueueEvaluation } from '../lib/offlineQueue'
+import type { CreateEvaluationData } from '../lib/api'
 
 const draftKey = (projectId: string, workerId: string) => `faenascore:draft:${projectId}:${workerId}`
 
@@ -114,29 +116,55 @@ export default function EvaluateWorker() {
   }
 
   async function handleSubmit() {
-    if (!canSubmit || !projectId || !workerId) return
+    if (!canSubmit || !projectId || !workerId || !ORG_ID) return
     setSaving(true)
     setError('')
 
+    const payload: CreateEvaluationData = {
+      project_id: projectId,
+      worker_id: workerId,
+      score_quality: scores[0],
+      score_safety: scores[1],
+      score_punctuality: scores[2],
+      score_teamwork: scores[3],
+      score_technical: scores[4],
+      would_rehire: wouldRehire,
+      rehire_reason: rehireReason || undefined,
+      comment: comment || undefined,
+    }
+
+    // Guarda la evaluación en la cola offline (IndexedDB) y vuelve al proyecto.
+    // Se usa cuando no hay señal o cuando la red falla (punto 2; el envío = punto 3).
+    const queueOffline = async () => {
+      const label = ctx ? `${ctx.worker_name} · ${ctx.project_name}` : 'Evaluación pendiente'
+      try {
+        await enqueueEvaluation(ORG_ID, payload, label)
+        localStorage.removeItem(draftKey(projectId, workerId))
+        toast.success(
+          'Evaluación guardada en el dispositivo',
+          'Sin conexión: se enviará automáticamente cuando recuperes señal.',
+        )
+        navigate(`/app/projects/${projectId}`)
+      } catch {
+        setError('No pudimos guardar la evaluación en el dispositivo. Intenta nuevamente.')
+        setSaving(false)
+      }
+    }
+
+    // Sin conexión: ni intentamos la red, va directo a la cola.
+    if (!navigator.onLine) {
+      await queueOffline()
+      return
+    }
+
     try {
-      await api.createEvaluation(ORG_ID!, {
-        project_id: projectId,
-        worker_id: workerId,
-        score_quality: scores[0],
-        score_safety: scores[1],
-        score_punctuality: scores[2],
-        score_teamwork: scores[3],
-        score_technical: scores[4],
-        would_rehire: wouldRehire,
-        rehire_reason: rehireReason || undefined,
-        comment: comment || undefined,
-      })
+      await api.createEvaluation(ORG_ID, payload)
       localStorage.removeItem(draftKey(projectId, workerId))
 
       // Buscar el siguiente trabajador pendiente del mismo proyecto para encadenar la evaluación.
       let nextPendingId: string | null = null
       try {
-        const pending = await api.getProjectsPending(ORG_ID!)
+        const pending = await api.getProjectsPending(ORG_ID)
         const proj = pending.find((p) => p.id === projectId)
         if (proj && proj.first_pending_worker_id && proj.first_pending_worker_id !== workerId) {
           nextPendingId = proj.first_pending_worker_id
@@ -153,8 +181,12 @@ export default function EvaluateWorker() {
       }
       navigate(`/app/projects/${projectId}`)
     } catch (e) {
+      // Fallo de red (no un error de validación del servidor) → encolar offline.
+      if (!navigator.onLine || e instanceof TypeError) {
+        await queueOffline()
+        return
+      }
       setError(e instanceof Error ? e.message : 'Error al guardar')
-    } finally {
       setSaving(false)
     }
   }

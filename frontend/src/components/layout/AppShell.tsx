@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, FolderKanban, Users, ClipboardCheck, Scale, Sliders, Menu, X, AlertTriangle, WifiOff } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Users, ClipboardCheck, Scale, Sliders, Menu, X, AlertTriangle, WifiOff, UploadCloud } from 'lucide-react'
 import { UserButton } from '@clerk/clerk-react'
 import { useOrg } from '../../lib/org'
 import { api } from '../../lib/api'
 import { prefetch } from '../../lib/swr'
 import { useOnlineStatus } from '../../hooks/useOnlineStatus'
+import { usePendingSync } from '../../hooks/usePendingSync'
 
 const navItems = [
   { to: '/app', icon: LayoutDashboard, label: 'Dashboard' },
@@ -30,6 +31,7 @@ export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { orgId, loading, error, retry } = useOrg()
   const online = useOnlineStatus()
+  const pendingSync = usePendingSync()
 
   // Warm up Evaluate (data + JS chunk) while the user is on any panel screen,
   // so the click feels instant. Best-effort, no UI impact.
@@ -108,14 +110,26 @@ export default function AppShell() {
           )}
         </header>
         {/* Aviso de modo terreno: sin conexión la app sigue abriendo (app shell
-            cacheado); las evaluaciones se encolarán cuando exista la cola (punto 2). */}
+            cacheado) y las evaluaciones se guardan en la cola offline (punto 2). */}
         {!online && (
           <div
             role="status"
             className="flex items-center justify-center gap-2 bg-amber-100 text-amber-900 text-sm font-medium px-4 py-2 border-b border-amber-200"
           >
             <WifiOff className="w-4 h-4 shrink-0" />
-            Sin conexión — modo terreno. Tu trabajo se sincronizará al recuperar señal.
+            {pendingSync > 0
+              ? `Sin conexión — ${pendingSync} ${pendingSync === 1 ? 'evaluación guardada' : 'evaluaciones guardadas'} en el dispositivo. Se enviarán al recuperar señal.`
+              : 'Sin conexión — modo terreno. Tu trabajo se guardará y se enviará al recuperar señal.'}
+          </div>
+        )}
+        {/* Con conexión pero con evaluaciones aún sin enviar (se sincronizan en el punto 3). */}
+        {online && pendingSync > 0 && (
+          <div
+            role="status"
+            className="flex items-center justify-center gap-2 bg-indigo-50 text-indigo-800 text-sm font-medium px-4 py-2 border-b border-indigo-100"
+          >
+            <UploadCloud className="w-4 h-4 shrink-0" />
+            {pendingSync === 1 ? '1 evaluación por sincronizar' : `${pendingSync} evaluaciones por sincronizar`}
           </div>
         )}
         {/* pb-20 en móvil deja espacio para la bottom-nav */}

@@ -2,7 +2,36 @@
 
 ## Ultima actualizacion: 2026-06-17T00:00:00-04:00
 
-## Sesion 17 jun 2026 (parte 1) — FASE 5 apuesta #3, PUNTO 1: SERVICE WORKER / APP SHELL OFFLINE (PWA) — COMPLETO Y VERIFICADO ✅ (commit+push, deploy PENDIENTE de autorizacion)
+## Sesion 17 jun 2026 (parte 2) — FASE 5 apuesta #3, PUNTO 2: COLA OFFLINE DE EVALUACIONES (IndexedDB) — COMPLETO Y VERIFICADO ✅ (commit+push, deploy junto al punto 3)
+
+Segundo de los 3 puntos de offline-first. Cuando no hay señal (o la red falla), la evaluacion se guarda en **IndexedDB** en vez de perderse; el envio automatico es el **punto 3**. Solo frontend, sin migracion, sin backend.
+
+### Que se hizo
+- **`src/lib/offlineQueue.ts`**: wrapper de IndexedDB VANILLA (sin dependencias nuevas). DB `recontrata-offline` v1, store `pending-evaluations` (keyPath `id`). API: `enqueueEvaluation(orgId, payload, label)` (genera uuid via crypto.randomUUID), `getQueuedEvaluations()` (ordenadas por createdAt), `removeQueuedEvaluation(id)`, `countQueuedEvaluations()`. Dispara `window` event `recontrata:queue-changed` en cada cambio. Record = {id, orgId, payload, label, createdAt, attempts}.
+- **`src/lib/api.ts`**: se extrajo el tipo `CreateEvaluationData` (export) para compartirlo entre `createEvaluation` y la cola (sin duplicar el shape).
+- **`src/hooks/usePendingSync.ts`**: cuenta de la cola, reactiva al evento + online/offline.
+- **`EvaluateWorker.tsx` handleSubmit**: arma el `payload`, y (a) si `!navigator.onLine` -> `queueOffline()` directo; (b) si esta online pero la llamada lanza error de RED (`e instanceof TypeError`, no un 4xx de validacion) -> tambien encola. `queueOffline` guarda en IndexedDB, limpia el borrador de localStorage, toast "Evaluacion guardada en el dispositivo… se enviara cuando recuperes señal", y navega al proyecto. Los errores de validacion del servidor siguen mostrandose como antes.
+- **`AppShell.tsx`**: banner offline ahora dice cuantas hay guardadas; ademas, **online con pendientes** muestra una barra indigo "N evaluaciones por sincronizar" (icono UploadCloud).
+
+### Como se verifico (REAL, modulo en navegador)
+- `tsc -b` limpio; `npm run build` OK (55 entradas precache).
+- **Test del modulo real en Chromium** (pagina temporal `offline-queue-test.html/.ts` servida por `vite dev`, borrada despues, manejada por Playwright): enqueue x2 -> count=2; orden por createdAt OK; **payload + orgId + label preservados** tras round-trip por IndexedDB; remove del 1.º -> count=1 y queda el worker correcto (w-2); **3 eventos `queue-changed`** (2 add + 1 remove); finalCount=0 tras limpieza. Todas las aserciones verdes.
+- Los 2 warnings eslint `react-hooks/set-state-in-effect` en EvaluateWorker son **preexistentes** (efecto de autosave de borrador, lineas 60-76; mis hunks tocan 7/116/181). CI corre `npm run build`, no eslint.
+
+### Limite conocido / decision de deploy
+- **NO desplegar el punto 2 solo**: el toast promete "se enviara automaticamente", pero el envio es el punto 3. Si se sube sin sync, las evaluaciones quedan en la cola sin salir. **Plan: implementar el punto 3 (sync) y desplegar 2+3 juntos.** (Acordado con German.)
+- Cold-start sin señal: si el `orgId` nunca cargo (useOrg depende de la API), no se puede encolar; en el flujo real el supervisor abre la app con señal en el campamento y el orgId ya esta en memoria. Cachear org/listas offline es mejora futura (no parte de #3).
+
+### ARRANCAR AQUI — proximo: PUNTO 3 (sync)
+1. `flushQueue()` en offlineQueue: por cada `QueuedEvaluation` -> `api.createEvaluation(orgId, payload)`; si OK -> `removeQueuedEvaluation`; si falla red -> dejar y reintentar luego; si 4xx (ej. eval duplicada/validacion) -> decidir (descartar con aviso o marcar). Incrementar `attempts`.
+2. Disparadores: evento `online` (window) + al montar AppShell si hay pendientes + boton manual "Sincronizar ahora" en la barra indigo. (Background Sync API opcional, fallback al evento online.)
+3. Feedback: toasts "Sincronizando N…" / "N evaluaciones enviadas". Refrescar SWR de proyectos/dashboard tras sync.
+4. Verificar E2E con backend real + mock auth (encolar offline -> volver online -> confirmar POST y vaciado de cola).
+5. **Deploy 2+3 juntos** (`railway up`, requiere autorizacion de German). Sin migracion.
+
+---
+
+## Sesion 17 jun 2026 (parte 1) — FASE 5 apuesta #3, PUNTO 1: SERVICE WORKER / APP SHELL OFFLINE (PWA) — COMPLETO Y VERIFICADO ✅ (EN PROD)
 
 Primer punto de la unica apuesta pendiente de Fase 5 (offline-first en terreno). La apuesta se desglosa en **1) service worker / app shell offline (ESTE)**, 2) cola IndexedDB de evaluaciones, 3) sync al recuperar señal. Solo **frontend**, sin migracion, sin tocar backend.
 

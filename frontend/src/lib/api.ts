@@ -233,6 +233,20 @@ export interface EvaluationSummary {
   created_at: string
 }
 
+// Payload para crear una evaluación. Compartido con la cola offline (offlineQueue.ts).
+export interface CreateEvaluationData {
+  project_id: string
+  worker_id: string
+  score_quality: number
+  score_safety: number
+  score_punctuality: number
+  score_teamwork: number
+  score_technical: number
+  would_rehire: string
+  rehire_reason?: string
+  comment?: string
+}
+
 export interface Evaluation {
   id: string
   project_id: string
@@ -379,7 +393,7 @@ export const api = {
   },
 
   // Evaluations
-  createEvaluation: (orgId: string, data: { project_id: string; worker_id: string; score_quality: number; score_safety: number; score_punctuality: number; score_teamwork: number; score_technical: number; would_rehire: string; rehire_reason?: string; comment?: string }) =>
+  createEvaluation: (orgId: string, data: CreateEvaluationData) =>
     apiFetch<Evaluation>(`/organizations/${orgId}/evaluations`, { method: 'POST', body: JSON.stringify(data) }),
   listEvaluations: (orgId: string, params?: { page?: number; project_id?: string; worker_id?: string }) => {
     const q = new URLSearchParams()
