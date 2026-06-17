@@ -1,0 +1,7 @@
+# Artefactos generados del pipeline de video (reproducibles con scripts/).
+raw/
+audio/
+_tmp/
+*_pre.mp4
+*.srt
+clip*_durations.json
