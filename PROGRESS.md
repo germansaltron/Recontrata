@@ -16,8 +16,8 @@ Aprovechar comercialmente el offline (que construimos en #3 pero la landing no c
 - **Banners a 375px (medicion DOM, peor caso de texto)**: inyectado el markup real con clases Tailwind, **overflow horizontal = 0** en ambos (ambar 74px alto, indigo 59px) → envuelven bien, no se desbordan.
 - Nota: el StarRating de evaluar ya tenia targets **68px** para guantes (de Fase 3), confirmado en codigo.
 
-### Pendiente
-- **DEPLOY** de esta parte (solo frontend) — se puede subir ya o junto al proximo cambio de frontend. `railway up --detach --service faenascore`.
+### DEPLOY — HECHO (17 jun) ✅
+- Deployado (`railway up --detach --service faenascore`). Bundle prod nuevo **`index-DZRQQpla.js`**. Verificado: copy de offline en el bundle ("Sin señal en la faena", "hasta sin señal", "sigue funcionando sin conexión"); API health 200, recontrata.cl 200, /sw.js sigue `text/javascript` (sin regresion). (Usuarios con SW viejo lo ven al aceptar "Actualizar"; nuevos visitantes, directo.)
 
 ---
 
