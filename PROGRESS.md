@@ -2,6 +2,32 @@
 
 ## Ultima actualizacion: 2026-06-17T00:00:00-04:00
 
+## Sesion 17 jun 2026 (parte 3) — FASE 5 apuesta #3, PUNTO 3: SYNC DE LA COLA OFFLINE — COMPLETO Y VERIFICADO ✅ → con esto **APUESTA #3 COMPLETA (3/3)**; deploy 2+3 juntos a continuacion
+
+Tercer y ultimo punto de offline-first: enviar a la API las evaluaciones que quedaron en la cola (punto 2) y vaciarla. Solo frontend, sin migracion.
+
+### Que se hizo
+- **`src/lib/offlineSync.ts`** `flushQueue(): FlushResult`: recorre la cola (orden por createdAt) y por cada item `api.createEvaluation(orgId, payload)`; **OK -> removeQueuedEvaluation + sent++**; **error de RED (`e instanceof TypeError` o `!navigator.onLine`) -> break** (se deja en cola para reintentar); **error 4xx del servidor -> se saca de la cola y se reporta en `failed[]`** (item que no va a pasar nunca, p. ej. "ya evaluado"; evita que envenene la cola). Guard `flushing` contra ejecuciones concurrentes. Si offline al entrar, no intenta.
+- **`src/lib/swr.ts`**: nueva `invalidate(match)` que borra claves del cache (para refrescar `projects-pending:*` tras sincronizar).
+- **`src/hooks/useOfflineSync.ts`**: orquesta `sync({manual?})`. Triggers: **evento `online`** + **al montar** (si online y hay pendientes) + **boton manual**. Toasts: "N evaluaciones sincronizadas" (+ "quedan M" si la red se corta a mitad), "N no se pudieron enviar" (con motivo). Tras enviar invalida `projects-pending:*`. Expone `syncing` para feedback. Guard `running` ref.
+- **`AppShell.tsx`**: la barra indigo "N por sincronizar" ahora trae boton **"Sincronizar ahora"** (deshabilitado + icono pulsando mientras `syncing`).
+
+### Como se verifico (REAL, logica de flush en navegador)
+- `tsc -b` + lint nuevos limpios; `npm run build` OK.
+- **Test del flush real en Chromium** (pagina temporal `offline-sync-test.html/.ts`, borrada despues; monkeypatch del singleton `api.createEvaluation` para controlar respuestas; `navigator.onLine` override via defineProperty; Playwright lee `window.__results`):
+  - **Exito**: 2 encoladas -> sent=2, remaining=0, llamadas en orden [w-1,w-2], cola vacia. ✓
+  - **Error de RED (TypeError)**: sent=0, remaining=2 (se quedan), failed=0 (no se descartan). ✓
+  - **Error 4xx servidor**: sent=0, remaining=0 (descartada), failed=1 con el motivo preservado. ✓
+  - **Offline**: ni intenta (apiCalled=false), remaining=1. ✓
+
+### Estado: APUESTA #3 (offline-first) COMPLETA — 3/3 puntos. Con esto **Fase 5 queda 5/5**.
+### ARRANCAR AQUI — proximo
+1. **DEPLOY 2+3 juntos** (`railway up --detach --service faenascore`, solo frontend, sin migracion). Verificar post-deploy: bundle nuevo + DevTools Application (IndexedDB `recontrata-offline`). El SW (#1) ya esta en prod; el no-store de /sw.js evita la trampa Cloudflare.
+2. Pendiente humano (unico para abrir al publico): prueba de login real con correo en recontrata.cl/sign-up.
+3. Mejora futura (fuera de #3): cachear org/listas para cold-start sin señal; Background Sync API nativa como complemento al evento `online`.
+
+---
+
 ## Sesion 17 jun 2026 (parte 2) — FASE 5 apuesta #3, PUNTO 2: COLA OFFLINE DE EVALUACIONES (IndexedDB) — COMPLETO Y VERIFICADO ✅ (commit+push, deploy junto al punto 3)
 
 Segundo de los 3 puntos de offline-first. Cuando no hay señal (o la red falla), la evaluacion se guarda en **IndexedDB** en vez de perderse; el envio automatico es el **punto 3**. Solo frontend, sin migracion, sin backend.

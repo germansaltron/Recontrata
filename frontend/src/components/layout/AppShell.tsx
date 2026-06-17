@@ -7,6 +7,7 @@ import { api } from '../../lib/api'
 import { prefetch } from '../../lib/swr'
 import { useOnlineStatus } from '../../hooks/useOnlineStatus'
 import { usePendingSync } from '../../hooks/usePendingSync'
+import { useOfflineSync } from '../../hooks/useOfflineSync'
 
 const navItems = [
   { to: '/app', icon: LayoutDashboard, label: 'Dashboard' },
@@ -32,6 +33,7 @@ export default function AppShell() {
   const { orgId, loading, error, retry } = useOrg()
   const online = useOnlineStatus()
   const pendingSync = usePendingSync()
+  const { sync, syncing } = useOfflineSync()
 
   // Warm up Evaluate (data + JS chunk) while the user is on any panel screen,
   // so the click feels instant. Best-effort, no UI impact.
@@ -122,14 +124,22 @@ export default function AppShell() {
               : 'Sin conexión — modo terreno. Tu trabajo se guardará y se enviará al recuperar señal.'}
           </div>
         )}
-        {/* Con conexión pero con evaluaciones aún sin enviar (se sincronizan en el punto 3). */}
+        {/* Con conexión pero con evaluaciones aún sin enviar: se sincronizan solas al
+            volver la señal; igual ofrecemos un botón manual para forzarlo. */}
         {online && pendingSync > 0 && (
           <div
             role="status"
             className="flex items-center justify-center gap-2 bg-indigo-50 text-indigo-800 text-sm font-medium px-4 py-2 border-b border-indigo-100"
           >
-            <UploadCloud className="w-4 h-4 shrink-0" />
+            <UploadCloud className={`w-4 h-4 shrink-0 ${syncing ? 'animate-pulse' : ''}`} />
             {pendingSync === 1 ? '1 evaluación por sincronizar' : `${pendingSync} evaluaciones por sincronizar`}
+            <button
+              onClick={() => sync({ manual: true })}
+              disabled={syncing}
+              className="ml-1 underline underline-offset-2 hover:text-indigo-900 disabled:opacity-60 disabled:no-underline"
+            >
+              {syncing ? 'Sincronizando…' : 'Sincronizar ahora'}
+            </button>
           </div>
         )}
         {/* pb-20 en móvil deja espacio para la bottom-nav */}

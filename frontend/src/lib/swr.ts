@@ -31,3 +31,10 @@ export function prefetch<T>(key: string, fetcher: () => Promise<T>): void {
   if (store.has(key) || inflight.has(key)) return
   swr(key, fetcher).catch(() => { /* prefetch is best-effort */ })
 }
+
+/** Drops cached entries whose key matches, forcing a fresh fetch next time. */
+export function invalidate(match: (key: string) => boolean): void {
+  for (const key of [...store.keys()]) {
+    if (match(key)) store.delete(key)
+  }
+}
