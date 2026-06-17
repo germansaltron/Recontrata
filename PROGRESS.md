@@ -2,6 +2,20 @@
 
 ## Ultima actualizacion: 2026-06-17T00:00:00-04:00
 
+## Sesion 17 jun 2026 (parte 6) — DOCUMENTACION CONSOLIDADA + SERIE DE TUTORIALES EN VIDEO (guiones) ✅
+
+A pedido de German: documentar todo lo construido + crear, como pedagogo, una serie de tutoriales en video calcando el patron del tutorial de CasiListo (`Proyectos Claude Code/Fillanyform/tutorial/`).
+
+### Que se hizo (solo docs, sin tocar codigo)
+- **`docs/SISTEMA.md`**: documentacion consolidada del producto tal como esta (que es, stack, todas las funcionalidades, mapa de rutas del frontend, estado y pendientes).
+- **`tutorial/README.md`**: plan pedagogico + pipeline de produccion, espejo del de CasiListo (captura Playwright + voz IA gpt-4o-mini-tts + ffmpeg; principios: 1 clip=1 objetivo, mostrar-no-contar, del problema al alivio, voz latina sin tecnicismos, honestidad, continuidad con teaser "Siguiente:"). Tabla de la serie + como producir los MP4 reutilizando los scripts de CasiListo (adaptar marca azul + sembrar org demo + gate recontrata2211).
+- **`tutorial/guiones/clip1..7.md` + `clip8_opcional.md`**: guiones completos (estructura Escena → EN PANTALLA / CALLOUT / NARRACION), fieles al UI real (nav, 5 dimensiones con anclas BARS, Si/Con Reservas/No, importar Excel, offline, fórmula, portal, calibración). Arco: preparar (1-3) → terreno (4-5) → decidir (6) → confianza (7) → avanzado (8).
+
+### Estado
+- ✅ Guiones de los 8 clips listos. ⬜ Produccion de los MP4 pendiente (reutiliza pipeline CasiListo; requiere marca + org demo sembrada).
+
+---
+
 ## Sesion 17 jun 2026 (parte 5) — COMUNICAR OFFLINE EN LANDING + PASADA MÓVIL 375px — COMPLETO Y VERIFICADO ✅ (commit+push; deploy junto al próximo cambio)
 
 Aprovechar comercialmente el offline (que construimos en #3 pero la landing no comunicaba) + asegurar que los banners nuevos no rompan en móvil. Solo frontend.
