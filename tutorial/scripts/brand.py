@@ -68,12 +68,13 @@ FFPROBE = _find("ffprobe")
 
 
 def openai_key() -> str:
-    """Lee la OPENAI_API_KEY de la variable de entorno (no de ningún .env)."""
+    """Lee la OPENAI_API_KEY de la variable de entorno (no de ningún .env: leer .env
+    es un bloqueo duro del harness). No se imprime nunca."""
     import os
     k = os.environ.get("OPENAI_API_KEY")
     if not k:
         raise RuntimeError(
-            "Falta OPENAI_API_KEY en el entorno. Expórtala antes de correr el TTS, "
-            "por ejemplo: setx OPENAI_API_KEY \"sk-…\" (y reabre la terminal), o "
-            "$env:OPENAI_API_KEY=\"sk-…\" en PowerShell.")
+            "Falta OPENAI_API_KEY en el entorno. Opciones: (A) corre el TTS tú mismo "
+            "con la key en tu terminal; (B) setx OPENAI_API_KEY \"sk-…\" y reinicia "
+            "Claude Code para que la herede.")
     return k
