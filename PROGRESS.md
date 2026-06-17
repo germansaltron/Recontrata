@@ -1,6 +1,28 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-17T00:00:00-04:00
+## Ultima actualizacion: 2026-06-17 (fin de jornada)
+
+---
+
+## 🔖 RETOMAR AQUI (próxima sesión)
+
+**Estado al cierre del 17 jun 2026:**
+- **Fase 5 = 5/5 EN PROD.** Offline-first (apuesta #3) completo: service worker/PWA + cola IndexedDB + sync. Bundle prod `index-DZRQQpla.js`.
+- **Offline comunicado en la landing** (card "¿Sin señal en la faena? Igual evalúas") + banners móvil-safe — en prod.
+- **Documentación**: `docs/SISTEMA.md` (sistema completo) + `docs/OFFLINE_FIRST.md` (técnico offline).
+- **Tutoriales en video**: 8 guiones en `tutorial/guiones/` + pipeline en `tutorial/scripts/`. **Clip 1 PRODUCIDO** (`tutorial/output/clip1.mp4`, 62.5s) — pendiente de aprobación de German.
+
+**Próximos pasos (en orden):**
+1. **German revisa `clip1.mp4`** y aprueba el estilo (o pide ajustes: subtítulos más chicos, clic en "Regístrese" en vez de "Entrar").
+2. Tras aprobar → producir **clips 2–7**. Los clips 4–5 (terreno) y 6–7 necesitan una **organización demo sembrada** (trabajadores + proyecto + evaluaciones) para grabar un flujo realista tras el gate `recontrata2211`.
+3. **Pendiente humano (para abrir al público)**: probar login real con correo en recontrata.cl/sign-up; luego quitar gate `recontrata2211` + `noindex`.
+
+**Notas para producir tutoriales:**
+- La clave OpenAI va en `tutorial/scripts/openai_key.txt` (gitignored, en disco; **no** subir) o en la env var `OPENAI_API_KEY`. Leer `**/.env` es bloqueo duro del harness.
+- Regenerar clip: `cd tutorial/scripts && python produce_clip1.py all` (etapas: tts/capture/cards/assemble).
+- Deploy de frontend: `railway up --detach --service faenascore`; el SW usa `registerType:'prompt'` (el bundle nuevo entra al aceptar "Actualizar").
+
+---
 
 ## Sesion 17 jun 2026 (parte 7) — CLIP 1 DEL TUTORIAL PRODUCIDO (video real) ✅
 
