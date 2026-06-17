@@ -2,6 +2,28 @@
 
 ## Ultima actualizacion: 2026-06-17T00:00:00-04:00
 
+## Sesion 17 jun 2026 (parte 7) — CLIP 1 DEL TUTORIAL PRODUCIDO (video real) ✅
+
+Producido el **piloto en video** del Clip 1 ("Bienvenida y tu cuenta") reutilizando el pipeline de CasiListo, adaptado a Recontrata. **`tutorial/output/clip1.mp4`** (62.5s, 1920x1080, h264+aac, 8.1 MB).
+
+### Pipeline (en `tutorial/scripts/`)
+- **`brand.py`**: identidad azul, rutas, ffmpeg, voz TTS. **Clave OpenAI**: SOLO de `OPENAI_API_KEY` (entorno) o de `tutorial/scripts/openai_key.txt` (gitignored). Leer `**/.env` es **bloqueo duro** del harness (no se puede ni con permiso del chat) → por eso el archivo aparte.
+- **`produce_clip1.py`**: etapas `tts` (OpenAI gpt-4o-mini-tts, voz alloy, acento latino) · `capture` (Playwright: 1 webm/escena, cursor azul inyectado, gate `recontrata2211` por add_init_script) · `cards` (PIL: intro/outro de marca) · `assemble` (ffmpeg: escenas recortadas al largo del audio + subtítulos quemados + concat).
+
+### Como se verifico (REAL)
+- ffprobe: 62.5s, video 1920x1080 h264 + audio aac (ambos streams OK).
+- Frames extraídos: esc2 = landing real con subtítulo; esc4 = formulario Clerk real con **cursor azul visible** sobre el campo correo + subtítulo; outro = logo + "Pruébalo en recontrata.cl" + "Siguiente: Trae tu gente". Intro de marca OK.
+
+### Notas de pulido (para revisión de German, menores)
+- El CTA "Empezar gratis" lleva a **/sign-in** ("Entrar"), no a registro; la narración dice "regístrate". Honesto (es el flujo real) pero se puede afinar haciendo clic en "Regístrese".
+- Subtítulos algo grandes; en esc4 la caja roza el pie "Secured by Clerk". Ajustable (FontSize/MarginV en `_build_srt`/style).
+- Captura hecha con duraciones estimadas y recortada al audio real en el ensamblado (sincronía OK).
+
+### Próximo
+- Revisión de German del `clip1.mp4` (aprobar estilo, como el piloto de CasiListo). Tras aprobación, producir clips 2–7 (los 4–5 necesitan **organización demo sembrada** con datos).
+
+---
+
 ## Sesion 17 jun 2026 (parte 6) — DOCUMENTACION CONSOLIDADA + SERIE DE TUTORIALES EN VIDEO (guiones) ✅
 
 A pedido de German: documentar todo lo construido + crear, como pedagogo, una serie de tutoriales en video calcando el patron del tutorial de CasiListo (`Proyectos Claude Code/Fillanyform/tutorial/`).
