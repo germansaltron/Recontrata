@@ -2,6 +2,22 @@
 
 ## Ultima actualizacion: 2026-06-17T00:00:00-04:00
 
+## Sesion 17 jun 2026 (parte 4) — DEPLOY 2+3 + APUESTA #3 COMPLETA → **FASE 5 = 5/5, EN PROD** ✅✅
+
+Deployados los puntos 2+3 juntos (`railway up --detach --service faenascore`). Bundle prod nuevo **`index-D9bRanN3.js`**. Con esto la apuesta #3 (offline-first) queda **3/3** y **Fase 5 completa (5/5), toda en produccion**.
+
+### Verificado en prod (en vivo, 17 jun)
+- API health 200, recontrata.cl 200. `/sw.js` GET -> `text/javascript` 200 (Workbox real). (HEAD da 405/json: la ruta solo maneja GET; los navegadores hacen GET, no afecta.)
+- **Codigo offline desplegado**: "Sincronizar ahora"/"por sincronizar" en el bundle principal; "guardada en el dispositivo" en el chunk `EvaluateWorker-*.js`.
+- **Navegador prod (Playwright)**: SW activo y controlando; **IndexedDB `recontrata-offline` se crea OK en prod**. El **flujo de actualizacion PWA funciona**: tras el deploy habia un SW nuevo `waiting` (registerType:'prompt'), se forzo SKIP_WAITING + reload y el bundle paso del viejo `Dp1Bd8f1` al nuevo `D9bRanN3` → los puntos 2+3 ya se sirven a usuarios al aceptar "Actualizar".
+- La logica de cola (punto 2) y flush (punto 3) se verifico E2E localmente contra los modulos REALES en Chromium (ver partes 2 y 3); es el mismo codigo que viaja en el bundle.
+
+### Pendientes (no son de #3)
+1. Pendiente humano (unico para abrir al publico): prueba de login real con correo en recontrata.cl/sign-up.
+2. Mejora futura: cachear org/listas para cold-start sin señal; Background Sync API nativa como complemento al evento `online`.
+
+---
+
 ## Sesion 17 jun 2026 (parte 3) — FASE 5 apuesta #3, PUNTO 3: SYNC DE LA COLA OFFLINE — COMPLETO Y VERIFICADO ✅ → con esto **APUESTA #3 COMPLETA (3/3)**; deploy 2+3 juntos a continuacion
 
 Tercer y ultimo punto de offline-first: enviar a la API las evaluaciones que quedaron en la cola (punto 2) y vaciarla. Solo frontend, sin migracion.
