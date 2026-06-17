@@ -78,11 +78,14 @@ def openai_key() -> str:
     if k:
         return k.strip()
     if KEY_FILE.exists():
-        txt = KEY_FILE.read_text(encoding="utf-8").strip()
-        # admite tanto "sk-..." pelado como "OPENAI_API_KEY=sk-..."
-        if "=" in txt and txt.lower().startswith("openai"):
-            txt = txt.split("=", 1)[1].strip().strip('"').strip("'")
-        if txt:
-            return txt
+        for raw in KEY_FILE.read_text(encoding="utf-8").splitlines():
+            line = raw.strip().strip('"').strip("'")
+            if not line or line.startswith("#"):
+                continue
+            if "OPENAI_API_KEY" in line and "=" in line:
+                line = line.split("=", 1)[1].strip().strip('"').strip("'")
+            if line.startswith("sk-"):
+                return line
     raise RuntimeError(
-        f"Falta la clave. Pega tu OPENAI_API_KEY (sk-…) en {KEY_FILE} y guarda.")
+        f"Falta una clave válida (sk-…) en {KEY_FILE}. Pega SOLO el valor que "
+        "viene después de OPENAI_API_KEY= en el .env (empieza con 'sk-').")
