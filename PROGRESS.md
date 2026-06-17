@@ -2,6 +2,25 @@
 
 ## Ultima actualizacion: 2026-06-17T00:00:00-04:00
 
+## Sesion 17 jun 2026 (parte 5) — COMUNICAR OFFLINE EN LANDING + PASADA MÓVIL 375px — COMPLETO Y VERIFICADO ✅ (commit+push; deploy junto al próximo cambio)
+
+Aprovechar comercialmente el offline (que construimos en #3 pero la landing no comunicaba) + asegurar que los banners nuevos no rompan en móvil. Solo frontend.
+
+### Que se hizo
+- **Landing (`Landing.tsx`)**: la feature card "Hecho para el celular del supervisor" (icono Zap) se reescribio para **liderar con el offline**: icono **WifiOff**, titular **"¿Sin señal en la faena? Igual evalúas"**, cuerpo "En la mina muchas veces no hay internet… sigue funcionando sin conexión y envía las evaluaciones solo cuando vuelve la señal — no se pierde nada. …con una mano y guantes puestos." (variante de copy "dolor", elegida por German). Subtitulo del hero ahora dice "…en terreno y hasta sin señal…".
+- **AppShell**: los 2 banners offline (ambar "sin conexión" + indigo "N por sincronizar / Sincronizar ahora") ahora usan `flex-wrap` + `text-center` + `gap-y` para que no desborden en pantallas chicas.
+
+### Como se verifico (REAL, 375px en navegador)
+- `tsc -b` + build OK.
+- **Landing a 375px (Playwright + screenshot)**: la card de offline renderiza limpia (icono, titular, cuerpo bien ajustado); el subtitulo del hero incluye "sin señal". (Gate de pre-lanzamiento desbloqueado por localStorage para la prueba.)
+- **Banners a 375px (medicion DOM, peor caso de texto)**: inyectado el markup real con clases Tailwind, **overflow horizontal = 0** en ambos (ambar 74px alto, indigo 59px) → envuelven bien, no se desbordan.
+- Nota: el StarRating de evaluar ya tenia targets **68px** para guantes (de Fase 3), confirmado en codigo.
+
+### Pendiente
+- **DEPLOY** de esta parte (solo frontend) — se puede subir ya o junto al proximo cambio de frontend. `railway up --detach --service faenascore`.
+
+---
+
 ## Sesion 17 jun 2026 (parte 4) — DEPLOY 2+3 + APUESTA #3 COMPLETA → **FASE 5 = 5/5, EN PROD** ✅✅
 
 Deployados los puntos 2+3 juntos (`railway up --detach --service faenascore`). Bundle prod nuevo **`index-D9bRanN3.js`**. Con esto la apuesta #3 (offline-first) queda **3/3** y **Fase 5 completa (5/5), toda en produccion**.

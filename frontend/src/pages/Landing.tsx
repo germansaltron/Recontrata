@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ClipboardCheck, TrendingUp, History, ShieldCheck, Zap, Users, Check } from 'lucide-react'
+import { ClipboardCheck, TrendingUp, History, ShieldCheck, WifiOff, Users, Check } from 'lucide-react'
 
 interface LandingProps {
   isSignedIn: boolean
@@ -63,7 +63,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
         <motion.p {...heroIn(1)} className="mt-5 md:mt-6 text-base md:text-xl text-gray-600 max-w-xl md:max-w-2xl mx-auto leading-relaxed">
           La gente que vuelve es lo que hace grande a tu próximo proyecto. Recontrata recuerda
           quién rindió y te ayuda a repetir a tus mejores, proyecto tras proyecto.
-          Todo desde el celular, en terreno — con datos reales, no memoria ni WhatsApp.
+          Todo desde el celular, en terreno y hasta sin señal — con datos reales, no memoria ni WhatsApp.
         </motion.p>
         <motion.div {...heroIn(2)} className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
@@ -168,9 +168,9 @@ export default function Landing({ isSignedIn }: LandingProps) {
             body="Aislamiento por empresa: tus datos no se cruzan con otros contratistas. Tu activo más valioso, protegido."
           />
           <FeatureCard
-            icon={Zap}
-            title="Hecho para el celular del supervisor"
-            body="Pensado para usarse en terreno, con una mano y guantes puestos. Funciona desde cualquier celular."
+            icon={WifiOff}
+            title="¿Sin señal en la faena? Igual evalúas"
+            body="En la mina muchas veces no hay internet. Recontrata sigue funcionando sin conexión y envía las evaluaciones solo cuando vuelve la señal — no se pierde nada. Pensado para usarse con una mano y guantes puestos."
           />
           <FeatureCard
             icon={Users}

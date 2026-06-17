@@ -116,7 +116,7 @@ export default function AppShell() {
         {!online && (
           <div
             role="status"
-            className="flex items-center justify-center gap-2 bg-amber-100 text-amber-900 text-sm font-medium px-4 py-2 border-b border-amber-200"
+            className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-center leading-snug bg-amber-100 text-amber-900 text-sm font-medium px-4 py-2 border-b border-amber-200"
           >
             <WifiOff className="w-4 h-4 shrink-0" />
             {pendingSync > 0
@@ -129,7 +129,7 @@ export default function AppShell() {
         {online && pendingSync > 0 && (
           <div
             role="status"
-            className="flex items-center justify-center gap-2 bg-indigo-50 text-indigo-800 text-sm font-medium px-4 py-2 border-b border-indigo-100"
+            className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-center bg-indigo-50 text-indigo-800 text-sm font-medium px-4 py-2 border-b border-indigo-100"
           >
             <UploadCloud className={`w-4 h-4 shrink-0 ${syncing ? 'animate-pulse' : ''}`} />
             {pendingSync === 1 ? '1 evaluación por sincronizar' : `${pendingSync} evaluaciones por sincronizar`}
