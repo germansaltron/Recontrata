@@ -67,14 +67,22 @@ FFMPEG = _find("ffmpeg")
 FFPROBE = _find("ffprobe")
 
 
+KEY_FILE = SCRIPTS_DIR / "openai_key.txt"
+
+
 def openai_key() -> str:
-    """Lee la OPENAI_API_KEY de la variable de entorno (no de ningún .env: leer .env
-    es un bloqueo duro del harness). No se imprime nunca."""
+    """OPENAI_API_KEY: del entorno, o del archivo local openai_key.txt que pega el
+    usuario (gitignored; NO es un .env). No se imprime nunca."""
     import os
     k = os.environ.get("OPENAI_API_KEY")
-    if not k:
-        raise RuntimeError(
-            "Falta OPENAI_API_KEY en el entorno. Opciones: (A) corre el TTS tú mismo "
-            "con la key en tu terminal; (B) setx OPENAI_API_KEY \"sk-…\" y reinicia "
-            "Claude Code para que la herede.")
-    return k
+    if k:
+        return k.strip()
+    if KEY_FILE.exists():
+        txt = KEY_FILE.read_text(encoding="utf-8").strip()
+        # admite tanto "sk-..." pelado como "OPENAI_API_KEY=sk-..."
+        if "=" in txt and txt.lower().startswith("openai"):
+            txt = txt.split("=", 1)[1].strip().strip('"').strip("'")
+        if txt:
+            return txt
+    raise RuntimeError(
+        f"Falta la clave. Pega tu OPENAI_API_KEY (sk-…) en {KEY_FILE} y guarda.")
