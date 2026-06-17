@@ -1,6 +1,48 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-14T15:35:00-04:00
+## Ultima actualizacion: 2026-06-17T00:00:00-04:00
+
+## Sesion 17 jun 2026 (parte 1) — FASE 5 apuesta #3, PUNTO 1: SERVICE WORKER / APP SHELL OFFLINE (PWA) — COMPLETO Y VERIFICADO ✅ (commit+push, deploy PENDIENTE de autorizacion)
+
+Primer punto de la unica apuesta pendiente de Fase 5 (offline-first en terreno). La apuesta se desglosa en **1) service worker / app shell offline (ESTE)**, 2) cola IndexedDB de evaluaciones, 3) sync al recuperar señal. Solo **frontend**, sin migracion, sin tocar backend.
+
+### Que se hizo
+- **`vite-plugin-pwa` 1.3.0** (Workbox 7.4.1, devDep). `vite.config.ts`: `registerType: 'prompt'` (actualizacion controlada por el usuario, no auto-recarga en medio de una evaluacion), `injectRegister: false`, `manifest: false` (se reusa el `public/manifest.webmanifest` ya enlazado en index.html, sin duplicar). Workbox: precache del **app shell** (js/css/html/svg/ico/woff2 + iconos + logo-recontrata.png + manifest), `globIgnores` de media pesada (logo-intro.mp4, hero-faena.jpg, og-image.png, dashboard-preview.png, phone-eval.png), `navigateFallback: '/index.html'` con `navigateFallbackDenylist: [/^\/api\//]` (las llamadas a la API NO caen al shell), `cleanupOutdatedCaches` + `clientsClaim`. `devOptions.enabled:false` (SW off en dev, no rompe HMR).
+- **`src/lib/pwa.ts`** `setupPWA()`: registra el SW via `virtual:pwa-register`. Toasts sonner: "Hay una version nueva… Actualizar" (onNeedRefresh, duracion infinita, accion que llama updateSW(true)) y "Listo para usar sin conexion" (onOfflineReady). No-op en dev.
+- **`src/hooks/useOnlineStatus.ts`**: hook sobre eventos online/offline del navegador (base del modo terreno; lo consumira la cola en el punto 2).
+- **`AppShell.tsx`**: banner ambar "Sin conexion — modo terreno. Tu trabajo se sincronizara al recuperar señal." cuando `!online` (icono WifiOff), sobre el `<main>`.
+- **`src/vite-env.d.ts`**: refs de tipos `vite/client` + `vite-plugin-pwa/client`. **`main.tsx`**: llama `setupPWA()` tras montar.
+
+### Como se verifico (REAL, no asumido)
+- `npx tsc -b` limpio. `npm run build` OK -> genera `dist/sw.js` + `dist/workbox-*.js`, **55 entradas precache (733 KiB)**. Confirmado por grep que la media pesada NO esta en el precache y que `navigateFallback`/index.html SI estan.
+- **Prueba offline genuina (Playwright)**: `vite preview` :4317 -> SW queda **active**, scope raiz `/`, controller = `/sw.js`, 54→55 entradas, `index.html` cacheado (match ignoreSearch). Luego **se MATO el servidor de preview** (curl -> HTTP 000) y se navego a **`/app/workers`**: **la app cargo igual** (React monto el AccessGate "Estamos afinando los ultimos detalles…", root con contenido, controller activo). Unicos 2 errores de consola = `logo-intro.mp4` + `logo-recontrata.png` ERR_CONNECTION_REFUSED (media excluida a proposito); tras agregar el logo al precache quedan en 1 (solo el mp4 decorativo). **=> el app shell se sirve offline, confirmado en vivo.**
+
+### Notas / limites
+- El banner offline depende de `navigator.onLine` (en la prueba seguia true porque matar el server no apaga la interfaz de red; en terreno sin señal `navigator.onLine` pasa a false). Logica simple y correcta; verificada por codigo.
+- El lint `react-refresh/only-export-components` en main.tsx es **preexistente** (componente Root ya estaba), no introducido aqui.
+
+### ARRANCAR AQUI — proximo
+1. **DEPLOY del punto 1** (solo frontend, sin migracion): `railway service faenascore` -> `railway up --detach`. **Riesgo a vigilar**: primer rollout de un SW; un SW con bug puede dejar clientes con cache vieja. Mitigado por `registerType:'prompt'` + `cleanupOutdatedCaches`. **REQUIERE AUTORIZACION de German** (patron de las sesiones previas). Verificar post-deploy: `curl https://recontrata.cl/sw.js` -> 200 + DevTools Application -> Service Workers activo.
+2. **Punto 2 de apuesta #3: cola IndexedDB** de evaluaciones creadas offline (POST a EvaluateWorker entra a cola si `!online`). Reusa `useOnlineStatus`.
+3. **Punto 3: sync** — vaciar la cola al volver online (background sync / al detectar evento `online`), con feedback de toasts.
+
+---
+
+## Sesion 17 jun 2026 (parte 0) — VERIFICACION DE PROD: las notas "DEPLOY PENDIENTE" de las partes 2/3/4 (14 jun) YA ESTAN DESPLEGADAS ✅
+
+Las entradas de abajo (Portal del Trabajador, certificado descargable, modulo de calibracion) decian "DEPLOY PENDIENTE". Se verifico en vivo que **SI estan en produccion** — esas notas quedaron desactualizadas. Estado real de prod confirmado hoy:
+- **API** `https://faenascore-production.up.railway.app/api/health` -> 200.
+- **Frontend** `https://recontrata.cl` -> 200 (bundle `index-0WkJy1YH.js`).
+- **Portal del Trabajador (backend)**: `/api/v1/portal/{token}` vivo (token invalido -> 404). En `openapi.json`: `portal-link`, `/portal/{token}`, `/reply`, `/opt-out`.
+- **Calibracion (backend)**: `/organizations/{org_id}/calibration` en `openapi.json`.
+- **Frontend Fase 5**: el bundle de prod contiene `calibracion`, `certificado`, ruta `/p/` y `WorkerPortal`.
+- **CI gate** aislamiento multi-tenant: verde en GitHub.
+
+=> Fase 5: 4/5 apuestas EN PROD. Falta solo **#3 offline-first**, que se arranca en esta sesion.
+
+---
+
+## Ultima actualizacion previa: 2026-06-14T15:35:00-04:00
 
 ## Sesion 14 jun 2026 (parte 5) — FASE 5 apuesta #5: AISLAMIENTO MULTI-TENANT COMO CI GATE + AUDITORIA PII — COMPLETO Y VERIFICADO ✅ (CI verde en GitHub)
 

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, FolderKanban, Users, ClipboardCheck, Scale, Sliders, Menu, X, AlertTriangle } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Users, ClipboardCheck, Scale, Sliders, Menu, X, AlertTriangle, WifiOff } from 'lucide-react'
 import { UserButton } from '@clerk/clerk-react'
 import { useOrg } from '../../lib/org'
 import { api } from '../../lib/api'
 import { prefetch } from '../../lib/swr'
+import { useOnlineStatus } from '../../hooks/useOnlineStatus'
 
 const navItems = [
   { to: '/app', icon: LayoutDashboard, label: 'Dashboard' },
@@ -28,6 +29,7 @@ const clerkEnabled = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) &&
 export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { orgId, loading, error, retry } = useOrg()
+  const online = useOnlineStatus()
 
   // Warm up Evaluate (data + JS chunk) while the user is on any panel screen,
   // so the click feels instant. Best-effort, no UI impact.
@@ -105,6 +107,17 @@ export default function AppShell() {
             <span className="text-sm text-gray-400">Modo demo</span>
           )}
         </header>
+        {/* Aviso de modo terreno: sin conexión la app sigue abriendo (app shell
+            cacheado); las evaluaciones se encolarán cuando exista la cola (punto 2). */}
+        {!online && (
+          <div
+            role="status"
+            className="flex items-center justify-center gap-2 bg-amber-100 text-amber-900 text-sm font-medium px-4 py-2 border-b border-amber-200"
+          >
+            <WifiOff className="w-4 h-4 shrink-0" />
+            Sin conexión — modo terreno. Tu trabajo se sincronizará al recuperar señal.
+          </div>
+        )}
         {/* pb-20 en móvil deja espacio para la bottom-nav */}
         <main className="flex-1 overflow-auto p-4 md:p-6 pb-20 md:pb-6">
           {error ? (
