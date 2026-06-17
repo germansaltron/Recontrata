@@ -90,11 +90,21 @@ if static_dir.exists():
         app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
     index_file = static_dir / "index.html"
 
+    # El service worker y el shell HTML NUNCA deben quedar cacheados por el CDN
+    # (Cloudflare) ni por el navegador: de lo contrario los clientes se quedan con
+    # un SW o un index viejos y nunca toman la actualizacion. Los assets hasheados
+    # (/assets/*, workbox-*.js) si son inmutables y se pueden cachear sin problema.
+    NO_CACHE = {"Cache-Control": "no-cache, no-store, must-revalidate"}
+
     @app.get("/{full_path:path}", include_in_schema=False)
     async def spa_fallback(full_path: str):
         if full_path.startswith("api"):
             raise HTTPException(status_code=404)
         candidate = static_dir / full_path
         if full_path and candidate.is_file():
+            # sw.js debe revalidarse siempre para que los updates lleguen al cliente.
+            if full_path == "sw.js":
+                return FileResponse(str(candidate), headers=NO_CACHE)
             return FileResponse(str(candidate))
-        return FileResponse(str(index_file))
+        # El shell (index.html) tampoco se cachea: asi el nuevo bundle entra al instante.
+        return FileResponse(str(index_file), headers=NO_CACHE)
