@@ -2,6 +2,9 @@
 raw/
 audio/
 _tmp/
+_tmp*/
 *_pre.mp4
 *.srt
 clip*_durations.json
+*_leads.json
+*_intro_title.png

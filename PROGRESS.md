@@ -1,26 +1,48 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-17 (fin de jornada)
+## Ultima actualizacion: 2026-06-22 (tutoriales: Clip 1 aprobado + Clip 2 producido)
 
 ---
 
 ## 🔖 RETOMAR AQUI (próxima sesión)
 
-**Estado al cierre del 17 jun 2026:**
-- **Fase 5 = 5/5 EN PROD.** Offline-first (apuesta #3) completo: service worker/PWA + cola IndexedDB + sync. Bundle prod `index-DZRQQpla.js`.
-- **Offline comunicado en la landing** (card "¿Sin señal en la faena? Igual evalúas") + banners móvil-safe — en prod.
-- **Documentación**: `docs/SISTEMA.md` (sistema completo) + `docs/OFFLINE_FIRST.md` (técnico offline).
-- **Tutoriales en video**: 8 guiones en `tutorial/guiones/` + pipeline en `tutorial/scripts/`. **Clip 1 PRODUCIDO** (`tutorial/output/clip1.mp4`, 62.5s) — pendiente de aprobación de German.
+**Estado al cierre del 22 jun 2026:**
+- **Producto: Fase 5 = 5/5 EN PROD** (sin cambios desde el 17 jun). Bundle prod `index-DZRQQpla.js`.
+  - ✅ Trampa **Cloudflare `/sw.js`** verificada como RESUELTA en vivo (22 jun): sirve JS real, `Cf-Cache-Status: BYPASS`. El purge manual pendiente ya no hace falta.
+- **Tutoriales en video** — guía completa en `tutorial/README.md`:
+  - ✅ **Clip 1 APROBADO por Germán.** `tutorial/output/clip1.mp4` (~61 s). Mejoras aplicadas: intro = **logo animado con sonido** (sin fade a negro), **B-roll de mina** (Pexels) en el bloque del problema, **subtítulos verbatim**, recorte del blanco de carga.
+  - ✅ **Clip 2 PRODUCIDO.** `tutorial/output/clip2.mp4` (~57 s, "Trae tu gente"). Primer clip del **dashboard autenticado**: dev server local en modo mock + interceptación **stateful** de `/api` (lista de trabajadores vacía → 1 → 8). Org demo "Constructora Andes". Productor: `produce_clip2.py`.
 
 **Próximos pasos (en orden):**
-1. **German revisa `clip1.mp4`** y aprueba el estilo (o pide ajustes: subtítulos más chicos, clic en "Regístrese" en vez de "Entrar").
-2. Tras aprobar → producir **clips 2–7**. Los clips 4–5 (terreno) y 6–7 necesitan una **organización demo sembrada** (trabajadores + proyecto + evaluaciones) para grabar un flujo realista tras el gate `recontrata2211`.
+1. (si Germán pide) Afinar el **ritmo de la importación en el Clip 2 esc4** (el resultado aparece antes que la narración).
+2. Producir **Clip 3 (Crea tu faena)** y siguientes, reutilizando `produce_clip2.py` como base. Los clips de **evaluación (4–7)** requieren ampliar el mock con proyectos + evaluaciones + scores (no solo workers).
 3. **Pendiente humano (para abrir al público)**: probar login real con correo en recontrata.cl/sign-up; luego quitar gate `recontrata2211` + `noindex`.
 
-**Notas para producir tutoriales:**
-- La clave OpenAI va en `tutorial/scripts/openai_key.txt` (gitignored, en disco; **no** subir) o en la env var `OPENAI_API_KEY`. Leer `**/.env` es bloqueo duro del harness.
-- Regenerar clip: `cd tutorial/scripts && python produce_clip1.py all` (etapas: tts/capture/cards/assemble).
-- Deploy de frontend: `railway up --detach --service faenascore`; el SW usa `registerType:'prompt'` (el bundle nuevo entra al aceptar "Actualizar").
+**Notas para producir tutoriales (resumen; detalle en `tutorial/README.md`):**
+- Clave OpenAI en `tutorial/scripts/openai_key.txt` (gitignored; **recrear tras cambiar de PC**, reusa la de Fillanyform). Deps Python: `openai playwright pillow openpyxl` + Chromium.
+- Clips de dashboard: levantar `cd frontend && npm run dev` (modo mock, `localhost:5173`) antes de `capture`.
+- Producir/regenerar: `cd tutorial/scripts && python produce_clipN.py all` (o `assemble` para iterar solo el montaje).
+- Deploy de frontend del producto: `railway up --detach --service faenascore`.
+
+---
+
+## Sesion 22 jun 2026 — Tutoriales: Clip 1 pulido+aprobado, Clip 2 producido ✅
+
+Sesión enfocada 100 % en los tutoriales (el producto no se tocó). Guía completa nueva en **`tutorial/README.md`**.
+
+### Verificación de trampas pendientes
+- **Cloudflare `/sw.js`**: verificada en vivo como **RESUELTA** (`curl` → `Content-Type: text/javascript`, `Cache-Control: no-store`, `Cf-Cache-Status: BYPASS`, cuerpo = Workbox SW real). El purge manual ya no hace falta.
+- **Clave OpenAI**: `tutorial/scripts/openai_key.txt` se había perdido en la restauración de PC (está gitignored). **Recreada** reutilizando la clave de Fillanyform/CasiListo y validada viva contra `GET /v1/models` (gpt-4o-mini-tts disponible).
+
+### Clip 1 — pulido y APROBADO por Germán
+Tres rondas de feedback, todas aplicadas y verificadas frame a frame:
+1. **Subtítulos** más chicos y bajados (`FontSize 20→16`, `MarginV 70→24`).
+2. **Intro** = ahora el **logo animado con sonido** (`recontrata_intro_sound.mp4`) sobre fondo `#F7F8FB`, **sin fade a negro** (el logo queda estático). Se eliminó el "blanco" con que arrancaban las capturas (se mide `lead` por escena y se recorta con `-ss`).
+3. **B-roll**: el bloque del problema dejó de ser captura de pantalla; ahora es un dron de **mina a tajo abierto** (Pexels 8382429, descarga directa sin API key). Se descartó una planta de áridos por no parecer minería chilena.
+4. **Subtítulos VERBATIM**: eran parafraseados; ahora son texto exacto de la narración, con `_check_subs()` que aborta el render si dejan de coincidir.
+
+### Clip 2 "Trae tu gente" — PRODUCIDO (`tutorial/output/clip2.mp4`, ~57 s)
+Primer clip del **dashboard autenticado**. Como prod usa Clerk real, se grabó el **frontend en modo mock** (`npm run dev`, `VITE_AUTH_MOCK_ENABLED=true`, `localhost:5173`) interceptando `/api/v1` con Playwright (`ctx.route`). El handler es **STATEFUL**: la lista de trabajadores crece (vacía → Sergio Díaz con toast → 8 tras importar el Excel). Org demo "Constructora Andes". Productor: **`produce_clip2.py`**. Gotcha resuelto: la tabla de escritorio + la card móvil oculta confunden a `wait_for_selector(text=…)` → se espera el cierre del modal. RUTs válidos calculados en el script; Excel demo generado con openpyxl. *Pendiente menor:* en esc4 la importación termina antes que la narración (afinar ritmo).
 
 ---
 
