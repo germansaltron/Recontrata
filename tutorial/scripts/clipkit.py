@@ -106,6 +106,43 @@ def scoring_formula(active):
             "profiles": [_scoring_profile(ind) for ind, *_ in SCORING_PROFILES]}
 
 
+def weighted_score(scores, industry="construccion_mineria"):
+    q, s, p, t, te = scores
+    w = next(prof[3] for prof in SCORING_PROFILES if prof[0] == industry)
+    return round(q * w["quality"] + s * w["safety"] + p * w["punctuality"]
+                 + t * w["teamwork"] + te * w["technical"], 2)
+
+
+def eval_summary(idx, project, scores, rehire, created_at, reason=None, evaluator="Germán Saltrón"):
+    """EvaluationSummary para el historial del trabajador (clip 7)."""
+    q, s, p, t, te = scores
+    return {"id": f"ev{idx}", "project_name": project, "score_quality": q, "score_safety": s,
+            "score_punctuality": p, "score_teamwork": t, "score_technical": te,
+            "score_average": round((q + s + p + t + te) / 5, 2),
+            "score_weighted": weighted_score(scores), "would_rehire": rehire,
+            "rehire_reason": reason, "comment": None, "evaluator_name": evaluator,
+            "worker_reply": None, "worker_reply_at": None, "created_at": created_at}
+
+
+def worker_detail(wid, body, first, last, specialty, evals):
+    """WorkerDetail rico (Worker + avg_scores + score_trend + rehire_stats + evaluations)."""
+    dims = ["quality", "safety", "punctuality", "teamwork", "technical"]
+    n = max(1, len(evals))
+    avg_scores = {d: round(sum(e[f"score_{d}"] for e in evals) / n, 2) for d in dims}
+    avg_scores["overall"] = round(sum(e["score_weighted"] for e in evals) / n, 2)
+    base = worker(int(wid[1:]) if wid[1:].isdigit() else 1, body, first, last, specialty,
+                  evals=len(evals), avg=avg_scores["overall"])
+    base["id"] = wid
+    return {**base, "certifications": None, "notes": None, "portal_token": None,
+            "avg_scores": avg_scores if evals else None,
+            "score_trend": [{"project_name": e["project_name"], "date": e["created_at"],
+                             "score_average": e["score_average"]} for e in evals],
+            "rehire_stats": {"yes": sum(1 for e in evals if e["would_rehire"] == "yes"),
+                             "reservations": sum(1 for e in evals if e["would_rehire"] == "reservations"),
+                             "no": sum(1 for e in evals if e["would_rehire"] == "no")},
+            "evaluations": evals, "consent": None}
+
+
 def pworker(idx, body, first, last, specialty, evaluated=False, score=None):
     """ProjectWorkerItem (lista de trabajadores dentro de un proyecto)."""
     return {"id": f"w{idx}", "rut": rut_fmt(body), "first_name": first,
@@ -156,6 +193,10 @@ def make_handler(state):
         "import_extra": list(state.get("import_extra", [])),
         "active_industry": state.get("active_industry", "construccion_mineria"),
         "post_eval_delay": state.get("post_eval_delay", 0),  # s; hace visible "Sincronizando…"
+        "stats": state.get("stats"),               # dashboard poblado (clip 7)
+        "top_workers": state.get("top_workers", []),
+        "recent": state.get("recent", []),
+        "worker_details": state.get("worker_details", {}),  # {wid: WorkerDetail rico}
     }
 
     def pending_list():
@@ -182,11 +223,17 @@ def make_handler(state):
         if path.rstrip("/").endswith("/me"):
             return j(PROFILE)
         if "/dashboard/stats" in path:
+            if st["stats"] is not None:
+                return j(st["stats"])
             return j({"project_count": len(st["projects"]),
                       "active_project_count": len(st["projects"]),
                       "worker_count": len(st["workers"]), "evaluation_count": len(st["evaluated"]),
                       "avg_score_overall": None, "rehire_rate": None,
                       "specialty_distribution": []})
+        if "/dashboard/top-workers" in path:
+            return j(st["top_workers"])
+        if "/dashboard/recent-evaluations" in path:
+            return j(st["recent"])
         if "/dashboard/projects-pending" in path:
             return j(pending_list())
         if "/dashboard/next-evaluation" in path:
@@ -294,6 +341,8 @@ def make_handler(state):
         mw = re.search(r"/workers/([^/]+)$", path)
         if mw and m == "GET" and mw.group(1) not in ("import",):
             wid = mw.group(1)
+            if wid in st["worker_details"]:        # detalle rico (clip 7)
+                return j(st["worker_details"][wid])
             for w in st["workers"]:
                 if w["id"] == wid:
                     return j(w)

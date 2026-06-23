@@ -1,6 +1,6 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-23 (tutoriales: 6/8 clips listos — Clip 6 offline)
+## Ultima actualizacion: 2026-06-23 (tutoriales: 7/8 clips listos — Clip 7 dashboard)
 
 ---
 
@@ -15,12 +15,13 @@
   - ✅ **Clip 4** (`clip4.mp4`, ~65 s): **"La fórmula del puntaje"** 🆕 — recorre `/app/formula`, pesos por industria (Seguridad 30% > Puntualidad 10%), cambia perfil a Logística y vuelve. Mock `clipkit.scoring_formula` + PATCH org.
   - ✅ **Clip 5** (`clip5.mp4`, ~85 s): "Evalúa en terreno" (MÓVIL 390px) — era el Clip 4; reensamblado con título "Tutorial 5 de 8".
   - ✅ **Clip 6** (`clip6.mp4`, ~62 s): **"¿Sin señal? Igual evalúas"** (MÓVIL) — modo offline: se cae la red (`set_offline`), banner ámbar, evalúa y encola (IndexedDB), vuelve la señal y sincroniza sola. **Truco dev:** precargar el chunk lazy de la ruta destino antes de cortar la red (en prod lo precachea el SW); delay opcional `post_eval_delay` en el mock para ver "Sincronizando…".
-  - 🔧 Kit común **`tutorial/scripts/clipkit.py`** (mock stateful workers/proyectos/evaluaciones **+ fórmula**, TTS, captura, tarjetas, ensamblado, `deliver()`). Clips 7–8 se construyen igual de delgados.
+  - ✅ **Clip 7** (`clip7.mp4`, ~58 s): **"Decide con datos"** (escritorio) — dashboard poblado (KPIs, Top Trabajadores, Recientes) + ficha de trabajador (promedio por dimensión, tendencia, historial, CSV) + cierre sobre el ranking ponderado (referencia la fórmula del Clip 4, no la re-explica). Mock sembrado: `clipkit` admite `stats`/`top_workers`/`recent`/`worker_details` + helpers `eval_summary()`/`worker_detail()`.
+  - 🔧 Kit común **`tutorial/scripts/clipkit.py`** (mock stateful workers/proyectos/evaluaciones **+ fórmula + dashboard/historial**, TTS, captura, tarjetas, ensamblado, `deliver()`). Clip 8 se construye igual de delgado.
 
 **Reorden (23 jun, pedido de Germán):** se separó "La fórmula del puntaje" como **Clip 4** (antes era parte de "Decide con datos") y va ANTES de evaluar; "Evalúa en terreno" pasó de 4 a **5**; todo lo posterior corrió +1 (6 ¿Sin señal?, 7 Decide con datos, 8 Transparencia, 9 opc. Calibración). Guiones renumerados.
 
 **Próximos pasos (en orden):**
-1. Producir **Clips 7 y 8** sobre `clipkit` (7 "Decide con datos" = dashboard/historial/ranking; 8 "Transparencia y confianza" = Portal del Trabajador). Ambos amplían el mock con evaluaciones ya hechas (el mock genérico ya las soporta). 9 = calibración, opcional.
+1. Producir **Clip 8 "Transparencia y confianza"** sobre `clipkit` (Portal del Trabajador: link sin login `/p/:token`, réplica, certificado imprimible). 9 = calibración, opcional. Con el 8, la serie principal queda completa (1–8).
 2. (menor, a criterio de Germán) ritmo de la importación en Clip 2 esc4.
 3. **Pendiente humano (para abrir al público)**: probar login real con correo en recontrata.cl/sign-up; luego quitar gate `recontrata2211` + `noindex`.
 

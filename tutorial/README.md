@@ -37,7 +37,7 @@ producto, tarjetas de marca y ensamblado con ffmpeg.
 | 4 | La fórmula del puntaje | Entender los pesos por dimensión (Seguridad > Puntualidad) y cambiar el perfil | Admin | ✅ producido |
 | 5 | Evalúa en terreno, en 30 segundos | Evaluar 5 dimensiones + recontratación | Supervisor | ✅ producido |
 | 6 | ¿Sin señal? Igual evalúas | Modo terreno offline + sincronización | Supervisor | ✅ producido |
-| 7 | Decide con datos | Dashboard, historial, ranking (la fórmula ya es el Clip 4) | Admin | ⬜ pendiente |
+| 7 | Decide con datos | Dashboard, historial, ranking (la fórmula ya es el Clip 4) | Admin | ✅ producido |
 | 8 | Transparencia y confianza | Portal del Trabajador (réplica, certificado) | Admin | ⬜ pendiente |
 | 9 (opc.) | Evaluaciones más justas | Calibración de evaluadores (anti-sesgo) | Admin | ⬜ opcional |
 
@@ -240,11 +240,16 @@ nombres internos. Para compartir, usar `clipkit.deliver("clipN")`, que copia a
   el SW) → hay que **precargar** el chunk de la ruta destino navegando por la app ANTES de
   cortar la red, y medir el `lead` después. Delay opcional en el mock (`post_eval_delay`)
   para que "Sincronizando…" sea visible.
+- ✅ **Clip 7 "Decide con datos"** (`output/clip7.mp4`, ~58 s) — producido (23 jun 2026).
+  Escritorio: dashboard poblado (KPIs, Top Trabajadores, Evaluaciones Recientes) + ficha de
+  un trabajador (promedio por dimensión, tendencia, historial, CSV) + cierre sobre el
+  ranking ponderado. Mock sembrado con datos: `clipkit` admite `stats`/`top_workers`/
+  `recent`/`worker_details` en el estado, y helpers `eval_summary()`/`worker_detail()`.
 - 🔧 **`clipkit.py`** (kit común desde el Clip 3): mock stateful de
-  workers/proyectos/evaluaciones **+ fórmula del puntaje**, TTS, captura, tarjetas,
-  ensamblado, `deliver()`. Los clips 7–8 se construyen igual de delgados sobre él.
-- ⬜ **Clips 7–8** — pendientes (dashboard/portal); amplían el mock con evaluaciones ya
-  hechas (el mock genérico ya las soporta). (9 = calibración, opcional.)
+  workers/proyectos/evaluaciones **+ fórmula + dashboard/historial**, TTS, captura,
+  tarjetas, ensamblado, `deliver()`. El clip 8 se construye igual de delgado.
+- ⬜ **Clip 8 "Transparencia y confianza"** — pendiente (Portal del Trabajador: link sin
+  login, réplica, certificado). (9 = calibración, opcional.)
 
 > Antes de abrir los tutoriales al público hay un pendiente humano del producto: probar
 > login real en `recontrata.cl/sign-up` y luego quitar el gate `recontrata2211` + el
