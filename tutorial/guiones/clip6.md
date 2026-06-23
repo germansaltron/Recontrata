@@ -1,56 +1,56 @@
-# Clip 6 — Decide con datos
+# Clip 6 — ¿Sin señal? Igual evalúas
 
-- **Duración objetivo**: 90–105 s
-- **Objetivo pedagógico**: que el administrador lea el dashboard, el historial de un trabajador y entienda el score ponderado y la fórmula.
-- **Voz**: cálida, segura, orientada a la decisión.
-- **Público**: dueño / administrador. Grabar en escritorio.
+- **Duración objetivo**: 60–80 s
+- **Objetivo pedagógico**: que el supervisor confíe en que puede evaluar sin conexión y entienda cómo se sincroniza al volver la señal.
+- **Voz**: cálida, tranquilizadora ("no se pierde nada").
+- **Público**: supervisor. **Grabar en viewport de teléfono (375px)**. Para la demo, simular pérdida de red (DevTools → Offline) durante la captura.
 
 ---
 
 ## Escena 1 — Intro de marca (0:00–0:03)
 
-**EN PANTALLA**: intro — logo + título "Decide con datos".
+**EN PANTALLA**: intro — logo + título "¿Sin señal? Igual evalúas".
 
 **NARRACIÓN**: *(sin voz)*
 
 ---
 
-## Escena 2 — El panel (0:03–0:25)
+## Escena 2 — El problema real de la faena (0:03–0:16)
 
-**EN PANTALLA**: Dashboard — "Top trabajadores" por puntaje, "Evaluaciones recientes" y los totales arriba.
+**EN PANTALLA**: la app abierta en el celular. Se "corta" la conexión y aparece arriba el **banner ámbar**: "Sin conexión — modo terreno".
 
-**CALLOUT**: "De un vistazo: quién rinde".
+**CALLOUT**: "En la mina muchas veces no hay internet".
 
 **NARRACIÓN**:
-"Después de evaluar, todo se ordena en tu panel. De una mirada ves a tus mejores trabajadores, las evaluaciones más recientes y el pulso de tu operación. Esto antes vivía en tu cabeza; ahora está acá, ordenado."
+"En la mina, en el cerro, dentro de una nave… muchas veces no hay señal. Con otras apps, ahí se acaba todo. Recontrata te avisa que estás sin conexión, y sigue funcionando."
 
 ---
 
-## Escena 3 — El historial de una persona (0:25–0:48)
+## Escena 3 — Evaluar sin internet (0:16–0:40)
 
-**EN PANTALLA**: clic en un trabajador → su ficha. Se ven sus 5 dimensiones a través de los proyectos y el botón **Exportar CSV**.
+**EN PANTALLA**: con el banner "sin conexión" visible, se evalúa a un trabajador normal (estrellas + recontratación) y se guarda. Aparece el aviso "Evaluación guardada en el dispositivo".
 
-**CALLOUT**: "Su desempeño, proyecto a proyecto".
+**CALLOUT**: "Se guarda en el teléfono — no se pierde".
 
 **NARRACIÓN**:
-"Y si quieres ir al detalle, entra a cualquier trabajador: ahí está su desempeño en cada dimensión, faena por faena. Puedes exportarlo a Excel para tus reuniones o tu carpeta de contratación."
+"Evalúas igual que siempre: las cinco notas, la recontratación, guardas. Y aunque no haya internet, tu evaluación no se pierde: queda guardada en el teléfono, segura, esperando."
 
 ---
 
-## Escena 4 — Por qué este puntaje (0:48–1:18)
+## Escena 4 — Se sincroniza solo (0:40–1:05)
 
-**EN PANTALLA**: menú → **Fórmula del puntaje**. Se ven los pesos por dimensión (Seguridad la más alta) con sus barras.
+**EN PANTALLA**: aparece la **barra índigo** "N evaluaciones por sincronizar". Vuelve la conexión (DevTools → Online): la barra muestra "Sincronizando…" y luego un aviso "evaluaciones sincronizadas"; la barra desaparece.
 
-**CALLOUT**: "En minería, la Seguridad pesa más".
+**CALLOUT**: "Vuelve la señal → se envían solas".
 
 **NARRACIÓN**:
-"Ahora, una cosa importante: el puntaje no es un promedio simple. En minería y construcción, la seguridad no vale lo mismo que la puntualidad. Por eso Recontrata pondera cada dimensión según tu industria —la seguridad pesa más— y te muestra la fórmula completa, a la vista. Nada de cajas negras: sabes exactamente por qué alguien tiene el puntaje que tiene."
+"Recontrata lleva la cuenta de lo que tienes pendiente por enviar. Y en cuanto recuperas señal —al bajar del cerro, al volver al campamento— las manda solas, sin que tengas que acordarte de nada. Si prefieres, también puedes tocar 'Sincronizar ahora'."
 
 ---
 
-## Escena 5 — Cierre (1:18–1:28)
+## Escena 5 — Cierre (1:05–1:13)
 
-**EN PANTALLA**: Top trabajadores ordenado por el score ponderado. Outro. Texto: "Siguiente: Transparencia y confianza".
+**EN PANTALLA**: app al día, sin pendientes. Outro. Texto: "Siguiente: Decide con datos".
 
 **NARRACIÓN**:
-"Decisiones con datos, no con memoria. Y como esto habla de personas, en el próximo video vemos cómo Recontrata cuida también al trabajador."
+"Evalúa donde sea, con o sin internet. Ahora veamos cómo todo eso se convierte en decisiones."

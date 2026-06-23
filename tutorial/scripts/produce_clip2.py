@@ -405,7 +405,7 @@ def cards():
     d.rectangle([0, 0, W, 14], fill=brand.BLUE)
     d.rectangle([0, H - 14, W, H], fill=brand.BLUE)
     center_text(d, W / 2, 824, "Trae tu gente", font(58), brand.INK)
-    center_text(d, W / 2, 910, "Tutorial 2 de 7", font(32, bold=False), brand.SLATE)
+    center_text(d, W / 2, 910, "Tutorial 2 de 8", font(32, bold=False), brand.SLATE)
     img.save(brand.OUTPUT_DIR / "clip2_intro_title.png")
 
     # Outro (estático)

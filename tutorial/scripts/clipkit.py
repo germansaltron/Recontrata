@@ -70,6 +70,42 @@ def all_workers():
     return [worker(i + 1, *r) for i, r in enumerate(ROSTER)]
 
 
+# ── Fórmula del puntaje (calca backend/app/services/score_calculator.py) ─────
+DIM_LABELS = {"quality": "Calidad del Trabajo", "safety": "Seguridad",
+              "punctuality": "Puntualidad", "teamwork": "Trabajo en Equipo",
+              "technical": "Habilidad Técnica"}
+SCORING_PROFILES = [
+    ("construccion_mineria", "Construcción / Minería",
+     "Alta exigencia de seguridad: la Seguridad es la dimensión de mayor peso, por sobre la Puntualidad.",
+     {"quality": 0.25, "safety": 0.30, "punctuality": 0.10, "teamwork": 0.15, "technical": 0.20}),
+    ("energia", "Energía / Eléctrico",
+     "Seguridad y dominio técnico priorizados (trabajos energizados, altura).",
+     {"quality": 0.20, "safety": 0.30, "punctuality": 0.10, "teamwork": 0.15, "technical": 0.25}),
+    ("logistica", "Logística / Transporte",
+     "La Puntualidad sube su peso: los plazos y la disponibilidad son críticos.",
+     {"quality": 0.20, "safety": 0.25, "punctuality": 0.25, "teamwork": 0.15, "technical": 0.15}),
+    ("manufactura", "Manufactura / Taller",
+     "La Calidad del trabajo y la terminación pesan más en producción de taller.",
+     {"quality": 0.30, "safety": 0.20, "punctuality": 0.15, "teamwork": 0.15, "technical": 0.20}),
+    ("general", "General (promedio simple)",
+     "Todas las dimensiones pesan igual. Útil cuando no aplica un perfil de riesgo.",
+     {"quality": 0.20, "safety": 0.20, "punctuality": 0.20, "teamwork": 0.20, "technical": 0.20}),
+]
+
+
+def _scoring_profile(industry):
+    for ind, label, desc, w in SCORING_PROFILES:
+        if ind == industry:
+            return {"industry": ind, "label": label, "description": desc,
+                    "weights": [{"key": k, "label": DIM_LABELS[k], "weight": v} for k, v in w.items()]}
+    return _scoring_profile("construccion_mineria")
+
+
+def scoring_formula(active):
+    return {"active_industry": active, "active_profile": _scoring_profile(active),
+            "profiles": [_scoring_profile(ind) for ind, *_ in SCORING_PROFILES]}
+
+
 def pworker(idx, body, first, last, specialty, evaluated=False, score=None):
     """ProjectWorkerItem (lista de trabajadores dentro de un proyecto)."""
     return {"id": f"w{idx}", "rut": rut_fmt(body), "first_name": first,
@@ -118,6 +154,7 @@ def make_handler(state):
         "project_workers": {k: list(v) for k, v in state.get("project_workers", {}).items()},
         "evaluated": set(state.get("evaluated", set())),
         "import_extra": list(state.get("import_extra", [])),
+        "active_industry": state.get("active_industry", "construccion_mineria"),
     }
 
     def pending_list():
@@ -162,6 +199,20 @@ def make_handler(state):
                       "worker_name": None, "pending_count": 0})
         if "/dashboard/" in path:
             return j([])
+
+        # Fórmula del puntaje (pesos por industria)
+        if "/scoring/formula" in path:
+            return j(scoring_formula(st["active_industry"]))
+        morg = re.search(r"/organizations/([^/]+)$", path)
+        if morg and m == "PATCH":
+            try:
+                d = req.post_data_json or {}
+            except Exception:
+                d = {}
+            if d.get("industry"):
+                st["active_industry"] = d["industry"]
+            return j({"id": ORG_ID, "name": d.get("name", ORG_NAME), "slug": "andes",
+                      "industry": st["active_industry"], "created_at": "2026-01-01T00:00:00"})
 
         # Evaluaciones
         if path.endswith("/evaluations") and m == "POST":

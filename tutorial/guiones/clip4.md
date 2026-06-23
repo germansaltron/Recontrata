@@ -1,67 +1,54 @@
-# Clip 4 — Evalúa en terreno, en 30 segundos
+# Clip 4 — La fórmula del puntaje
 
-- **Duración objetivo**: 85–100 s
-- **Objetivo pedagógico**: que el supervisor evalúe a un trabajador (5 dimensiones + recontratación) y entienda cómo encadenar al siguiente.
-- **Voz**: cálida, directa, "de terreno".
-- **Público**: supervisor. **Grabar en viewport de teléfono (375px)** — así se usa.
+- **Duración objetivo**: 55–70 s
+- **Objetivo pedagógico**: que el usuario entienda que el puntaje NO es un promedio plano — cada dimensión pesa distinto según la industria (en construcción/minería la Seguridad pesa más que la Puntualidad) — y que ese perfil de pesos se puede cambiar.
+- **Voz**: clara, didáctica, de confianza.
+- **Público**: administrador.
+
+> Va ANTES de "Evalúa en terreno" a propósito: primero se entiende cómo se pondera la nota, después se evalúa.
 
 ---
 
-## Escena 1 — Intro de marca (0:00–0:03)
+## Escena 1 — Intro de marca (0:00–0:04)
 
-**EN PANTALLA**: intro — logo + título "Evalúa en terreno, en 30 segundos".
+**EN PANTALLA**: intro — logo animado + título "La fórmula del puntaje".
 
 **NARRACIÓN**: *(sin voz)*
 
 ---
 
-## Escena 2 — Abrir la evaluación (0:03–0:18)
+## Escena 2 — Por qué importa el peso (0:04–0:16)
 
-**EN PANTALLA**: en el celular, bottom-nav → **Evaluar**. Se elige el proyecto y aparece el primer trabajador pendiente. Se ve la cabecera con su nombre, RUT y especialidad.
-
-**CALLOUT**: "Desde el celular, en plena faena".
+**EN PANTALLA**: menú → **Fórmula del puntaje** (`/app/formula`). Se ve "Perfil activo: Construcción / Minería" y el gráfico de pesos por dimensión.
 
 **NARRACIÓN**:
-"Estás en terreno, con el celular. Toca 'Evaluar', elige la faena, y Recontrata te muestra al primero de tu cuadrilla. No tienes que buscar nada."
+"No todas las faenas son iguales, y no todo pesa lo mismo. En 'Fórmula del puntaje', Recontrata te muestra con total transparencia cómo se calcula la nota de cada trabajador."
 
 ---
 
-## Escena 3 — Las cinco dimensiones (0:18–0:48)
+## Escena 3 — Seguridad pesa más que Puntualidad (0:16–0:36)
 
-**EN PANTALLA**: se tocan las estrellas de cada dimensión, una por una: **Calidad del Trabajo, Seguridad, Puntualidad, Trabajo en Equipo, Habilidad Técnica**. Al elegir un nivel, aparece debajo la **ancla** que describe ese nivel (ej. Seguridad 4: "Proactivo: identifica y reporta riesgos").
-
-**CALLOUT**: "Cada nota te dice qué significa".
+**EN PANTALLA**: foco en los pesos ordenados de mayor a menor (Seguridad 30% arriba, Puntualidad 10% abajo) y la fórmula `puntaje = Σ (dimensión × peso)`.
 
 **NARRACIÓN**:
-"Calificas cinco cosas: calidad, seguridad, puntualidad, trabajo en equipo y habilidad técnica. Y no quedas a la deriva: al tocar una nota, Recontrata te dice exactamente qué significa ese nivel. Así dos supervisores califican parejo, y la evaluación es justa y defendible."
+"En construcción y minería, la Seguridad es lo que más pesa: un treinta por ciento. La Puntualidad, solo un diez. Así, quien es impecable en seguridad sube más que quien apenas llega temprano. El puntaje es la suma de cada dimensión por su peso."
 
 ---
 
-## Escena 4 — ¿Recontratarías? (0:48–1:08)
+## Escena 4 — Cambiar el perfil según tu rubro (0:36–0:52)
 
-**EN PANTALLA**: los tres botones **Sí / Con Reservas / No**. Se toca "Con Reservas" y aparece el campo de motivo (obligatorio). Se escribe una razón breve. Comentario opcional.
+**EN PANTALLA**: sección "Industria de la organización". Se hace clic en **Logística / Transporte** (los pesos se reordenan: la Puntualidad sube) y luego de vuelta en **Construcción / Minería**.
 
-**CALLOUT**: "Si no es 'Sí', cuenta por qué".
+**CALLOUT**: "El perfil aplica a las evaluaciones nuevas".
 
 **NARRACIÓN**:
-"Y la pregunta que de verdad importa: ¿lo recontratarías? Sí, con reservas, o no. Si marcas reservas o no, Recontrata te pide el motivo — porque una decisión así siempre tiene que tener su porqué, por respeto al trabajador y para tu propio respaldo."
+"¿Tu operación es distinta? Cambias el perfil con un clic. En logística, la puntualidad pesa más; en taller, la calidad. El perfil que elijas se aplica a las evaluaciones nuevas."
 
 ---
 
-## Escena 5 — Guardar y seguir (1:08–1:28)
+## Escena 5 — Cierre (0:52–1:00)
 
-**EN PANTALLA**: botón grande "Guardar evaluación". Aparece el aviso de guardado y el botón **"Evaluar siguiente"**; se toca y aparece el próximo pendiente.
-
-**CALLOUT**: "Botones grandes — para usar con guantes".
+**EN PANTALLA**: la fórmula a la vista. Outro. Texto: "Siguiente: Evalúa en terreno".
 
 **NARRACIÓN**:
-"Guardas, y Recontrata te ofrece pasar al siguiente de la cuadrilla de inmediato. Así evalúas a todo el equipo de corrido, sin parar el trabajo. Y fíjate en los botones: grandes, pensados para usarse con una mano y con guantes puestos."
-
----
-
-## Escena 6 — Cierre (1:28–1:35)
-
-**EN PANTALLA**: contador de pendientes bajando. Outro. Texto: "Siguiente: ¿Sin señal? Igual evalúas".
-
-**NARRACIÓN**:
-"¿Y si en la faena no hay internet? Ningún problema. Eso es justo lo que vemos ahora."
+"Reglas claras, iguales para todos y a la vista. Eso hace que una evaluación sea justa y defendible. Ahora sí: vamos a evaluar."

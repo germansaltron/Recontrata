@@ -1,56 +1,67 @@
-# Clip 5 — ¿Sin señal? Igual evalúas
+# Clip 5 — Evalúa en terreno, en 30 segundos
 
-- **Duración objetivo**: 60–80 s
-- **Objetivo pedagógico**: que el supervisor confíe en que puede evaluar sin conexión y entienda cómo se sincroniza al volver la señal.
-- **Voz**: cálida, tranquilizadora ("no se pierde nada").
-- **Público**: supervisor. **Grabar en viewport de teléfono (375px)**. Para la demo, simular pérdida de red (DevTools → Offline) durante la captura.
+- **Duración objetivo**: 85–100 s
+- **Objetivo pedagógico**: que el supervisor evalúe a un trabajador (5 dimensiones + recontratación) y entienda cómo encadenar al siguiente.
+- **Voz**: cálida, directa, "de terreno".
+- **Público**: supervisor. **Grabar en viewport de teléfono (375px)** — así se usa.
 
 ---
 
 ## Escena 1 — Intro de marca (0:00–0:03)
 
-**EN PANTALLA**: intro — logo + título "¿Sin señal? Igual evalúas".
+**EN PANTALLA**: intro — logo + título "Evalúa en terreno, en 30 segundos".
 
 **NARRACIÓN**: *(sin voz)*
 
 ---
 
-## Escena 2 — El problema real de la faena (0:03–0:16)
+## Escena 2 — Abrir la evaluación (0:03–0:18)
 
-**EN PANTALLA**: la app abierta en el celular. Se "corta" la conexión y aparece arriba el **banner ámbar**: "Sin conexión — modo terreno".
+**EN PANTALLA**: en el celular, bottom-nav → **Evaluar**. Se elige el proyecto y aparece el primer trabajador pendiente. Se ve la cabecera con su nombre, RUT y especialidad.
 
-**CALLOUT**: "En la mina muchas veces no hay internet".
+**CALLOUT**: "Desde el celular, en plena faena".
 
 **NARRACIÓN**:
-"En la mina, en el cerro, dentro de una nave… muchas veces no hay señal. Con otras apps, ahí se acaba todo. Recontrata te avisa que estás sin conexión, y sigue funcionando."
+"Estás en terreno, con el celular. Toca 'Evaluar', elige la faena, y Recontrata te muestra al primero de tu cuadrilla. No tienes que buscar nada."
 
 ---
 
-## Escena 3 — Evaluar sin internet (0:16–0:40)
+## Escena 3 — Las cinco dimensiones (0:18–0:48)
 
-**EN PANTALLA**: con el banner "sin conexión" visible, se evalúa a un trabajador normal (estrellas + recontratación) y se guarda. Aparece el aviso "Evaluación guardada en el dispositivo".
+**EN PANTALLA**: se tocan las estrellas de cada dimensión, una por una: **Calidad del Trabajo, Seguridad, Puntualidad, Trabajo en Equipo, Habilidad Técnica**. Al elegir un nivel, aparece debajo la **ancla** que describe ese nivel (ej. Seguridad 4: "Proactivo: identifica y reporta riesgos").
 
-**CALLOUT**: "Se guarda en el teléfono — no se pierde".
+**CALLOUT**: "Cada nota te dice qué significa".
 
 **NARRACIÓN**:
-"Evalúas igual que siempre: las cinco notas, la recontratación, guardas. Y aunque no haya internet, tu evaluación no se pierde: queda guardada en el teléfono, segura, esperando."
+"Calificas cinco cosas: calidad, seguridad, puntualidad, trabajo en equipo y habilidad técnica. Y no quedas a la deriva: al tocar una nota, Recontrata te dice exactamente qué significa ese nivel. Así dos supervisores califican parejo, y la evaluación es justa y defendible."
 
 ---
 
-## Escena 4 — Se sincroniza solo (0:40–1:05)
+## Escena 4 — ¿Recontratarías? (0:48–1:08)
 
-**EN PANTALLA**: aparece la **barra índigo** "N evaluaciones por sincronizar". Vuelve la conexión (DevTools → Online): la barra muestra "Sincronizando…" y luego un aviso "evaluaciones sincronizadas"; la barra desaparece.
+**EN PANTALLA**: los tres botones **Sí / Con Reservas / No**. Se toca "Con Reservas" y aparece el campo de motivo (obligatorio). Se escribe una razón breve. Comentario opcional.
 
-**CALLOUT**: "Vuelve la señal → se envían solas".
+**CALLOUT**: "Si no es 'Sí', cuenta por qué".
 
 **NARRACIÓN**:
-"Recontrata lleva la cuenta de lo que tienes pendiente por enviar. Y en cuanto recuperas señal —al bajar del cerro, al volver al campamento— las manda solas, sin que tengas que acordarte de nada. Si prefieres, también puedes tocar 'Sincronizar ahora'."
+"Y la pregunta que de verdad importa: ¿lo recontratarías? Sí, con reservas, o no. Si marcas reservas o no, Recontrata te pide el motivo — porque una decisión así siempre tiene que tener su porqué, por respeto al trabajador y para tu propio respaldo."
 
 ---
 
-## Escena 5 — Cierre (1:05–1:13)
+## Escena 5 — Guardar y seguir (1:08–1:28)
 
-**EN PANTALLA**: app al día, sin pendientes. Outro. Texto: "Siguiente: Decide con datos".
+**EN PANTALLA**: botón grande "Guardar evaluación". Aparece el aviso de guardado y el botón **"Evaluar siguiente"**; se toca y aparece el próximo pendiente.
+
+**CALLOUT**: "Botones grandes — para usar con guantes".
 
 **NARRACIÓN**:
-"Evalúa donde sea, con o sin internet. Ahora veamos cómo todo eso se convierte en decisiones."
+"Guardas, y Recontrata te ofrece pasar al siguiente de la cuadrilla de inmediato. Así evalúas a todo el equipo de corrido, sin parar el trabajo. Y fíjate en los botones: grandes, pensados para usarse con una mano y con guantes puestos."
+
+---
+
+## Escena 6 — Cierre (1:28–1:35)
+
+**EN PANTALLA**: contador de pendientes bajando. Outro. Texto: "Siguiente: ¿Sin señal? Igual evalúas".
+
+**NARRACIÓN**:
+"¿Y si en la faena no hay internet? Ningún problema. Eso es justo lo que vemos ahora."

@@ -50,7 +50,7 @@
 
 ## Escena 5 — Cierre (1:00–1:08)
 
-**EN PANTALLA**: proyecto con su cuadrilla asignada y el contador de pendientes. Outro. Texto: "Siguiente: Evalúa en terreno".
+**EN PANTALLA**: proyecto con su cuadrilla asignada y el contador de pendientes. Outro. Texto: "Siguiente: La fórmula del puntaje".
 
 **NARRACIÓN**:
 "Faena lista, cuadrilla asignada. Llegó lo importante: evaluar. Te espero en el próximo video."

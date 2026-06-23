@@ -1,56 +1,56 @@
-# Clip 7 — Transparencia y confianza (Portal del Trabajador)
+# Clip 7 — Decide con datos
 
 - **Duración objetivo**: 90–105 s
-- **Objetivo pedagógico**: que el administrador entienda y use el Portal del Trabajador (compartir, réplica, certificado) y vea el ángulo legal/ético.
-- **Voz**: cálida, seria pero positiva. Tema sensible: trato justo.
-- **Público**: dueño / administrador.
+- **Objetivo pedagógico**: que el administrador lea el dashboard, el historial de un trabajador y entienda el score ponderado y la fórmula.
+- **Voz**: cálida, segura, orientada a la decisión.
+- **Público**: dueño / administrador. Grabar en escritorio.
 
 ---
 
 ## Escena 1 — Intro de marca (0:00–0:03)
 
-**EN PANTALLA**: intro — logo + título "Transparencia y confianza".
+**EN PANTALLA**: intro — logo + título "Decide con datos".
 
 **NARRACIÓN**: *(sin voz)*
 
 ---
 
-## Escena 2 — El problema de fondo (0:03–0:20)
+## Escena 2 — El panel (0:03–0:25)
 
-**EN PANTALLA**: ficha de un trabajador. El cursor va a la tarjeta "Portal del trabajador".
+**EN PANTALLA**: Dashboard — "Top trabajadores" por puntaje, "Evaluaciones recientes" y los totales arriba.
 
-**CALLOUT**: "La alternativa legal a las listas negras".
+**CALLOUT**: "De un vistazo: quién rinde".
 
 **NARRACIÓN**:
-"Las 'listas negras' de trabajadores son ilegales, y con razón: nadie debería quedar marcado a sus espaldas, sin saberlo ni poder defenderse. Recontrata se construyó al revés: con transparencia. Y eso vive en el Portal del Trabajador."
+"Después de evaluar, todo se ordena en tu panel. De una mirada ves a tus mejores trabajadores, las evaluaciones más recientes y el pulso de tu operación. Esto antes vivía en tu cabeza; ahora está acá, ordenado."
 
 ---
 
-## Escena 3 — Compartir el enlace (0:20–0:42)
+## Escena 3 — El historial de una persona (0:25–0:48)
 
-**EN PANTALLA**: clic en "Generar enlace" del portal. Se copia el link. Se abre en otra pestaña `/p/...` y se ve el portal del trabajador: sus puntajes, el ponderado y la fórmula.
+**EN PANTALLA**: clic en un trabajador → su ficha. Se ven sus 5 dimensiones a través de los proyectos y el botón **Exportar CSV**.
 
-**CALLOUT**: "Sin login · nunca ve quién lo evaluó".
+**CALLOUT**: "Su desempeño, proyecto a proyecto".
 
 **NARRACIÓN**:
-"Generas un enlace y se lo compartes al trabajador. Él entra sin crear cuenta y ve sus propios puntajes y cómo se calculan. Eso sí: nunca ve el nombre de quién lo evaluó. Transparencia con el dato, cuidado con las personas."
+"Y si quieres ir al detalle, entra a cualquier trabajador: ahí está su desempeño en cada dimensión, faena por faena. Puedes exportarlo a Excel para tus reuniones o tu carpeta de contratación."
 
 ---
 
-## Escena 4 — Réplica, baja y certificado (0:42–1:18)
+## Escena 4 — Por qué este puntaje (0:48–1:18)
 
-**EN PANTALLA**: en el portal, el trabajador escribe una **respuesta** a una evaluación (derecho a réplica); se muestra el botón de **pedir baja** (opt-out); y el botón **"Descargar mi certificado"** abre el certificado imprimible.
+**EN PANTALLA**: menú → **Fórmula del puntaje**. Se ven los pesos por dimensión (Seguridad la más alta) con sus barras.
 
-**CALLOUT**: "Puede responder, pedir baja y llevarse su certificado".
+**CALLOUT**: "En minería, la Seguridad pesa más".
 
 **NARRACIÓN**:
-"Y puede hacer tres cosas más: responder una evaluación con su versión —su derecho a réplica, visible para ambos—; pedir salir de la plataforma; y descargar un certificado con su desempeño, una especie de 'currículum de faena' que se lleva consigo. De herramienta del contratista, pasa a ser también un activo del trabajador."
+"Ahora, una cosa importante: el puntaje no es un promedio simple. En minería y construcción, la seguridad no vale lo mismo que la puntualidad. Por eso Recontrata pondera cada dimensión según tu industria —la seguridad pesa más— y te muestra la fórmula completa, a la vista. Nada de cajas negras: sabes exactamente por qué alguien tiene el puntaje que tiene."
 
 ---
 
 ## Escena 5 — Cierre (1:18–1:28)
 
-**EN PANTALLA**: el certificado en pantalla. Outro. Texto: "Recontrata · recontrata.cl".
+**EN PANTALLA**: Top trabajadores ordenado por el score ponderado. Outro. Texto: "Siguiente: Transparencia y confianza".
 
 **NARRACIÓN**:
-"Datos para decidir mejor, y transparencia para hacerlo bien. Eso es Recontrata. Empieza hoy en recontrata punto cl."
+"Decisiones con datos, no con memoria. Y como esto habla de personas, en el próximo video vemos cómo Recontrata cuida también al trabajador."

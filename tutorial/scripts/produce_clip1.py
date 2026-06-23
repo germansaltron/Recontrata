@@ -270,7 +270,7 @@ def cards():
     d.rectangle([0, 0, W, 14], fill=brand.BLUE)
     d.rectangle([0, H - 14, W, H], fill=brand.BLUE)
     center_text(d, W / 2, 824, "Bienvenida y tu cuenta", font(58), brand.INK)
-    center_text(d, W / 2, 910, "Tutorial 1 de 7", font(32, bold=False), brand.SLATE)
+    center_text(d, W / 2, 910, "Tutorial 1 de 8", font(32, bold=False), brand.SLATE)
     img.save(brand.OUTPUT_DIR / "clip1_intro_title.png")
 
     # Outro

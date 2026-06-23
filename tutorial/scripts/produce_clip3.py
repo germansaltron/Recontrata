@@ -148,7 +148,7 @@ def main():
         kit.capture(PREFIX, ORDER, SCENE_FN, SCENE_INITIAL, DUR_FILE, LEAD_FILE)
     if stage in ("cards", "all"):
         print("[3/4] Tarjetas…")
-        kit.make_cards(PREFIX, "Crea tu faena", "Tutorial 3 de 7", "Siguiente: Evalúa en terreno")
+        kit.make_cards(PREFIX, "Crea tu faena", "Tutorial 3 de 8", "Siguiente: La fórmula del puntaje")
     if stage in ("assemble", "all"):
         print("[4/4] Ensamblado…")
         kit.assemble(PREFIX, ORDER, SUBS, SCENES, INTRO_SECS, OUTRO_SECS, DUR_FILE, LEAD_FILE, OUT)

@@ -1,6 +1,6 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-23 (tutoriales: Clips 3 y 4 producidos)
+## Ultima actualizacion: 2026-06-23 (tutoriales: serie reordenada, 5/8 clips listos)
 
 ---
 
@@ -8,16 +8,19 @@
 
 **Estado al cierre del 23 jun 2026:**
 - **Producto: Fase 5 = 5/5 EN PROD** (sin cambios desde el 17 jun). Bundle prod `index-DZRQQpla.js`. Trampa `/sw.js` resuelta (verificada el 22 jun).
-- **Tutoriales en video** — guía completa en `tutorial/README.md`. **4 de 7 clips listos:**
-  - ✅ **Clip 1 APROBADO** (`clip1.mp4`, ~61 s): intro logo animado+sonido, B-roll de mina, subtítulos verbatim.
-  - ✅ **Clip 2** (`clip2.mp4`, ~57 s, "Trae tu gente"): dashboard mock stateful, trabajadores vacío→1→8.
-  - ✅ **Clip 3** (`clip3.mp4`, ~49 s, "Crea tu faena"): crea proyecto + asigna 5 trabajadores + contador "5 sin evaluar".
-  - ✅ **Clip 4** (`clip4.mp4`, ~85 s, "Evalúa en terreno", MÓVIL 390px): 5 dimensiones con anclas + ¿recontratarías? "Con Reservas"+motivo + guardar y encadenar al siguiente.
-  - 🔧 Clips 3 y 4 introdujeron **`tutorial/scripts/clipkit.py`** (kit común: mock stateful de workers/proyectos/evaluaciones + TTS + captura + tarjetas + ensamblado). Clips 5–7 se construyen igual de delgados sobre `clipkit`.
+- **Tutoriales en video** — guía completa en `tutorial/README.md`. **Serie REORDENADA a 8 clips + 1 opcional; 5 de 8 listos:**
+  - ✅ **Clip 1 APROBADO** (`clip1.mp4`): "Bienvenida y tu cuenta".
+  - ✅ **Clip 2** (`clip2.mp4`): "Trae tu gente" (dashboard mock, vacío→1→8).
+  - ✅ **Clip 3** (`clip3.mp4`): "Crea tu faena" (crea proyecto + asigna 5).
+  - ✅ **Clip 4** (`clip4.mp4`, ~65 s): **"La fórmula del puntaje"** 🆕 — recorre `/app/formula`, pesos por industria (Seguridad 30% > Puntualidad 10%), cambia perfil a Logística y vuelve. Mock `clipkit.scoring_formula` + PATCH org.
+  - ✅ **Clip 5** (`clip5.mp4`, ~85 s): "Evalúa en terreno" (MÓVIL 390px) — era el Clip 4; reensamblado con título "Tutorial 5 de 8".
+  - 🔧 Kit común **`tutorial/scripts/clipkit.py`** (mock stateful workers/proyectos/evaluaciones **+ fórmula**, TTS, captura, tarjetas, ensamblado). Clips 6–8 se construyen igual de delgados.
+
+**Reorden (23 jun, pedido de Germán):** se separó "La fórmula del puntaje" como **Clip 4** (antes era parte de "Decide con datos") y va ANTES de evaluar; "Evalúa en terreno" pasó de 4 a **5**; todo lo posterior corrió +1 (6 ¿Sin señal?, 7 Decide con datos, 8 Transparencia, 9 opc. Calibración). Guiones renumerados.
 
 **Próximos pasos (en orden):**
-1. Producir **Clips 5, 6, 7** sobre `clipkit` (Clip 5 offline puede reusar el flujo de evaluación del Clip 4 con `context.set_offline(True)`; 6–7 amplían el mock con evaluaciones ya hechas). El mock genérico ya cubre proyectos+evaluaciones.
-2. (menores, a criterio de Germán) ritmo de la importación en Clip 2 esc4.
+1. Producir **Clips 6, 7, 8** sobre `clipkit`. Clip 6 (offline) reusa el flujo de evaluación del Clip 5 con `context.set_offline(True)`; 7–8 (dashboard/portal) amplían el mock con evaluaciones ya hechas (el mock genérico ya las soporta).
+2. (menor, a criterio de Germán) ritmo de la importación en Clip 2 esc4.
 3. **Pendiente humano (para abrir al público)**: probar login real con correo en recontrata.cl/sign-up; luego quitar gate `recontrata2211` + `noindex`.
 
 **⚠️ Lección de captura (no repetir):** correr `produce_clipN.py capture` en **primer plano, `PYTHONUNBUFFERED=1`, timeout estricto y atendido**. Si se corre en background y el equipo se suspende, la sesión de Playwright se rompe y el proceso queda colgado indefinidamente (le pasó al Clip 3: 10 h colgado tras suspensión nocturna).
@@ -27,6 +30,16 @@
 - Clips de dashboard: levantar `cd frontend && npm run dev` (modo mock, `localhost:5173`) antes de `capture`.
 - Producir/regenerar: `cd tutorial/scripts && python produce_clipN.py all` (o `assemble` para iterar solo el montaje).
 - Deploy de frontend del producto: `railway up --detach --service faenascore`.
+
+---
+
+## Sesion 23 jun 2026 (tarde) — Reorden de la serie + nuevo Clip 4 "La fórmula del puntaje" ✅
+
+Germán pidió que la fórmula del puntaje (los pesos por dimensión) sea su propio clip, ANTES de evaluar.
+- **Nuevo Clip 4 "La fórmula del puntaje"** (`clip4.mp4`, ~65 s): recorre `/app/formula` — perfil Construcción/Minería (Seguridad 30% > Puntualidad 10%), fórmula `Σ(dimensión × peso)`, cambia a Logística (puntualidad sube, toast) y vuelve. Mock nuevo en `clipkit`: `scoring_formula()` (5 perfiles que calcan `backend/.../score_calculator.py`) + `GET /scoring/formula` + `PATCH /organizations/{id}` (updateOrg).
+- **"Evalúa en terreno" pasó a Clip 5**: `produce_clip4.py` (Evalúa) → `produce_clip5.py`, intermedios `clip4_*`→`clip5_*` renombrados (sin re-capturar), reensamblado con "Tutorial 5 de 8".
+- **Renumber +1**: 6 ¿Sin señal?, 7 Decide con datos (pierde la fórmula), 8 Transparencia, 9 opc. Calibración. Guiones `clipN.md` renumerados + nuevo `clip4.md`.
+- **Re-rotulados** clips 1-3 a "Tutorial N de 8" y teaser del Clip 3 → "Siguiente: La fórmula del puntaje" (solo `cards`+`assemble`, barato porque los intermedios siguen en disco).
 
 ---
 

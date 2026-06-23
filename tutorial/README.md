@@ -34,17 +34,19 @@ producto, tarjetas de marca y ensamblado con ffmpeg.
 | 1 | Bienvenida y tu cuenta | Qué resuelve Recontrata + crear la cuenta | Dueño/Admin | ✅ aprobado |
 | 2 | Trae tu gente | Cargar trabajadores (uno a uno + importar Excel) | Admin | ✅ producido |
 | 3 | Crea tu faena | Crear un proyecto y asignarle trabajadores | Admin | ✅ producido |
-| 4 | Evalúa en terreno, en 30 segundos | Evaluar 5 dimensiones + recontratación | Supervisor | ✅ producido |
-| 5 | ¿Sin señal? Igual evalúas | Modo terreno offline + sincronización | Supervisor | ⬜ pendiente |
-| 6 | Decide con datos | Dashboard, historial, score ponderado, fórmula | Admin | ⬜ pendiente |
-| 7 | Transparencia y confianza | Portal del Trabajador (réplica, certificado) | Admin | ⬜ pendiente |
-| 8 (opc.) | Evaluaciones más justas | Calibración de evaluadores (anti-sesgo) | Admin | ⬜ opcional |
+| 4 | La fórmula del puntaje | Entender los pesos por dimensión (Seguridad > Puntualidad) y cambiar el perfil | Admin | ✅ producido |
+| 5 | Evalúa en terreno, en 30 segundos | Evaluar 5 dimensiones + recontratación | Supervisor | ✅ producido |
+| 6 | ¿Sin señal? Igual evalúas | Modo terreno offline + sincronización | Supervisor | ⬜ pendiente |
+| 7 | Decide con datos | Dashboard, historial, ranking (la fórmula ya es el Clip 4) | Admin | ⬜ pendiente |
+| 8 | Transparencia y confianza | Portal del Trabajador (réplica, certificado) | Admin | ⬜ pendiente |
+| 9 (opc.) | Evaluaciones más justas | Calibración de evaluadores (anti-sesgo) | Admin | ⬜ opcional |
 
-Arco: **preparar** (1–3) → **usar en terreno** (4–5) → **decidir** (6) →
-**confianza** (7) → **avanzado** (8).
+Arco: **preparar** (1–3) → **entender el puntaje** (4) → **usar en terreno** (5–6) →
+**decidir** (7) → **confianza** (8) → **avanzado** (9).
 
-Los guiones de los 8 están en `guiones/clipN.md` (formato: objetivo, público, y por
-escena `EN PANTALLA` / `CALLOUT` / `NARRACIÓN`).
+> **Reordenado el 23 jun 2026:** "La fórmula del puntaje" se separó como Clip 4 (antes era
+> parte de "Decide con datos") y va antes de evaluar; "Evalúa en terreno" pasó de Clip 4 a
+> Clip 5. Todo lo posterior corrió +1. Guiones en `guiones/clipN.md`.
 
 ---
 
@@ -210,7 +212,7 @@ re-grabar ni re-narrar: basta `assemble` si `output/raw/`, `output/audio/` y los
 
 ## 8. Estado
 
-- ✅ **Guiones** de los 7 + opcional — en `guiones/`.
+- ✅ **Guiones** de los 8 + opcional — en `guiones/` (renumerados el 23 jun).
 - ✅ **Clip 1** (`output/clip1.mp4`, ~61 s) — **aprobado por Germán** (22 jun 2026).
   Intro animado+sonido, B-roll de mina en el bloque del problema, subtítulos verbatim.
 - ✅ **Clip 2** (`output/clip2.mp4`, ~57 s) — producido (22 jun 2026). Dashboard
@@ -220,15 +222,19 @@ re-grabar ni re-narrar: basta `assemble` si `output/raw/`, `output/audio/` y los
 - ✅ **Clip 3** (`output/clip3.mp4`, ~49 s) — producido (23 jun 2026). Crea un proyecto
   ("Parada de Planta de Ácido N°2", Codelco/Calama) y asigna 5 trabajadores; muestra el
   contador "5 sin evaluar".
-- ✅ **Clip 4** (`output/clip4.mp4`, ~85 s) — producido (23 jun 2026). Móvil (390 px):
-  evaluación de 5 dimensiones (estrellas + anclas), ¿recontratarías? "Con Reservas" +
-  motivo, guardar y **encadenar** al siguiente (Marcela Rojas), contador bajando.
-- 🔧 **Clips 3 y 4 introdujeron `clipkit.py`** (kit común reutilizable: mock stateful de
-  workers/proyectos/evaluaciones, TTS, captura, tarjetas, ensamblado). Los clips 5–7
-  deberían construirse igual de delgados sobre `clipkit`.
-- ⬜ **Clips 5–7** — pendientes. Clip 5 (offline) puede reusar el flujo de evaluación del
-  Clip 4 forzando `offline`; clips 6–7 (dashboard/portal) amplían el mock con
-  evaluaciones ya hechas.
+- ✅ **Clip 4 "La fórmula del puntaje"** (`output/clip4.mp4`, ~65 s) — producido
+  (23 jun 2026). Recorre `/app/formula`: perfil Construcción/Minería (Seguridad 30% >
+  Puntualidad 10%), la fórmula `Σ(dimensión × peso)`, y **cambia el perfil** a Logística
+  (la puntualidad sube) y de vuelta. Mock en `clipkit` (`scoring_formula` + PATCH org).
+- ✅ **Clip 5 "Evalúa en terreno"** (`output/clip5.mp4`, ~85 s) — era el Clip 4. Móvil
+  (390 px): 5 dimensiones (estrellas + anclas), ¿recontratarías? "Con Reservas" + motivo,
+  guardar y **encadenar** al siguiente (Marcela Rojas), contador bajando.
+- 🔧 **`clipkit.py`** (kit común desde el Clip 3): mock stateful de
+  workers/proyectos/evaluaciones **+ fórmula del puntaje**, TTS, captura, tarjetas,
+  ensamblado. Los clips 6–8 se construyen igual de delgados sobre él.
+- ⬜ **Clips 6–8** — pendientes. Clip 6 (offline) reusa el flujo de evaluación del Clip 5
+  con `context.set_offline(True)`; clips 7–8 (dashboard/portal) amplían el mock con
+  evaluaciones ya hechas. (9 = calibración, opcional.)
 
 > Antes de abrir los tutoriales al público hay un pendiente humano del producto: probar
 > login real en `recontrata.cl/sign-up` y luego quitar el gate `recontrata2211` + el
