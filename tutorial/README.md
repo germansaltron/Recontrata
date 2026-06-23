@@ -38,7 +38,7 @@ producto, tarjetas de marca y ensamblado con ffmpeg.
 | 5 | Evalúa en terreno, en 30 segundos | Evaluar 5 dimensiones + recontratación | Supervisor | ✅ producido |
 | 6 | ¿Sin señal? Igual evalúas | Modo terreno offline + sincronización | Supervisor | ✅ producido |
 | 7 | Decide con datos | Dashboard, historial, ranking (la fórmula ya es el Clip 4) | Admin | ✅ producido |
-| 8 | Transparencia y confianza | Portal del Trabajador (réplica, certificado) | Admin | ⬜ pendiente |
+| 8 | Transparencia y confianza | Portal del Trabajador (réplica, certificado) | Admin | ✅ producido |
 | 9 (opc.) | Evaluaciones más justas | Calibración de evaluadores (anti-sesgo) | Admin | ⬜ opcional |
 
 Arco: **preparar** (1–3) → **entender el puntaje** (4) → **usar en terreno** (5–6) →
@@ -245,11 +245,16 @@ nombres internos. Para compartir, usar `clipkit.deliver("clipN")`, que copia a
   un trabajador (promedio por dimensión, tendencia, historial, CSV) + cierre sobre el
   ranking ponderado. Mock sembrado con datos: `clipkit` admite `stats`/`top_workers`/
   `recent`/`worker_details` en el estado, y helpers `eval_summary()`/`worker_detail()`.
-- 🔧 **`clipkit.py`** (kit común desde el Clip 3): mock stateful de
-  workers/proyectos/evaluaciones **+ fórmula + dashboard/historial**, TTS, captura,
-  tarjetas, ensamblado, `deliver()`. El clip 8 se construye igual de delgado.
-- ⬜ **Clip 8 "Transparencia y confianza"** — pendiente (Portal del Trabajador: link sin
-  login, réplica, certificado). (9 = calibración, opcional.)
+- ✅ **Clip 8 "Transparencia y confianza"** (`output/clip8.mp4`, ~76 s) — producido
+  (23 jun 2026). Genera el enlace del portal en la ficha → abre el portal público
+  `/p/{token}` (puntajes + fórmula, nunca el evaluador) → réplica + botón de baja +
+  certificado imprimible. Mock en `clipkit`: `portal_profile()`/`portal_eval()` + ramas
+  `POST .../portal-link`, `GET /portal/{token}`, `.../reply`, `.../opt-out`.
+- 🎉 **Serie principal COMPLETA (1–8).** Solo queda el opcional Clip 9 (calibración).
+- 🔧 **`clipkit.py`** (kit común): mock stateful de workers/proyectos/evaluaciones
+  **+ fórmula + dashboard/historial + portal**, TTS, captura, tarjetas, ensamblado,
+  `deliver()`.
+- ⬜ **Clip 9 (opcional) — Calibración de evaluadores** (`/app/calibracion`, anti-sesgo).
 
 > Antes de abrir los tutoriales al público hay un pendiente humano del producto: probar
 > login real en `recontrata.cl/sign-up` y luego quitar el gate `recontrata2211` + el

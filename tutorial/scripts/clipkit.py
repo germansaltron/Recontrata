@@ -8,6 +8,7 @@ aquí y solo definen SCENES/SUBS/escenas/orden.
 
 Requiere el dev server:  cd frontend && npm run dev   (http://localhost:5173)
 """
+import copy
 import json
 import re
 import shutil
@@ -143,6 +144,33 @@ def worker_detail(wid, body, first, last, specialty, evals):
             "evaluations": evals, "consent": None}
 
 
+def portal_eval(idx, project, scores, rehire, created_at, reason=None, reply=None):
+    """PortalEvaluation (vista del trabajador; NO incluye evaluador)."""
+    q, s, p, t, te = scores
+    return {"id": f"pe{idx}", "project_name": project, "score_quality": q, "score_safety": s,
+            "score_punctuality": p, "score_teamwork": t, "score_technical": te,
+            "score_average": round((q + s + p + t + te) / 5, 2),
+            "score_weighted": weighted_score(scores), "would_rehire": rehire,
+            "rehire_reason": reason, "comment": None, "worker_reply": reply,
+            "worker_reply_at": None, "created_at": created_at}
+
+
+def portal_profile(name, body, specialty, evals, org=ORG_NAME, consent="granted"):
+    """PortalProfile (GET /portal/{token}): puntajes + fórmula, sin nombre del evaluador."""
+    n = max(1, len(evals))
+    return {"worker_name": name, "rut": rut_fmt(body), "specialty": specialty, "org_name": org,
+            "evaluation_count": len(evals),
+            "avg_score": round(sum(e["score_weighted"] for e in evals) / n, 2),
+            "consent_status": consent,
+            "rehire_yes": sum(1 for e in evals if e["would_rehire"] == "yes"),
+            "rehire_reservations": sum(1 for e in evals if e["would_rehire"] == "reservations"),
+            "rehire_no": sum(1 for e in evals if e["would_rehire"] == "no"),
+            "formula": _scoring_profile("construccion_mineria"),
+            "score_trend": [{"project_name": e["project_name"], "date": e["created_at"],
+                             "score_weighted": e["score_weighted"]} for e in evals],
+            "evaluations": evals}
+
+
 def pworker(idx, body, first, last, specialty, evaluated=False, score=None):
     """ProjectWorkerItem (lista de trabajadores dentro de un proyecto)."""
     return {"id": f"w{idx}", "rut": rut_fmt(body), "first_name": first,
@@ -197,6 +225,7 @@ def make_handler(state):
         "top_workers": state.get("top_workers", []),
         "recent": state.get("recent", []),
         "worker_details": state.get("worker_details", {}),  # {wid: WorkerDetail rico}
+        "portal_profile": copy.deepcopy(state.get("portal_profile")),  # PortalProfile (clip 8)
     }
 
     def pending_list():
@@ -222,6 +251,26 @@ def make_handler(state):
 
         if path.rstrip("/").endswith("/me"):
             return j(PROFILE)
+
+        # Portal del Trabajador (público, por token) — clip 8
+        if re.search(r"/workers/[^/]+/portal-link", path) and m == "POST":
+            return j({"token": "demo-token", "path": "/p/demo-token"})
+        if "/portal/" in path:
+            mreply = re.search(r"/portal/[^/]+/evaluations/([^/]+)/reply", path)
+            if mreply and m == "POST":
+                try:
+                    d = req.post_data_json or {}
+                except Exception:
+                    d = {}
+                for e in (st["portal_profile"] or {}).get("evaluations", []):
+                    if e["id"] == mreply.group(1):
+                        e["worker_reply"] = d.get("reply")
+                        return j(e)
+                return j({})
+            if "/opt-out" in path and m == "POST":
+                return j({})
+            if re.search(r"/portal/[^/]+$", path) and m == "GET":
+                return j(st["portal_profile"] or {})
         if "/dashboard/stats" in path:
             if st["stats"] is not None:
                 return j(st["stats"])
