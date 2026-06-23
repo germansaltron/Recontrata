@@ -33,8 +33,8 @@ producto, tarjetas de marca y ensamblado con ffmpeg.
 |---|---|---|---|---|
 | 1 | Bienvenida y tu cuenta | Qué resuelve Recontrata + crear la cuenta | Dueño/Admin | ✅ aprobado |
 | 2 | Trae tu gente | Cargar trabajadores (uno a uno + importar Excel) | Admin | ✅ producido |
-| 3 | Crea tu faena | Crear un proyecto y asignarle trabajadores | Admin | ⬜ pendiente |
-| 4 | Evalúa en terreno, en 30 segundos | Evaluar 5 dimensiones + recontratación | Supervisor | ⬜ pendiente |
+| 3 | Crea tu faena | Crear un proyecto y asignarle trabajadores | Admin | ✅ producido |
+| 4 | Evalúa en terreno, en 30 segundos | Evaluar 5 dimensiones + recontratación | Supervisor | ✅ producido |
 | 5 | ¿Sin señal? Igual evalúas | Modo terreno offline + sincronización | Supervisor | ⬜ pendiente |
 | 6 | Decide con datos | Dashboard, historial, score ponderado, fórmula | Admin | ⬜ pendiente |
 | 7 | Transparencia y confianza | Portal del Trabajador (réplica, certificado) | Admin | ⬜ pendiente |
@@ -152,12 +152,34 @@ y los de `workers`. Las formas JSON exactas están en `produce_clip2.py` (`_make
   `wait_for_selector("text=Nombre")` se cuelga esperando que el duplicado oculto sea
   "visible". → Esperar a que el **modal se cierre** (`input[placeholder='12.345.678-9']`
   pase a `detached`), no al texto.
-- El **RUT debe ser válido** (la app valida el dígito verificador). `produce_clip2._rut_dv/_rut_fmt`
+- El **RUT debe ser válido** (la app valida el dígito verificador). `clipkit.rut_dv/rut_fmt`
   lo calculan; las especialidades salen de `src/lib/constants.ts` (`SPECIALTIES`).
 - El Excel de importación se genera con openpyxl en `assets/demo/`.
+- **Clicks dentro de modales** (NewProjectForm, AssignWorkersForm): el hit-test de
+  Playwright a veces marca "intercepts pointer events" (falso positivo del backdrop). →
+  Para inputs de texto usar `.fill()` (no hace hit-test); para botones que sí quieres
+  pulsar, `.click(force=True)`; para checkboxes, click en el `<label>` (objetivo grande).
+- **Estrellas / botones de una PÁGINA** (no modal, ej. EvaluateWorker): `.click()` normal
+  (auto-scroll + actionability) es mejor que `force` — `force` exige el punto en viewport y
+  en móvil los elementos bajo el pliegue fallan con "outside of viewport".
+- **Móvil:** el sidebar de escritorio es `display:none` (`hidden md:flex`), así que
+  `a[href='/app/evaluate']` agarra el link OCULTO. Apuntar al bottom-nav:
+  `nav[aria-label='Navegación principal'] a[href='/app/evaluate']`.
+- **Sembrar `workers` aunque la escena no liste trabajadores:** EvaluateWorker hace
+  `getWorker(id)`; si el mock no tiene ese worker, la cabecera sale "undefined undefined".
+- **Formulario de evaluación con estado pre-cargado:** se inyecta el borrador de
+  localStorage (`clipkit.draft_js`, clave `faenascore:draft:{proj}:{worker}`,
+  `{scores,wouldRehire,rehireReason,comment,ts}`) en `add_init_script` para que una escena
+  arranque con las estrellas/rehire ya puestas sin re-hacer pasos.
 
-Los clips de **evaluación (4–7)** necesitarán además mockear proyectos + evaluaciones +
-scores en el handler (no solo workers).
+**⚠️ Incidente (no repetir):** correr la captura `run_in_background` y dejarla sola → si el
+equipo SE SUSPENDE, la sesión de Playwright se rompe y el proceso queda colgado
+indefinidamente (no es un timeout limpio). **Correr la captura en primer plano, con
+`PYTHONUNBUFFERED=1` y un timeout estricto**, atendido.
+
+El mock genérico de `clipkit.make_handler` ya cubre proyectos + evaluaciones (deriva
+`projects-pending` del estado y marca `evaluated` al hacer POST), así que los clips 5–7 no
+necesitan ampliarlo para el flujo básico.
 
 ---
 
@@ -195,8 +217,18 @@ re-grabar ni re-narrar: basta `assemble` si `output/raw/`, `output/audio/` y los
   autenticado vía dev server mock + interceptación stateful. Org demo "Constructora
   Andes", 8 trabajadores. *Pendiente menor:* en esc4 la importación termina antes que la
   narración; se puede repartir mejor el ritmo.
-- ⬜ **Clips 3–7** — pendientes. Reutilizan `produce_clip2.py` como base (mismo patrón de
-  dashboard mock); los de evaluación requieren ampliar el mock con proyectos/evaluaciones.
+- ✅ **Clip 3** (`output/clip3.mp4`, ~49 s) — producido (23 jun 2026). Crea un proyecto
+  ("Parada de Planta de Ácido N°2", Codelco/Calama) y asigna 5 trabajadores; muestra el
+  contador "5 sin evaluar".
+- ✅ **Clip 4** (`output/clip4.mp4`, ~85 s) — producido (23 jun 2026). Móvil (390 px):
+  evaluación de 5 dimensiones (estrellas + anclas), ¿recontratarías? "Con Reservas" +
+  motivo, guardar y **encadenar** al siguiente (Marcela Rojas), contador bajando.
+- 🔧 **Clips 3 y 4 introdujeron `clipkit.py`** (kit común reutilizable: mock stateful de
+  workers/proyectos/evaluaciones, TTS, captura, tarjetas, ensamblado). Los clips 5–7
+  deberían construirse igual de delgados sobre `clipkit`.
+- ⬜ **Clips 5–7** — pendientes. Clip 5 (offline) puede reusar el flujo de evaluación del
+  Clip 4 forzando `offline`; clips 6–7 (dashboard/portal) amplían el mock con
+  evaluaciones ya hechas.
 
 > Antes de abrir los tutoriales al público hay un pendiente humano del producto: probar
 > login real en `recontrata.cl/sign-up` y luego quitar el gate `recontrata2211` + el

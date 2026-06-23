@@ -1,28 +1,42 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-22 (tutoriales: Clip 1 aprobado + Clip 2 producido)
+## Ultima actualizacion: 2026-06-23 (tutoriales: Clips 3 y 4 producidos)
 
 ---
 
 ## 🔖 RETOMAR AQUI (próxima sesión)
 
-**Estado al cierre del 22 jun 2026:**
-- **Producto: Fase 5 = 5/5 EN PROD** (sin cambios desde el 17 jun). Bundle prod `index-DZRQQpla.js`.
-  - ✅ Trampa **Cloudflare `/sw.js`** verificada como RESUELTA en vivo (22 jun): sirve JS real, `Cf-Cache-Status: BYPASS`. El purge manual pendiente ya no hace falta.
-- **Tutoriales en video** — guía completa en `tutorial/README.md`:
-  - ✅ **Clip 1 APROBADO por Germán.** `tutorial/output/clip1.mp4` (~61 s). Mejoras aplicadas: intro = **logo animado con sonido** (sin fade a negro), **B-roll de mina** (Pexels) en el bloque del problema, **subtítulos verbatim**, recorte del blanco de carga.
-  - ✅ **Clip 2 PRODUCIDO.** `tutorial/output/clip2.mp4` (~57 s, "Trae tu gente"). Primer clip del **dashboard autenticado**: dev server local en modo mock + interceptación **stateful** de `/api` (lista de trabajadores vacía → 1 → 8). Org demo "Constructora Andes". Productor: `produce_clip2.py`.
+**Estado al cierre del 23 jun 2026:**
+- **Producto: Fase 5 = 5/5 EN PROD** (sin cambios desde el 17 jun). Bundle prod `index-DZRQQpla.js`. Trampa `/sw.js` resuelta (verificada el 22 jun).
+- **Tutoriales en video** — guía completa en `tutorial/README.md`. **4 de 7 clips listos:**
+  - ✅ **Clip 1 APROBADO** (`clip1.mp4`, ~61 s): intro logo animado+sonido, B-roll de mina, subtítulos verbatim.
+  - ✅ **Clip 2** (`clip2.mp4`, ~57 s, "Trae tu gente"): dashboard mock stateful, trabajadores vacío→1→8.
+  - ✅ **Clip 3** (`clip3.mp4`, ~49 s, "Crea tu faena"): crea proyecto + asigna 5 trabajadores + contador "5 sin evaluar".
+  - ✅ **Clip 4** (`clip4.mp4`, ~85 s, "Evalúa en terreno", MÓVIL 390px): 5 dimensiones con anclas + ¿recontratarías? "Con Reservas"+motivo + guardar y encadenar al siguiente.
+  - 🔧 Clips 3 y 4 introdujeron **`tutorial/scripts/clipkit.py`** (kit común: mock stateful de workers/proyectos/evaluaciones + TTS + captura + tarjetas + ensamblado). Clips 5–7 se construyen igual de delgados sobre `clipkit`.
 
 **Próximos pasos (en orden):**
-1. (si Germán pide) Afinar el **ritmo de la importación en el Clip 2 esc4** (el resultado aparece antes que la narración).
-2. Producir **Clip 3 (Crea tu faena)** y siguientes, reutilizando `produce_clip2.py` como base. Los clips de **evaluación (4–7)** requieren ampliar el mock con proyectos + evaluaciones + scores (no solo workers).
+1. Producir **Clips 5, 6, 7** sobre `clipkit` (Clip 5 offline puede reusar el flujo de evaluación del Clip 4 con `context.set_offline(True)`; 6–7 amplían el mock con evaluaciones ya hechas). El mock genérico ya cubre proyectos+evaluaciones.
+2. (menores, a criterio de Germán) ritmo de la importación en Clip 2 esc4.
 3. **Pendiente humano (para abrir al público)**: probar login real con correo en recontrata.cl/sign-up; luego quitar gate `recontrata2211` + `noindex`.
+
+**⚠️ Lección de captura (no repetir):** correr `produce_clipN.py capture` en **primer plano, `PYTHONUNBUFFERED=1`, timeout estricto y atendido**. Si se corre en background y el equipo se suspende, la sesión de Playwright se rompe y el proceso queda colgado indefinidamente (le pasó al Clip 3: 10 h colgado tras suspensión nocturna).
 
 **Notas para producir tutoriales (resumen; detalle en `tutorial/README.md`):**
 - Clave OpenAI en `tutorial/scripts/openai_key.txt` (gitignored; **recrear tras cambiar de PC**, reusa la de Fillanyform). Deps Python: `openai playwright pillow openpyxl` + Chromium.
 - Clips de dashboard: levantar `cd frontend && npm run dev` (modo mock, `localhost:5173`) antes de `capture`.
 - Producir/regenerar: `cd tutorial/scripts && python produce_clipN.py all` (o `assemble` para iterar solo el montaje).
 - Deploy de frontend del producto: `railway up --detach --service faenascore`.
+
+---
+
+## Sesion 23 jun 2026 — Tutoriales: Clips 3 y 4 producidos + kit común ✅
+
+- **`clipkit.py`** (kit común): RUT chileno, roster demo, INIT_JS (cursor+gate), `draft_js` (pre-carga borrador de evaluación), **mock STATEFUL genérico** de `/api/v1` (workers, proyectos, project-workers, evaluaciones; deriva `dashboard/projects-pending` del estado y marca `evaluated` al hacer POST), TTS, captura por escena, tarjetas, ensamblado con subtítulos verbatim. `produce_clip3.py` y `produce_clip4.py` quedan delgados encima.
+- **Clip 3 "Crea tu faena"** (`clip3.mp4`, ~49 s, escritorio): Proyectos vacío → crear "Parada de Planta de Ácido N°2" (Codelco/Calama) → Activo → asignar 5 trabajadores → "5 trabajadores sin evaluar".
+- **Clip 4 "Evalúa en terreno"** (`clip4.mp4`, ~85 s, móvil 390px): bottom-nav Evaluar → trabajador (Sergio Díaz) → 5 estrellas con anclas → "Con Reservas" + motivo → Guardar → "Evaluar siguiente" encadena a Marcela Rojas → contador a "3 pendientes".
+- **Trampas de interacción resueltas** (detalle en `tutorial/README.md` §6): en modales usar `.fill()` (inputs) / `.click(force=True)` (botones) / click en `<label>` (checkboxes); en páginas usar `.click()` normal (no force, que exige viewport); móvil → apuntar al bottom-nav (`nav[aria-label='Navegación principal']`), no al sidebar oculto; sembrar `workers` en el mock aunque la escena no los liste (si no, `getWorker` → cabecera "undefined undefined").
+- **Incidente**: el Clip 3 se corrió en background y quedó 10 h colgado tras suspenderse el equipo (rompe la sesión de Playwright). Recuperado: TaskStop + re-captura en primer plano. Regla nueva arriba en RETOMAR.
 
 ---
 
