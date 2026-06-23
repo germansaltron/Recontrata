@@ -319,6 +319,31 @@ def make_handler(state):
 
 
 # ── ffmpeg / utilidades ──────────────────────────────────────────────
+# ── Entrega a Downloads con nombre claro de Recontrata ───────────────
+# Evita confundir los clipN.mp4 con los de CasiListo. Llamar tras `assemble`.
+DOWNLOADS = Path.home() / "Downloads"
+TITLES = {
+    "clip1": (1, "Bienvenida y tu cuenta"),
+    "clip2": (2, "Trae tu gente"),
+    "clip3": (3, "Crea tu faena"),
+    "clip4": (4, "La fórmula del puntaje"),
+    "clip5": (5, "Evalúa en terreno"),
+    "clip6": (6, "Sin señal igual evalúas"),
+    "clip7": (7, "Decide con datos"),
+    "clip8": (8, "Transparencia y confianza"),
+    "clip9": (9, "Evaluaciones más justas"),
+}
+
+
+def deliver(prefix):
+    """Copia output/{prefix}.mp4 a Downloads como 'Recontrata - Tutorial N - Título.mp4'."""
+    n, title = TITLES[prefix]
+    dest = DOWNLOADS / f"Recontrata - Tutorial {n} - {title}.mp4"
+    shutil.copy(brand.OUTPUT_DIR / f"{prefix}.mp4", dest)
+    print(f"  entregado -> {dest.name}")
+    return dest
+
+
 def sh(cmd):
     subprocess.run(cmd, check=True)
 

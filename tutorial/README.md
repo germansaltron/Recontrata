@@ -208,6 +208,10 @@ Para **iterar solo el ensamblado** (cambiar subtítulos, intro, ritmo) no hace f
 re-grabar ni re-narrar: basta `assemble` si `output/raw/`, `output/audio/` y los
 `*_durations.json`/`*_leads.json` siguen en disco.
 
+**Entrega (nombres claros, no confundir con CasiListo):** los `output/clipN.mp4` son
+nombres internos. Para compartir, usar `clipkit.deliver("clipN")`, que copia a
+`~/Downloads/Recontrata - Tutorial N - Título.mp4` (mapa de títulos en `clipkit.TITLES`).
+
 ---
 
 ## 8. Estado
