@@ -36,7 +36,7 @@ producto, tarjetas de marca y ensamblado con ffmpeg.
 | 3 | Crea tu faena | Crear un proyecto y asignarle trabajadores | Admin | ✅ producido |
 | 4 | La fórmula del puntaje | Entender los pesos por dimensión (Seguridad > Puntualidad) y cambiar el perfil | Admin | ✅ producido |
 | 5 | Evalúa en terreno, en 30 segundos | Evaluar 5 dimensiones + recontratación | Supervisor | ✅ producido |
-| 6 | ¿Sin señal? Igual evalúas | Modo terreno offline + sincronización | Supervisor | ⬜ pendiente |
+| 6 | ¿Sin señal? Igual evalúas | Modo terreno offline + sincronización | Supervisor | ✅ producido |
 | 7 | Decide con datos | Dashboard, historial, ranking (la fórmula ya es el Clip 4) | Admin | ⬜ pendiente |
 | 8 | Transparencia y confianza | Portal del Trabajador (réplica, certificado) | Admin | ⬜ pendiente |
 | 9 (opc.) | Evaluaciones más justas | Calibración de evaluadores (anti-sesgo) | Admin | ⬜ opcional |
@@ -233,12 +233,18 @@ nombres internos. Para compartir, usar `clipkit.deliver("clipN")`, que copia a
 - ✅ **Clip 5 "Evalúa en terreno"** (`output/clip5.mp4`, ~85 s) — era el Clip 4. Móvil
   (390 px): 5 dimensiones (estrellas + anclas), ¿recontratarías? "Con Reservas" + motivo,
   guardar y **encadenar** al siguiente (Marcela Rojas), contador bajando.
+- ✅ **Clip 6 "¿Sin señal? Igual evalúas"** (`output/clip6.mp4`, ~62 s) — producido
+  (23 jun 2026). Móvil: se cae la red (`context.set_offline`), banner ámbar, se evalúa y
+  queda en la cola (IndexedDB), y al volver la señal se sincroniza sola.
+  **Truco dev:** los chunks lazy de las rutas NO están cacheados offline (en prod sí, por
+  el SW) → hay que **precargar** el chunk de la ruta destino navegando por la app ANTES de
+  cortar la red, y medir el `lead` después. Delay opcional en el mock (`post_eval_delay`)
+  para que "Sincronizando…" sea visible.
 - 🔧 **`clipkit.py`** (kit común desde el Clip 3): mock stateful de
   workers/proyectos/evaluaciones **+ fórmula del puntaje**, TTS, captura, tarjetas,
-  ensamblado. Los clips 6–8 se construyen igual de delgados sobre él.
-- ⬜ **Clips 6–8** — pendientes. Clip 6 (offline) reusa el flujo de evaluación del Clip 5
-  con `context.set_offline(True)`; clips 7–8 (dashboard/portal) amplían el mock con
-  evaluaciones ya hechas. (9 = calibración, opcional.)
+  ensamblado, `deliver()`. Los clips 7–8 se construyen igual de delgados sobre él.
+- ⬜ **Clips 7–8** — pendientes (dashboard/portal); amplían el mock con evaluaciones ya
+  hechas (el mock genérico ya las soporta). (9 = calibración, opcional.)
 
 > Antes de abrir los tutoriales al público hay un pendiente humano del producto: probar
 > login real en `recontrata.cl/sign-up` y luego quitar el gate `recontrata2211` + el

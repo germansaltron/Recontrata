@@ -155,6 +155,7 @@ def make_handler(state):
         "evaluated": set(state.get("evaluated", set())),
         "import_extra": list(state.get("import_extra", [])),
         "active_industry": state.get("active_industry", "construccion_mineria"),
+        "post_eval_delay": state.get("post_eval_delay", 0),  # s; hace visible "Sincronizando…"
     }
 
     def pending_list():
@@ -216,6 +217,8 @@ def make_handler(state):
 
         # Evaluaciones
         if path.endswith("/evaluations") and m == "POST":
+            if st["post_eval_delay"]:
+                time.sleep(st["post_eval_delay"])
             try:
                 d = req.post_data_json or {}
             except Exception:
