@@ -24,16 +24,18 @@
 **Reorden (23 jun, pedido de Germán):** se separó "La fórmula del puntaje" como **Clip 4** (antes era parte de "Decide con datos") y va ANTES de evaluar; "Evalúa en terreno" pasó de 4 a **5**; todo lo posterior corrió +1 (6 ¿Sin señal?, 7 Decide con datos, 8 Transparencia, 9 opc. Calibración). Guiones renumerados.
 
 **Ubicación de los tutoriales en la app — IMPLEMENTADA (24 jun, sin deployar):**
-- Catálogo central `frontend/src/lib/tutorials.ts` (9 clips por etapa). **👉 Pendiente de Germán: subir los 9 a YouTube "sin listar" y pegar cada `youtubeId` en ese archivo.** Mientras tanto el reproductor muestra "disponible muy pronto".
+- Catálogo central `frontend/src/lib/tutorials.ts` (9 clips por etapa). **IDs de YouTube pegados: 8 de 9** (Clips 1-8). **Falta el Clip 9** (Germán topó el límite de subida de YouTube el 24 jun; lo sube el 25 jun). Mientras un `youtubeId` esté vacío, ese reproductor muestra "disponible muy pronto" (no rompe nada).
 - `frontend/src/components/ui/TutorialModal.tsx`: reproductor (embed YouTube 16:9) + `<WatchButton clip="clipN" />`.
 - **Centro de Ayuda** `/app/ayuda` (`pages/Ayuda.tsx`) + ítem "Ayuda" en sidebar y en la barra superior (AppShell).
 - **CTAs contextuales** en estados vacíos/páginas: Trabajadores→clip2, Proyectos→clip3, Dashboard→clip7, Evaluar→clip5, Fórmula→clip4, Calibración→clip9, ficha/Portal→clip8.
 - **Landing pública**: sección "Míralo en acción" con clip1 + clip5.
-- Build OK (tsc+vite). **Falta: pegar IDs de YouTube → `railway up --service faenascore` (deploy lo autoriza Germán).**
+- Build OK (tsc+vite). **NO deployado aún.**
+- **IDs de YouTube (sin listar) ya en `tutorials.ts`:** Clip1 `RjVftlQZZiI` · Clip2 `z63Y6LO5Etc` · Clip3 `W4cubV-fANM` · Clip4 `nZYOXJFPpC0` · Clip5 `FNMvaMhJrw4` · Clip6 `cR_LtE0r7IY` · Clip7 `q46tg0Lge5A` · Clip8 `YypZtLhPT8U` · **Clip9 = PENDIENTE (sube el 25 jun)**.
 
-**Próximos pasos (en orden):**
-1. **Revisión de Germán de los 9 clips** (están en Downloads). Aprobados: Clips 1, 8 y 9. Faltan revisar 2–7. Ajustes finos si pide.
-2. **Subir clips a YouTube (sin listar) + pegar IDs en `tutorials.ts` + deploy** para activar los reproductores.
+**Próximos pasos (RETOMAR mañana 25 jun):**
+1. **Germán sube el Clip 9 a YouTube** → me pasa el ID → lo pego en `tutorials.ts` (campo `youtubeId` del `clip: 9`).
+2. Verificar que los embeds reproduzcan y **deploy**: `railway up --service faenascore` (lo autoriza Germán). Recordar: VITE es build-arg, verificar pollando el bundle nuevo, no /health.
+3. Pendiente humano del producto (para abrir al público): login real en recontrata.cl/sign-up; quitar gate `recontrata2211` + `noindex`.
 2. **Pendiente humano (para abrir al público)**: probar login real en recontrata.cl/sign-up; quitar gate `recontrata2211` + `noindex`. Recién ahí publicar los tutoriales.
 2. (menor, a criterio de Germán) ritmo de la importación en Clip 2 esc4.
 3. **Pendiente humano (para abrir al público)**: probar login real con correo en recontrata.cl/sign-up; luego quitar gate `recontrata2211` + `noindex`.
