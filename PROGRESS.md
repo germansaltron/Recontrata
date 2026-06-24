@@ -18,13 +18,13 @@
   - ✅ **Clip 7** (`clip7.mp4`, ~58 s): **"Decide con datos"** (escritorio) — dashboard poblado (KPIs, Top Trabajadores, Recientes) + ficha de trabajador (promedio por dimensión, tendencia, historial, CSV) + cierre sobre el ranking ponderado. Mock sembrado: `stats`/`top_workers`/`recent`/`worker_details` + `eval_summary()`/`worker_detail()`.
   - ✅ **Clip 8** (`clip8.mp4`, ~76 s): **"Transparencia y confianza"** (escritorio) — genera el enlace del portal → portal público `/p/{token}` (puntajes + fórmula, nunca el evaluador) → réplica + botón de baja + certificado imprimible. Mock: `portal_profile()`/`portal_eval()` + ramas `portal-link`/`GET /portal/{token}`/`reply`/`opt-out`.
   - ✅ **Clip 9 (opcional)** (`clip9.mp4`, ~57 s): **"Evaluaciones más justas"** (escritorio) — calibración de evaluadores en `/app/calibracion`: tabla con promedio, delta vs media de la org y señales (Indulgente/Severo/Halo/Pocos datos). Mock: `calibration` en el estado.
-  - 🎉 **LOS 9 CLIPS PRODUCIDOS.** Clip 1 y Clip 8 aprobados/vistos por Germán; resto a su revisión. Entregados en Downloads como "Recontrata - Tutorial N - Título.mp4".
+  - 🎉 **LOS 9 CLIPS PRODUCIDOS.** Aprobados por Germán: **Clips 1, 8 y 9**; resto (2–7) a su revisión. Entregados en Downloads como "Recontrata - Tutorial N - Título.mp4".
   - 🔧 Kit común **`tutorial/scripts/clipkit.py`** (mock stateful workers/proyectos/evaluaciones **+ fórmula + dashboard/historial + portal + calibración**, TTS, captura, tarjetas, ensamblado, `deliver()`).
 
 **Reorden (23 jun, pedido de Germán):** se separó "La fórmula del puntaje" como **Clip 4** (antes era parte de "Decide con datos") y va ANTES de evaluar; "Evalúa en terreno" pasó de 4 a **5**; todo lo posterior corrió +1 (6 ¿Sin señal?, 7 Decide con datos, 8 Transparencia, 9 opc. Calibración). Guiones renumerados.
 
 **Próximos pasos (en orden):**
-1. **Revisión de Germán de los 9 clips** (están en Downloads). Aprobados: Clip 1 y Clip 8. Ajustes finos si pide.
+1. **Revisión de Germán de los 9 clips** (están en Downloads). Aprobados: Clips 1, 8 y 9. Faltan revisar 2–7. Ajustes finos si pide.
 2. **Pendiente humano (para abrir al público)**: probar login real en recontrata.cl/sign-up; quitar gate `recontrata2211` + `noindex`. Recién ahí publicar los tutoriales.
 2. (menor, a criterio de Germán) ritmo de la importación en Clip 2 esc4.
 3. **Pendiente humano (para abrir al público)**: probar login real con correo en recontrata.cl/sign-up; luego quitar gate `recontrata2211` + `noindex`.
