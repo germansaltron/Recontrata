@@ -1,12 +1,16 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ClipboardCheck, TrendingUp, History, ShieldCheck, WifiOff, Users, Check } from 'lucide-react'
+import { ClipboardCheck, TrendingUp, History, ShieldCheck, WifiOff, Users, Check, PlayCircle } from 'lucide-react'
+import { getTutorial, type Tutorial } from '../lib/tutorials'
+import { TutorialModal } from '../components/ui/TutorialModal'
 
 interface LandingProps {
   isSignedIn: boolean
 }
 
 export default function Landing({ isSignedIn }: LandingProps) {
+  const [demo, setDemo] = useState<Tutorial | null>(null)
   const primaryCta = isSignedIn
     ? { to: '/app', label: 'Ir al Dashboard' }
     : { to: '/sign-in', label: 'Empezar gratis' }
@@ -226,6 +230,39 @@ export default function Landing({ isSignedIn }: LandingProps) {
           </div>
         </div>
       </section>
+
+      {/* Míralo en acción (tutoriales) */}
+      <section className="bg-white py-16 md:py-24">
+        <div className="max-w-5xl mx-auto px-4 md:px-6 text-center">
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900">Míralo en acción</h3>
+          <p className="mt-3 text-base text-gray-600 max-w-2xl mx-auto">
+            En menos de un minuto: cómo se ve por dentro y cómo se evalúa en plena faena.
+          </p>
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {['clip1', 'clip5'].map((key) => {
+              const t = getTutorial(key)
+              if (!t) return null
+              return (
+                <button
+                  key={key}
+                  onClick={() => setDemo(t)}
+                  className="group text-left bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden hover:border-blue-300 hover:shadow-md transition"
+                >
+                  <div className="aspect-video bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+                    <PlayCircle className="w-14 h-14 text-white/90 group-hover:scale-110 transition" />
+                  </div>
+                  <div className="p-5">
+                    <p className="text-xs font-medium text-blue-600">Tutorial · {t.duration}</p>
+                    <h4 className="font-semibold text-gray-900 mt-0.5">{t.title}</h4>
+                    <p className="text-sm text-gray-500 mt-1">{t.blurb}</p>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+      {demo && <TutorialModal tutorial={demo} onClose={() => setDemo(null)} />}
 
       {/* Pricing */}
       <section id="pricing" className="bg-gray-50 py-16 md:py-24">

@@ -21,6 +21,7 @@ const Terms = lazy(() => import('./pages/Terms'))
 const Privacy = lazy(() => import('./pages/Privacy'))
 const WorkerPortal = lazy(() => import('./pages/WorkerPortal'))
 const WorkerCertificate = lazy(() => import('./pages/WorkerCertificate'))
+const Ayuda = lazy(() => import('./pages/Ayuda'))
 
 const clerkEnabled = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) &&
   import.meta.env.VITE_AUTH_MOCK_ENABLED !== 'true'
@@ -41,6 +42,7 @@ function ProtectedApp() {
           <Route path="evaluate/:projectId/:workerId" element={<Suspense fallback={<PageFallback />}><EvaluateWorker /></Suspense>} />
           <Route path="formula" element={<Suspense fallback={<PageFallback />}><ScoreFormula /></Suspense>} />
           <Route path="calibracion" element={<Suspense fallback={<PageFallback />}><Calibration /></Suspense>} />
+          <Route path="ayuda" element={<Suspense fallback={<PageFallback />}><Ayuda /></Suspense>} />
         </Route>
       </Routes>
     </OrgProvider>

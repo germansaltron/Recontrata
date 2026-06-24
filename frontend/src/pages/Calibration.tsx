@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { WatchButton } from '../components/ui/TutorialModal'
 import { Link } from 'react-router-dom'
 import { Sliders, Info } from 'lucide-react'
 import { api, type CalibrationResponse, type EvaluatorCalibration } from '../lib/api'
@@ -61,6 +62,7 @@ export default function Calibration() {
         <p className="mt-1 text-sm text-gray-500">
           Detecta sesgos sistemáticos de quién evalúa (indulgencia, severidad, efecto halo) para que el puntaje sea más justo y defendible.
         </p>
+        <div className="mt-2"><WatchButton clip="clip9" /></div>
       </div>
 
       {!hasData ? (

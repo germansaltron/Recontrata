@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { WatchButton } from '../components/ui/TutorialModal'
 import { Link } from 'react-router-dom'
 import { ClipboardCheck, FolderKanban } from 'lucide-react'
 import { api, type ProjectPending } from '../lib/api'
@@ -35,7 +36,10 @@ export default function Evaluate() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-gray-900">Evaluar Equipo</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold text-gray-900">Evaluar Equipo</h1>
+        <WatchButton clip="clip5" label="Cómo evaluar" />
+      </div>
       <p className="text-gray-600">Proyectos activos con trabajadores pendientes de evaluar.</p>
 
       {projects.length === 0 ? (

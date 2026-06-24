@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { WatchButton } from '../components/ui/TutorialModal'
 import { Link, useNavigate } from 'react-router-dom'
 import { Search, Filter, UserPlus, Users, Upload, Download, ChevronLeft, ChevronRight } from 'lucide-react'
 import { api, type Worker } from '../lib/api'
@@ -149,6 +150,9 @@ export default function Workers() {
                 <UserPlus className="w-4 h-4" /> Nuevo
               </button>
             </div>
+          )}
+          {!search && !specialty && !minScore && (
+            <div className="mt-3"><WatchButton clip="clip2" /></div>
           )}
         </div>
       ) : (

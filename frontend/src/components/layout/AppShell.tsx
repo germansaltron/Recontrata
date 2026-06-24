@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, FolderKanban, Users, ClipboardCheck, Scale, Sliders, Menu, X, AlertTriangle, WifiOff, UploadCloud } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Users, ClipboardCheck, Scale, Sliders, Menu, X, AlertTriangle, WifiOff, UploadCloud, LifeBuoy } from 'lucide-react'
 import { UserButton } from '@clerk/clerk-react'
 import { useOrg } from '../../lib/org'
 import { api } from '../../lib/api'
@@ -21,6 +21,7 @@ const navItems = [
 const secondaryNavItems = [
   { to: '/app/formula', icon: Scale, label: 'Fórmula del puntaje' },
   { to: '/app/calibracion', icon: Sliders, label: 'Calibración' },
+  { to: '/app/ayuda', icon: LifeBuoy, label: 'Ayuda' },
 ]
 
 // UserButton solo funciona dentro de <ClerkProvider>. En modo mock (sin Clerk)
@@ -101,6 +102,14 @@ export default function AppShell() {
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1" />
+          <NavLink
+            to="/app/ayuda"
+            title="Centro de ayuda · tutoriales"
+            aria-label="Centro de ayuda"
+            className={({ isActive }) => `mr-3 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium ${isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'}`}
+          >
+            <LifeBuoy className="w-5 h-5" /> <span className="hidden sm:inline">Ayuda</span>
+          </NavLink>
           {clerkEnabled ? (
             <UserButton
               afterSignOutUrl="/"

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { WatchButton } from '../components/ui/TutorialModal'
 import { Scale, Info } from 'lucide-react'
 import { api, type ScoringFormula, type ScoringProfile } from '../lib/api'
 import { useOrg } from '../lib/org'
@@ -76,6 +77,7 @@ export default function ScoreFormula() {
           El puntaje de cada trabajador no es un promedio simple: cada dimensión pesa
           distinto según la industria. Así una decisión de recontratación es defendible.
         </p>
+        <div className="mt-2"><WatchButton clip="clip4" /></div>
       </div>
 
       {/* Perfil activo */}

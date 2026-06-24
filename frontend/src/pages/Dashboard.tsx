@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { WatchButton } from '../components/ui/TutorialModal'
 import { Link } from 'react-router-dom'
 import { Users, FolderKanban, ClipboardCheck, TrendingUp } from 'lucide-react'
 import { api, type DashboardStats, type TopWorker, type RecentEvaluation, type NextEvaluation } from '../lib/api'
@@ -74,7 +75,10 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <WatchButton clip="clip7" label="Cómo leer el panel" />
+      </div>
 
       {nextEval && nextEval.project_id && nextEval.worker_id && (
         <Link

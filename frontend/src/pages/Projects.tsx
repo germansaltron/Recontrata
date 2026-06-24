@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { WatchButton } from '../components/ui/TutorialModal'
 import { Link } from 'react-router-dom'
 import { Plus, FolderKanban } from 'lucide-react'
 import { api, type Project } from '../lib/api'
@@ -58,6 +59,7 @@ export default function Projects() {
           <button onClick={() => setShowNew(true)} className="mt-4 inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
             <Plus className="w-4 h-4" /> Crear Proyecto
           </button>
+          <div className="mt-3"><WatchButton clip="clip3" /></div>
         </div>
       ) : (
         <div className="grid gap-3 md:grid-cols-2">

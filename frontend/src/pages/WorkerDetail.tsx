@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { WatchButton } from '../components/ui/TutorialModal'
 import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, Phone, Mail, Pencil, ClipboardCheck, ShieldCheck, Download, Link2, Copy, MessageSquare } from 'lucide-react'
 import { api, type WorkerDetail as WorkerDetailType, type WorkerConsent, type ConsentStatus, type ConsentMethod, type EvaluationSummary } from '../lib/api'
@@ -241,9 +242,10 @@ function PortalShareCard({ orgId, workerId, token }: { orgId: string; workerId: 
       <h2 className="font-semibold text-gray-900 flex items-center gap-2 mb-1">
         <Link2 className="w-4 h-4 text-gray-500" /> Portal del trabajador
       </h2>
-      <p className="text-sm text-gray-500 mb-3">
+      <p className="text-sm text-gray-500 mb-2">
         Comparte un enlace privado para que el trabajador vea su historial, responda evaluaciones y ejerza sus derechos (Ley N° 21.719).
       </p>
+      <div className="mb-3"><WatchButton clip="clip8" /></div>
       {url ? (
         <div className="space-y-2">
           <div className="flex items-center gap-2">
