@@ -1,6 +1,6 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-23 (tutoriales: SERIE PRINCIPAL COMPLETA 8/8)
+## Ultima actualizacion: 2026-06-24 (tutoriales: los 9 clips producidos; Clip 8 aprobado)
 
 ---
 
@@ -17,15 +17,15 @@
   - ✅ **Clip 6** (`clip6.mp4`, ~62 s): **"¿Sin señal? Igual evalúas"** (MÓVIL) — modo offline: se cae la red (`set_offline`), banner ámbar, evalúa y encola (IndexedDB), vuelve la señal y sincroniza sola. **Truco dev:** precargar el chunk lazy de la ruta destino antes de cortar la red (en prod lo precachea el SW); delay opcional `post_eval_delay` en el mock para ver "Sincronizando…".
   - ✅ **Clip 7** (`clip7.mp4`, ~58 s): **"Decide con datos"** (escritorio) — dashboard poblado (KPIs, Top Trabajadores, Recientes) + ficha de trabajador (promedio por dimensión, tendencia, historial, CSV) + cierre sobre el ranking ponderado. Mock sembrado: `stats`/`top_workers`/`recent`/`worker_details` + `eval_summary()`/`worker_detail()`.
   - ✅ **Clip 8** (`clip8.mp4`, ~76 s): **"Transparencia y confianza"** (escritorio) — genera el enlace del portal → portal público `/p/{token}` (puntajes + fórmula, nunca el evaluador) → réplica + botón de baja + certificado imprimible. Mock: `portal_profile()`/`portal_eval()` + ramas `portal-link`/`GET /portal/{token}`/`reply`/`opt-out`.
-  - 🎉 **SERIE PRINCIPAL COMPLETA (1–8).** Entregada en Downloads como "Recontrata - Tutorial N - Título.mp4".
-  - 🔧 Kit común **`tutorial/scripts/clipkit.py`** (mock stateful workers/proyectos/evaluaciones **+ fórmula + dashboard/historial + portal**, TTS, captura, tarjetas, ensamblado, `deliver()`).
+  - ✅ **Clip 9 (opcional)** (`clip9.mp4`, ~57 s): **"Evaluaciones más justas"** (escritorio) — calibración de evaluadores en `/app/calibracion`: tabla con promedio, delta vs media de la org y señales (Indulgente/Severo/Halo/Pocos datos). Mock: `calibration` en el estado.
+  - 🎉 **LOS 9 CLIPS PRODUCIDOS.** Clip 1 y Clip 8 aprobados/vistos por Germán; resto a su revisión. Entregados en Downloads como "Recontrata - Tutorial N - Título.mp4".
+  - 🔧 Kit común **`tutorial/scripts/clipkit.py`** (mock stateful workers/proyectos/evaluaciones **+ fórmula + dashboard/historial + portal + calibración**, TTS, captura, tarjetas, ensamblado, `deliver()`).
 
 **Reorden (23 jun, pedido de Germán):** se separó "La fórmula del puntaje" como **Clip 4** (antes era parte de "Decide con datos") y va ANTES de evaluar; "Evalúa en terreno" pasó de 4 a **5**; todo lo posterior corrió +1 (6 ¿Sin señal?, 7 Decide con datos, 8 Transparencia, 9 opc. Calibración). Guiones renumerados.
 
 **Próximos pasos (en orden):**
-1. **Revisión de Germán de los 8 clips** (están en Downloads). Ajustes finos si pide.
-2. (opcional) Clip 9 "Evaluaciones más justas" — calibración de evaluadores (`/app/calibracion`).
-3. **Pendiente humano (para abrir al público)**: probar login real en recontrata.cl/sign-up; quitar gate `recontrata2211` + `noindex`. Recién ahí publicar los tutoriales.
+1. **Revisión de Germán de los 9 clips** (están en Downloads). Aprobados: Clip 1 y Clip 8. Ajustes finos si pide.
+2. **Pendiente humano (para abrir al público)**: probar login real en recontrata.cl/sign-up; quitar gate `recontrata2211` + `noindex`. Recién ahí publicar los tutoriales.
 2. (menor, a criterio de Germán) ritmo de la importación en Clip 2 esc4.
 3. **Pendiente humano (para abrir al público)**: probar login real con correo en recontrata.cl/sign-up; luego quitar gate `recontrata2211` + `noindex`.
 

@@ -39,7 +39,7 @@ producto, tarjetas de marca y ensamblado con ffmpeg.
 | 6 | ¿Sin señal? Igual evalúas | Modo terreno offline + sincronización | Supervisor | ✅ producido |
 | 7 | Decide con datos | Dashboard, historial, ranking (la fórmula ya es el Clip 4) | Admin | ✅ producido |
 | 8 | Transparencia y confianza | Portal del Trabajador (réplica, certificado) | Admin | ✅ producido |
-| 9 (opc.) | Evaluaciones más justas | Calibración de evaluadores (anti-sesgo) | Admin | ⬜ opcional |
+| 9 (opc.) | Evaluaciones más justas | Calibración de evaluadores (anti-sesgo) | Admin | ✅ producido |
 
 Arco: **preparar** (1–3) → **entender el puntaje** (4) → **usar en terreno** (5–6) →
 **decidir** (7) → **confianza** (8) → **avanzado** (9).
@@ -250,11 +250,16 @@ nombres internos. Para compartir, usar `clipkit.deliver("clipN")`, que copia a
   `/p/{token}` (puntajes + fórmula, nunca el evaluador) → réplica + botón de baja +
   certificado imprimible. Mock en `clipkit`: `portal_profile()`/`portal_eval()` + ramas
   `POST .../portal-link`, `GET /portal/{token}`, `.../reply`, `.../opt-out`.
-- 🎉 **Serie principal COMPLETA (1–8).** Solo queda el opcional Clip 9 (calibración).
+- ✅ **Clip 9 (opcional) "Evaluaciones más justas"** (`output/clip9.mp4`, ~57 s) —
+  producido (24 jun 2026). Recorre `/app/calibracion`: tabla de evaluadores con su
+  promedio, delta vs media de la org y señales (Indulgente/Severo/Efecto halo/Pocos datos).
+  Mock: `clipkit` admite `calibration` en el estado (rama `GET .../calibration`).
+- 🎉 **Serie COMPLETA: los 9 clips producidos** (Clip 1 aprobado por Germán; 2–9
+  producidos). Entregados en `Downloads` como "Recontrata - Tutorial N - Título.mp4".
 - 🔧 **`clipkit.py`** (kit común): mock stateful de workers/proyectos/evaluaciones
   **+ fórmula + dashboard/historial + portal**, TTS, captura, tarjetas, ensamblado,
   `deliver()`.
-- ⬜ **Clip 9 (opcional) — Calibración de evaluadores** (`/app/calibracion`, anti-sesgo).
+- ✅ **Clip 8 "Transparencia y confianza"** aprobado/visto por Germán (24 jun).
 
 > Antes de abrir los tutoriales al público hay un pendiente humano del producto: probar
 > login real en `recontrata.cl/sign-up` y luego quitar el gate `recontrata2211` + el

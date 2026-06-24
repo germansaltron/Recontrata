@@ -226,6 +226,7 @@ def make_handler(state):
         "recent": state.get("recent", []),
         "worker_details": state.get("worker_details", {}),  # {wid: WorkerDetail rico}
         "portal_profile": copy.deepcopy(state.get("portal_profile")),  # PortalProfile (clip 8)
+        "calibration": state.get("calibration"),   # CalibrationResponse (clip 9)
     }
 
     def pending_list():
@@ -279,6 +280,9 @@ def make_handler(state):
                       "worker_count": len(st["workers"]), "evaluation_count": len(st["evaluated"]),
                       "avg_score_overall": None, "rehire_rate": None,
                       "specialty_distribution": []})
+        if path.rstrip("/").endswith("/calibration") and m == "GET":
+            return j(st["calibration"] or {"org_mean": None, "min_sample": 3,
+                     "leniency_threshold": 0.4, "halo_threshold": 0.5, "evaluators": []})
         if "/dashboard/top-workers" in path:
             return j(st["top_workers"])
         if "/dashboard/recent-evaluations" in path:
