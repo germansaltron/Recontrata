@@ -260,7 +260,12 @@ nombres internos. Para compartir, usar `clipkit.deliver("clipN")`, que copia a
   **+ fórmula + dashboard/historial + portal**, TTS, captura, tarjetas, ensamblado,
   `deliver()`.
 - ✅ **Clip 8 "Transparencia y confianza"** aprobado/visto por Germán (24 jun).
+- 🚀 **EN PRODUCCIÓN (25 jun):** los 9 clips están subidos a **YouTube (sin listar)** y
+  **embebidos en recontrata.cl** en 3 lugares — Centro de Ayuda (`/app/ayuda`), botones
+  "Ver cómo" contextuales por función, y la sección "Míralo en acción" de la landing.
+  Los IDs viven en `frontend/src/lib/tutorials.ts`. Deployado (bundle `index-EYfsGaTZ.js`)
+  y verificado E2E.
 
-> Antes de abrir los tutoriales al público hay un pendiente humano del producto: probar
-> login real en `recontrata.cl/sign-up` y luego quitar el gate `recontrata2211` + el
-> `noindex` (ver `PROGRESS.md`).
+> Antes de abrir los tutoriales (y el sitio) al público hay un pendiente humano del
+> producto: probar login real en `recontrata.cl/sign-up` y luego quitar el gate
+> `recontrata2211` + el `noindex` (ver `PROGRESS.md`). Hoy todo es visible solo con el código.
