@@ -1,6 +1,6 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-24 (tutoriales: los 9 clips producidos; Clip 8 aprobado)
+## Ultima actualizacion: 2026-06-25 (tutoriales EN PROD: 9 clips embebidos en la app+landing)
 
 ---
 
@@ -23,19 +23,19 @@
 
 **Reorden (23 jun, pedido de Germán):** se separó "La fórmula del puntaje" como **Clip 4** (antes era parte de "Decide con datos") y va ANTES de evaluar; "Evalúa en terreno" pasó de 4 a **5**; todo lo posterior corrió +1 (6 ¿Sin señal?, 7 Decide con datos, 8 Transparencia, 9 opc. Calibración). Guiones renumerados.
 
-**Ubicación de los tutoriales en la app — IMPLEMENTADA (24 jun, sin deployar):**
+**Ubicación de los tutoriales en la app — ✅ EN PRODUCCIÓN (25 jun, bundle `index-EYfsGaTZ.js`):**
+- Los **9 IDs de YouTube** pegados y **deployados** (`railway up --service faenascore`). Verificado E2E en recontrata.cl: la sección "Míralo en acción" y el Centro de Ayuda abren el embed real de YouTube y reproducen.
 - Catálogo central `frontend/src/lib/tutorials.ts` (9 clips por etapa). **IDs de YouTube pegados: 8 de 9** (Clips 1-8). **Falta el Clip 9** (Germán topó el límite de subida de YouTube el 24 jun; lo sube el 25 jun). Mientras un `youtubeId` esté vacío, ese reproductor muestra "disponible muy pronto" (no rompe nada).
 - `frontend/src/components/ui/TutorialModal.tsx`: reproductor (embed YouTube 16:9) + `<WatchButton clip="clipN" />`.
 - **Centro de Ayuda** `/app/ayuda` (`pages/Ayuda.tsx`) + ítem "Ayuda" en sidebar y en la barra superior (AppShell).
 - **CTAs contextuales** en estados vacíos/páginas: Trabajadores→clip2, Proyectos→clip3, Dashboard→clip7, Evaluar→clip5, Fórmula→clip4, Calibración→clip9, ficha/Portal→clip8.
 - **Landing pública**: sección "Míralo en acción" con clip1 + clip5.
-- Build OK (tsc+vite). **NO deployado aún.**
-- **IDs de YouTube (sin listar) ya en `tutorials.ts`:** Clip1 `RjVftlQZZiI` · Clip2 `z63Y6LO5Etc` · Clip3 `W4cubV-fANM` · Clip4 `nZYOXJFPpC0` · Clip5 `FNMvaMhJrw4` · Clip6 `cR_LtE0r7IY` · Clip7 `q46tg0Lge5A` · Clip8 `YypZtLhPT8U` · **Clip9 = PENDIENTE (sube el 25 jun)**.
+- **IDs de YouTube (sin listar) en `tutorials.ts`, los 9:** Clip1 `RjVftlQZZiI` · Clip2 `z63Y6LO5Etc` · Clip3 `W4cubV-fANM` · Clip4 `nZYOXJFPpC0` · Clip5 `FNMvaMhJrw4` · Clip6 `cR_LtE0r7IY` · Clip7 `q46tg0Lge5A` · Clip8 `YypZtLhPT8U` · Clip9 `lxZiDtaR3KA`.
+- Railway re-linkeado tras restauración: `railway link -p faenascore -e production -s faenascore` (project ID `7ec526bb-74bc-4796-bac4-4c89bde2d6bd`).
 
-**Próximos pasos (RETOMAR mañana 25 jun):**
-1. **Germán sube el Clip 9 a YouTube** → me pasa el ID → lo pego en `tutorials.ts` (campo `youtubeId` del `clip: 9`).
-2. Verificar que los embeds reproduzcan y **deploy**: `railway up --service faenascore` (lo autoriza Germán). Recordar: VITE es build-arg, verificar pollando el bundle nuevo, no /health.
-3. Pendiente humano del producto (para abrir al público): login real en recontrata.cl/sign-up; quitar gate `recontrata2211` + `noindex`.
+**Próximos pasos (RETOMAR):**
+1. **Pendiente humano del producto — único bloqueante para abrir al público:** probar login real en recontrata.cl/sign-up; luego quitar el gate `recontrata2211` + el `noindex` (ver [[recontrata-prelaunch-gate]]). Recién ahí los tutoriales y el sitio quedan visibles para todos (hoy siguen tras el gate).
+2. (opcional) Revisión final de Germán de los clips 2-7.
 2. **Pendiente humano (para abrir al público)**: probar login real en recontrata.cl/sign-up; quitar gate `recontrata2211` + `noindex`. Recién ahí publicar los tutoriales.
 2. (menor, a criterio de Germán) ritmo de la importación en Clip 2 esc4.
 3. **Pendiente humano (para abrir al público)**: probar login real con correo en recontrata.cl/sign-up; luego quitar gate `recontrata2211` + `noindex`.
