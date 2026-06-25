@@ -41,7 +41,7 @@ export const TUTORIALS: Tutorial[] = [
   { clip: 8, key: 'clip8', title: 'Transparencia y confianza', stage: 'decidir', duration: '1:16',
     blurb: 'Portal del Trabajador: derecho a réplica y certificado.', youtubeId: 'YypZtLhPT8U' },
   { clip: 9, key: 'clip9', title: 'Evaluaciones más justas', stage: 'avanzado', duration: '0:57',
-    blurb: 'Calibración de evaluadores para detectar sesgos.', youtubeId: '' },
+    blurb: 'Calibración de evaluadores para detectar sesgos.', youtubeId: 'lxZiDtaR3KA' },
 ]
 
 export function getTutorial(key: string): Tutorial | undefined {
