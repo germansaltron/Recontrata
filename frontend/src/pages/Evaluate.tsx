@@ -19,6 +19,7 @@ export default function Evaluate() {
     const key = `projects-pending:${ORG_ID}`
     // Render cached data instantly (prefetched by the shell), then revalidate.
     const cached = getCached<ProjectPending[]>(key)
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pinta la caché SWR (prefetcheada por el shell) al instante; patrón intencional
     if (cached) { setProjects(cached); setLoading(false) }
     swr(key, () => api.getProjectsPending(ORG_ID!))
       .then((items) => { if (!cancelled) { setProjects(items); setLoading(false) } })

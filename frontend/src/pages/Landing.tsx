@@ -84,7 +84,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
           </a>
         </motion.div>
         <motion.p {...heroIn(2)} className="mt-5 text-sm text-gray-500">
-          Reemplazar a un mal operario cuesta <span className="font-semibold text-gray-700">~$750.000</span>.
+          Reemplazar a un mal operario cuesta <span className="font-semibold text-gray-700">~$1,5 millones</span>.
           Recontrata te ayuda a no repetir el error.
         </motion.p>
 
@@ -121,7 +121,12 @@ export default function Landing({ isSignedIn }: LandingProps) {
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
             <Stat value="1.071.128" label="trabajadores subcontratados en Chile" source="INE, 2024" />
             <Stat value="50%" label="rotación laboral en construcción, la más alta del país" source="INE" />
-            <Stat value="~$750.000" label="cuesta reemplazar a un operario que no debió volver" source="≈50% de su sueldo anual" />
+            <Stat
+              value="~$1,5M"
+              label="cuesta reemplazar a un operario que no debió volver"
+              source="≈16-20% del salario anual · Center for American Progress (2012)"
+              sourceHref="https://www.americanprogress.org/article/there-are-significant-business-costs-to-replacing-employees/"
+            />
             <Stat value="2.854+" label="nombres en listas negras ilegales denunciadas en minería" source="Federación Minera / DT" />
           </div>
           <p className="mt-8 text-center text-sm text-gray-500 max-w-2xl mx-auto">
@@ -173,7 +178,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
           />
           <FeatureCard
             icon={WifiOff}
-            title="¿Sin señal en la faena? Igual evalúas"
+            title="¿Sin señal en terreno? Igual evalúas"
             body="En la mina muchas veces no hay internet. Recontrata sigue funcionando sin conexión y envía las evaluaciones solo cuando vuelve la señal — no se pierde nada. Pensado para usarse con una mano y guantes puestos."
           />
           <FeatureCard
@@ -236,7 +241,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
         <div className="max-w-5xl mx-auto px-4 md:px-6 text-center">
           <h3 className="text-2xl md:text-3xl font-bold text-gray-900">Míralo en acción</h3>
           <p className="mt-3 text-base text-gray-600 max-w-2xl mx-auto">
-            En menos de un minuto: cómo se ve por dentro y cómo se evalúa en plena faena.
+            En menos de un minuto: cómo se ve por dentro y cómo se evalúa en pleno terreno.
           </p>
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-6">
             {['clip1', 'clip5'].map((key) => {
@@ -302,7 +307,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
                 'Alertas y exportación',
                 '14 días de prueba gratis',
               ]}
-              roi="Evita 5 malas recontrataciones al año y ahorras ~$3,75M. El plan cuesta ~$600K/año: ROI de 6x."
+              roi="Evita 3 malas recontrataciones al año y ahorras ~$4,5M. El plan cuesta ~$600K/año: ROI sobre 7x."
               cta={primaryCta.label}
               ctaTo={primaryCta.to}
             />
@@ -463,12 +468,25 @@ function PricingCard({
   )
 }
 
-function Stat({ value, label, source }: { value: string; label: string; source: string }) {
+function Stat({ value, label, source, sourceHref }: { value: string; label: string; source: string; sourceHref?: string }) {
   return (
     <div className="text-center">
       <div className="text-2xl md:text-4xl font-bold text-gray-900 tracking-tight">{value}</div>
       <p className="mt-2 text-xs md:text-sm text-gray-600 leading-snug">{label}</p>
-      <p className="mt-1 text-[11px] text-gray-400">{source}</p>
+      <p className="mt-1 text-[11px] text-gray-400">
+        {sourceHref ? (
+          <a
+            href={sourceHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline decoration-dotted underline-offset-2 hover:text-gray-600"
+          >
+            {source}
+          </a>
+        ) : (
+          source
+        )}
+      </p>
     </div>
   )
 }

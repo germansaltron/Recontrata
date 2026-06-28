@@ -33,6 +33,7 @@ export default function Calibration() {
       .finally(() => setLoading(false))
   }, [orgId])
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- load() dispara el fetch inicial; el setLoading interno es intencional
   useEffect(() => { load() }, [load])
 
   if (loading) return (

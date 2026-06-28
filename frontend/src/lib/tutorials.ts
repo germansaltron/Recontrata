@@ -28,7 +28,7 @@ export const TUTORIALS: Tutorial[] = [
     blurb: 'Qué resuelve Recontrata y cómo crear tu cuenta.', youtubeId: 'RjVftlQZZiI' },
   { clip: 2, key: 'clip2', title: 'Trae tu gente', stage: 'empezar', duration: '0:58',
     blurb: 'Carga a tus trabajadores, uno a uno o importando tu Excel.', youtubeId: 'z63Y6LO5Etc' },
-  { clip: 3, key: 'clip3', title: 'Crea tu faena', stage: 'empezar', duration: '0:49',
+  { clip: 3, key: 'clip3', title: 'Crea tu obra', stage: 'empezar', duration: '0:49',
     blurb: 'Crea un proyecto y asígnale tu cuadrilla.', youtubeId: 'W4cubV-fANM' },
   { clip: 4, key: 'clip4', title: 'La fórmula del puntaje', stage: 'empezar', duration: '1:05',
     blurb: 'Cómo se pondera el puntaje: en minería, la seguridad pesa más.', youtubeId: 'nZYOXJFPpC0' },

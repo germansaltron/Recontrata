@@ -50,11 +50,13 @@ export default function EvaluateWorker() {
     if (!raw) { draftRestoredRef.current = true; return }
     try {
       const d = JSON.parse(raw) as Partial<Draft>
+      /* eslint-disable react-hooks/set-state-in-effect -- restaurar el borrador desde localStorage (store externo) es un setState intencional al montar */
       if (Array.isArray(d.scores) && d.scores.length === 5) setScores(d.scores.map((n) => Number(n) || 0))
       if (typeof d.wouldRehire === 'string') setWouldRehire(d.wouldRehire)
       if (typeof d.rehireReason === 'string') setRehireReason(d.rehireReason)
       if (typeof d.comment === 'string') setComment(d.comment)
       if (typeof d.ts === 'number') setDraftSavedAt(d.ts)
+      /* eslint-enable react-hooks/set-state-in-effect */
     } catch { /* corrupt draft -> ignore */ }
     draftRestoredRef.current = true
   }, [projectId, workerId])
@@ -64,6 +66,7 @@ export default function EvaluateWorker() {
     if (!projectId || !workerId || !draftRestoredRef.current) return
     const hasContent = scores.some((s) => s > 0) || wouldRehire !== '' || rehireReason !== '' || comment !== ''
     const key = draftKey(projectId, workerId)
+    /* eslint-disable react-hooks/set-state-in-effect -- sincronizar el borrador con localStorage (store externo) es un setState intencional */
     if (!hasContent) {
       localStorage.removeItem(key)
       setDraftSavedAt(null)
@@ -75,6 +78,7 @@ export default function EvaluateWorker() {
       localStorage.setItem(key, JSON.stringify(payload))
       setDraftSavedAt(ts)
     } catch { /* localStorage full or disabled -> silently skip */ }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [scores, wouldRehire, rehireReason, comment, projectId, workerId])
 
   useEffect(() => {

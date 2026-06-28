@@ -11,6 +11,7 @@ import { setupPWA } from './lib/pwa'
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || ''
 const isMockAuth = import.meta.env.VITE_AUTH_MOCK_ENABLED === 'true'
 
+// eslint-disable-next-line react-refresh/only-export-components -- main.tsx es el entry point; Root no se reutiliza (solo afecta HMR en dev)
 function Root() {
   if (isMockAuth || !clerkPubKey) {
     return (

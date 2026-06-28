@@ -11,6 +11,7 @@ interface OrgContextType {
 
 const OrgContext = createContext<OrgContextType>({ orgId: null, orgName: null, loading: true, error: null, retry: () => {} })
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook y provider conviven a propósito en este módulo de contexto (solo afecta HMR en dev)
 export function useOrg() {
   return useContext(OrgContext)
 }
