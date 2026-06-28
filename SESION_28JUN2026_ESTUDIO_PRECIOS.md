@@ -133,4 +133,40 @@ Se propagaron las dos correcciones de datos a TODO el contenido que mira el clie
 
 ---
 
-*Documento generado el 28 de junio de 2026; adenda el mismo día.*
+## 8. Despliegue a producción + ciclo del video (28 jun, ejecutado)
+
+### 8.1 Fuente CAP especificada
+A pedido del usuario, la cita del criterio de costo quedó completa y consultable en los 4 lugares (landing, JUSTIFICACION, PROPUESTA, estudio): **Center for American Progress** (think tank de políticas públicas de EE.UU., fundado 2003), estudio de Boushey & Glynn (16-nov-2012), *"There Are Significant Business Costs to Replacing Employees"*. URLs: artículo https://www.americanprogress.org/article/there-are-significant-business-costs-to-replacing-employees/ y PDF .../CostofTurnover.pdf. En la landing, la fuente del stat es un **enlace clicable** (se amplió el componente `Stat` para aceptar `sourceHref`).
+
+### 8.2 Frontend desplegado a producción
+- `npm run build` local OK (sin errores TS).
+- **2 commits trazables** en `master` (luego un 3.º para el video): `fix(landing)`, `docs`, `chore(tutorials)`. **Pusheados a GitHub** por el usuario (`fb2b89f..ae33bb3`).
+- **Deploy a producción con `railway up`** (proyecto `faenascore`, env production, recontrata.cl). Railway despliega por `railway up` (working dir), **NO** por GitHub auto-deploy (`source.repo = null`).
+- **Verificado en vivo:** el bundle cambió y sirve `~$1,5M` + enlace `americanprogress`.
+- Nota de método: el working tree tenía 6 archivos modificados ajenos (de la sesión QA 26-jun) — resultaron benignos (5 `eslint-disable` + 1 copy "faena→obra"); se commitearon junto al fix.
+
+### 8.3 Video Clip 1 — ciclo completo cerrado
+- Re-renderizado con `python produce_clip1.py all` (TTS OpenAI + captura Playwright del sitio ya corregido + ensamblado ffmpeg). `clip1.mp4` (61 s) → copia en Downloads.
+- Usuario lo **subió a YouTube** (nuevo ID **`X0NaBzalW8Y`**); se actualizó `tutorials.ts` (de `RjVftlQZZiI`), commit + `railway up`.
+- **Verificado en prod:** el ID nuevo está en el chunk `TutorialModal-*.js`; el viejo ya no aparece. Usuario **eliminó el video viejo** de YouTube.
+
+## 9. Análisis: ¿qué falta para monetizar? (además de Flow + Clerk)
+
+Verificado en el código: **no existe nada de billing** (modelos solo evaluation/organization/project/worker/worker_consent; sin subscription/plan; sin enforcement de límites; sin rate-limit ni Sentry). Lista priorizada:
+- 🔴 **Sistema de billing alrededor de Flow** (Flow es solo la pasarela): modelo de suscripción/plan, **enforcement de límites de plan** (hoy se carga ilimitado), webhooks de Flow (cobro recurrente + dunning), lógica de trial 14 días, UI de checkout/gestión.
+- 🔴 **Factura electrónica + transferencia** (B2B chileno paga a 30 días con factura; Flow solo cubre tarjeta/Webpay → falta integrar facturación SII tipo LibreDTE/Nubox).
+- 🟠 **Hardening:** rate limiting (portal público `/api/v1/portal/{token}`) + error tracking (Sentry).
+- 🔴 **Validación legal** del dato compartido entre empresas (listas negras DT ORD 1782/30 + Ley 21.719) → define qué se vende en Enterprise.
+- 🟡 **Validación comercial:** WTP revelada (design partners mineros pagando) + analítica de activación.
+
+## 10. Análisis: ¿listo para un beta cerrado con gente de confianza?
+
+**Veredicto: sí, con 2 ajustes previos.** Un beta no necesita Flow/billing (acceso gratis de fundador).
+- ✅ **A favor (verificado):** core QA'd (87/87, offline E2E); **aislamiento multi-tenant probado** (testers no se ven entre sí); **consentimiento/Portal del Trabajador** construido (`worker_consent` + `portal.py`); **AccessGate activo** (controlas el acceso con clave); tutoriales corregidos.
+- 🔧 **Cerrar antes:** (1) **Clerk → pk_live** (hoy pk_test = instancia dev, tope ~100 users, no para usuarios reales); (2) **Sentry / logging** (hoy los errores de un tester son invisibles) + un **canal de feedback**.
+- 🚫 **No hace falta para el beta:** Flow/pagos, límites de plan, factura, rate limiting.
+- ⚠️ **Datos reales:** al cargar trabajadores reales se tratan datos de terceros (Ley 19.628/21.719); intra-org con consentimiento es legítimo — el riesgo de "listas negras" solo aparece si se comparte desempeño ENTRE empresas (no pasa en el beta).
+
+---
+
+*Documento generado el 28 de junio de 2026; adenda y secciones 8–10 el mismo día.*
