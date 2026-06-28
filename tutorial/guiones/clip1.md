@@ -22,7 +22,7 @@
 **CALLOUT**: ninguno.
 
 **NARRACIÓN**:
-"En cada faena hay gente que marca la diferencia… y gente que no debería volver. Pero cuando arranca el próximo proyecto, esa información vive en la memoria del supervisor y en cadenas de WhatsApp. Y reemplazar a un mal operario cuesta casi un millón de pesos."
+"En cada faena hay gente que marca la diferencia… y gente que no debería volver. Pero cuando arranca el próximo proyecto, esa información vive en la memoria del supervisor y en cadenas de WhatsApp. Y reemplazar a un mal operario cuesta más de un millón y medio de pesos."
 
 ---
 

@@ -87,7 +87,8 @@ Eje: **trabajadores activos** (en proyectos activos / últimos 90 días). **Supe
 
 ### Justificación de los números
 
-- **Argumento de ROI (úsalo en la venta):** evitar **1 sola** mala recontratación al año ahorra ~$750.000 CLP (≈50% del sueldo anual de reemplazar a un operativo, según `JUSTIFICACION_FAENASCORE.md`). El plan Pro cuesta ~$600.000/año. **ROI > 1x con una sola decisión correcta**; con 5, el ROI es ~6x.
+- **Argumento de ROI (úsalo en la venta):** evitar **1 sola** mala recontratación al año ahorra ~$1,5M CLP (≈16-20% del sueldo anual de reemplazar a un operativo). El plan Profesional cuesta ~$600.000/año. **ROI ~2,5x con una sola decisión correcta**; con 3, supera 7x — y mucho más si se evita un incidente de seguridad o la pérdida de un contrato en faena minera.
+  - **Fuente del criterio (≈16-20%):** Center for American Progress (CAP), instituto de políticas públicas de EE.UU.; estudio de Boushey & Glynn (2012), meta-análisis de 30 case studies. *Reemplaza la cifra previa de "$750K / 50%", que no tenía fuente y estaba mal anclada.* Consultable: https://www.americanprogress.org/article/there-are-significant-business-costs-to-replacing-employees/
 - **Por qué subir Pro de $29.990 → $49.990:** en venta industrial B2B, $30k vs $50k no cambia la decisión (no son sensibles al precio a ese nivel; son sensibles a si funciona y si genera fricción). Un precio muy bajo **señaliza "poco serio"** en un rubro acostumbrado a pagar Buk/GeoVictoria por cabeza. $49.990 sigue cómodo bajo el umbral psicológico de "decisión gerencial pesada" (~$150k+).
 - **Contexto de gasto del cliente:** un contratista con 50 trabajadores ya paga ~$75.000/mes solo en control de asistencia (GeoVictoria a ~$1.500 c/u). FaenaScore a $49.990 es un gasto incremental menor y fácil de justificar.
 - **Empresa a $149.990** (no $249.000 del doc original): mantiene el salto 3x respecto a Pro sin entrar en zona de ciclo de venta largo; deja $249k+ para Enterprise con contrato.

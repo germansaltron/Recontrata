@@ -22,7 +22,7 @@ La idea original #6 del documento, **EvalPro** (generador de evaluaciones de des
 ### 2.1 Contexto: Trabajadores temporales en Chile
 
 - **1,071,128 trabajadores subcontratados** en Chile (INE 2024, 15.5% de asalariados).
-- **55-60% de la fuerza laboral minera** es de empresas contratistas.
+- **~75% de la fuerza laboral de la gran minería** es de empresas contratistas (Consejo Minero / CCM-Eleva, estudios 2023-2032 y 2025-2034: 180.883 de 238.781 trabajadores). *Corrige el dato previo de "55-60%", que era de ~2008.*
 - El **contrato por obra o faena** (Art. 10 bis, Codigo del Trabajo) es el mecanismo estandar: el trabajador se vincula a un proyecto especifico y al terminar, la relacion laboral termina.
 - La construccion tiene **50% de rotacion laboral** — la mas alta de todos los sectores en Chile.
 
@@ -48,9 +48,10 @@ Cuando un contratista gana un nuevo proyecto y necesita armar una cuadrilla (ej:
 
 ### 2.3 El costo de no tener datos
 
-- Reemplazar un trabajador operativo cuesta **~50% de su sueldo anual** (~$750K CLP).
-- Un contratista con 200 trabajadores y 40% de rotacion pierde **~$60 millones CLP/ano** solo en costos de rotacion.
-- Recontratar a un mal trabajador implica: re-trabajo, incidentes de seguridad, baja productividad, y potencial perdida de contrato con la minera mandante.
+- Reemplazar un trabajador operativo cuesta **~16-20% de su sueldo anual** (~$1,5M CLP, sobre un sueldo base de construccion de ~$785.349/mes). *Reemplaza la cifra previa de "50% (~$750K)", que no tenia fuente y estaba mal anclada.*
+  - **Fuente del criterio:** Center for American Progress (CAP), instituto de investigacion de politicas publicas de EE.UU. Estudio de Heather Boushey y Sarah Jane Glynn, *"There Are Significant Business Costs to Replacing Employees"* (16-nov-2012), meta-analisis de 30 case studies en 11 papers (1992-2007). Hallazgo: costo de rotacion ≈20% del salario anual tipico, **16% para sueldos bajos (<US$30k/ano)**, hasta 213% en ejecutivos. Consultable en: https://www.americanprogress.org/article/there-are-significant-business-costs-to-replacing-employees/ (PDF: https://www.americanprogress.org/wp-content/uploads/sites/2/2012/11/CostofTurnover.pdf).
+- A modo de magnitud, un contratista con 200 trabajadores y 40% de rotacion enfrenta ~80 reemplazos/ano; el costo total de rotacion ronda los **~$120 millones CLP/ano**. Recontrata no evita la rotacion estructural (los contratos por obra terminan por diseno): reduce el subconjunto de **malas recontrataciones** y el riesgo asociado.
+- Recontratar a un mal trabajador implica: re-trabajo, incidentes de seguridad, baja productividad, y potencial perdida de contrato con la minera mandante. **En faena minera ese riesgo es de otra magnitud** (paralizacion de faena, responsabilidad solidaria de la mandante); ver `ESTUDIO_PRECIOS_INVERSOR.md`.
 
 ---
 
@@ -176,15 +177,18 @@ Reutiliza ~60-70% de la infraestructura existente de otros proyectos:
 
 ### 6.1 Pricing
 
-| Plan | Trabajadores | Precio | Target |
+| Plan | Trabajadores activos | Precio | Target |
 |---|---|---|---|
-| Starter | Hasta 30 | $39.000 CLP/mes | Contratista chico |
-| Pro | Hasta 100 | $99.000 CLP/mes | Contratista mediano |
-| Enterprise | Hasta 500 | $249.000 CLP/mes | Contratista grande, multi-faena |
+| Gratis "Capataz" | Hasta 15 · 1 proyecto | $0 | Captacion (probar en una faena) |
+| **Profesional "Faena"** | Hasta 100 · proyectos ilimitados | **$49.990 CLP/mes** | Contratista chico-mediano |
+| Empresa "Contratista" | Hasta 500 · multi-faena | **$149.990 CLP/mes** | Contratista grande |
+| Enterprise | +500 | Cotizacion | Multi-empresa / holding |
+
+Supervisores e historico ilimitados en todos los planes. Eje de cobro: **trabajadores activos** (ver `PROPUESTA_MONETIZACION.md` y `ESTUDIO_PRECIOS_INVERSOR.md`).
 
 ### 6.2 Argumento de ROI
 
-> "Si evitas recontratar a 5 malos trabajadores por ano, ahorras ~$3.75M CLP en costos de rotacion. El software cuesta $1.2M CLP/ano. **ROI de 3x.**"
+> "Si evitas recontratar a 3 malos trabajadores por ano, ahorras ~$4,5M CLP (a ~$1,5M por reemplazo evitado). El plan Profesional cuesta ~$600K CLP/ano. **ROI sobre 7x** — y mucho mayor si se evita un solo incidente de seguridad o la perdida de un contrato en faena minera."
 
 ### 6.3 Mercado
 

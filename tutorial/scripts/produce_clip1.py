@@ -35,7 +35,7 @@ SCENES = {
     "esc2": "En cada faena hay gente que marca la diferencia… y gente que no debería "
             "volver. Pero cuando arranca el próximo proyecto, esa información vive en la "
             "memoria del supervisor y en cadenas de WhatsApp. Y reemplazar a un mal "
-            "operario cuesta casi un millón de pesos.",
+            "operario cuesta más de un millón y medio de pesos.",
     "esc3": "Recontrata convierte ese conocimiento en datos. Evalúas a tu gente en "
             "terreno, en segundos, y cada trabajador acumula un historial real a través "
             "de tus proyectos. Así, la próxima vez, recontratas a tus mejores con datos, "
@@ -52,7 +52,7 @@ SUBS = {
     "esc2": [
         "En cada faena hay gente que marca la diferencia… y gente que no debería volver.",
         "Pero cuando arranca el próximo proyecto, esa información vive en la memoria del supervisor y en cadenas de WhatsApp.",
-        "Y reemplazar a un mal operario cuesta casi un millón de pesos.",
+        "Y reemplazar a un mal operario cuesta más de un millón y medio de pesos.",
     ],
     "esc3": [
         "Recontrata convierte ese conocimiento en datos.",
