@@ -47,6 +47,8 @@ Para invitar: compartir `recontrata.cl` + código `recontrata2211`; registrarse 
 
 ## 7. Inventario de cuentas e infraestructura (verificado 29 jun)
 
+> ⚠️ **Nota (actualización del mismo día):** la tabla de abajo refleja el estado **ANTES** de la migración de cuentas. Más tarde ese 29 jun se **migró todo a gsaltron/germansaltron** (Railway, GitHub `germansaltron/Recontrata`, Supabase org Saltronic, Clerk/Sentry/Cloudflare). Operatividad verificada intacta. Estado actual y detalle en `Desktop\Independencia_gsaltron_BITACORA_2026-06-29.md`.
+
 | Plataforma | Cuenta | Verificación |
 |---|---|---|
 | **Railway** (hosting) | **bodegaquilp01@gmail.com** (Faymex), workspace `german-faymex` | `railway whoami` ✅ |
