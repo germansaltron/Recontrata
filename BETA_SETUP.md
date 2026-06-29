@@ -11,7 +11,7 @@
 | # | Tarea | Tipo | Estado |
 |---|---|---|---|
 | 1 | Migrar Clerk a producción (pk_live) | Panel + env | ✅ **Hecho (29 jun)** — DNS verificado, claves en Railway, primer usuario creado y login E2E OK |
-| 2 | Crear proyectos Sentry y pegar los DSN | Panel + env | ⬜ |
+| 2 | Crear proyectos Sentry y pegar los DSN | Panel + env | ✅ **Hecho (29 jun)** — proyectos `recontrata-backend`/`recontrata-frontend`, DSN en Railway, código activo en prod |
 | 3 | Crear canal de feedback y pegar la URL | Panel + env | ⬜ |
 | 4 | Fijar el código de acceso del beta | env | ⬜ (por defecto `recontrata2211`) |
 | 5 | Redeploy (`railway up`) y verificar | Deploy | ⬜ |
