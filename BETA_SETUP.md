@@ -12,9 +12,11 @@
 |---|---|---|---|
 | 1 | Migrar Clerk a producción (pk_live) | Panel + env | ✅ **Hecho (29 jun)** — DNS verificado, claves en Railway, primer usuario creado y login E2E OK |
 | 2 | Crear proyectos Sentry y pegar los DSN | Panel + env | ✅ **Hecho (29 jun)** — proyectos `recontrata-backend`/`recontrata-frontend`, DSN en Railway, código activo en prod |
-| 3 | Crear canal de feedback y pegar la URL | Panel + env | ⬜ |
-| 4 | Fijar el código de acceso del beta | env | ⬜ (por defecto `recontrata2211`) |
-| 5 | Redeploy (`railway up`) y verificar | Deploy | ⬜ |
+| 3 | Crear canal de feedback y pegar la URL | Panel + env | ✅ **Hecho (29 jun)** — botón flotante → WhatsApp (`VITE_FEEDBACK_URL=wa.me/56935652743`) |
+| 4 | Fijar el código de acceso del beta | env | ✅ por defecto `recontrata2211` (cambiar con `VITE_ACCESS_CODE` si se quiere) |
+| 5 | Redeploy (`railway up`) y verificar | Deploy | ✅ **Hecho** — Clerk pk_live, Sentry y feedback verificados en prod |
+
+> **Estado: beta LISTO para invitar.** Comparte `recontrata.cl` + el código de acceso. Los tres ajustes "duros" (auth de prod, observabilidad, feedback) están cerrados.
 
 Las variables `VITE_*` son **build-time**: se hornean al construir el frontend, así que **cualquier cambio en ellas requiere un nuevo deploy** (`railway up`). El Dockerfile ya las declara como build args y Railway las inyecta automáticamente desde las variables del servicio.
 
