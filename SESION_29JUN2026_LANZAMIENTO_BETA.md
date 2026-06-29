@@ -83,4 +83,25 @@ Recontrata es un proyecto **personal** pero vive en cuentas de **Faymex** (Railw
 
 ---
 
+## 11. Migración de cuentas a gsaltron + verificación post-migración (29 jun, cierre)
+
+Ese mismo día (en otra sesión) se ejecutó la **independencia de cuentas**: Casilisto, Recontrata y SoyMaestra se sacaron de Faymex (bodegaquilp01) y quedaron bajo **gsaltron/germansaltron**, con facturación separada por entidad. Detalle completo en `Desktop\Independencia_gsaltron_BITACORA_2026-06-29.md` y en la memoria `independencia-gsaltron-migracion`.
+
+**Lo que toca a Recontrata:**
+- **Railway** `faenascore` → transferido a gsaltron (CLI local ya logueado como gsaltron). Plan Pro este ciclo (bajar a Hobby ~27 jul).
+- **GitHub** `FaenaScore` → renombrado y transferido a **`germansaltron/Recontrata`**; el `origin` del repo local (carpeta sigue siendo `Claude Code German\FaenaScore`) ya apunta ahí.
+- **Supabase** → proyecto movido a la org **Saltronic** (gsaltron, Pro, Spend Cap ON); ref y API keys conservados → connection string sin cambios.
+- **Clerk / Sentry / Cloudflare** → ya estaban en gsaltron.
+
+**Verificación de operatividad independiente (post-migración) — todo 🟢:**
+- `recontrata.cl` → HTTP 200, frontend carga (bundle `Dk-YUE0U`).
+- `/api/health` → `{"status":"ok","database":"connected"}` → backend arriba y conectado a Supabase (Saltronic).
+- Clerk `pk_live` presente en el bundle.
+- `git remote` local → `germansaltron/Recontrata`. Railway CLI → `gsaltron@gmail.com`.
+- **Conclusión: sin downtime, Recontrata 100% operativo bajo las cuentas nuevas.**
+
+**Memoria reconciliada:** se actualizó `recontrata-cuentas-infraestructura` (que había quedado con el estado viejo "bajo Faymex") al estado post-migración, + el índice `MEMORY.md`, + esta nota.
+
+---
+
 *Documento generado el 29 de junio de 2026.*
