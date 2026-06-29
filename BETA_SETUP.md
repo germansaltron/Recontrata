@@ -10,10 +10,10 @@
 
 | # | Tarea | Tipo | Estado |
 |---|---|---|---|
-| 1 | Migrar Clerk a producción (pk_live) | Panel + env | ⬜ |
+| 1 | Migrar Clerk a producción (pk_live) | Panel + env | ✅ **Hecho (29 jun)** — DNS verificado, claves en Railway, primer usuario creado y login E2E OK |
 | 2 | Crear proyectos Sentry y pegar los DSN | Panel + env | ⬜ |
 | 3 | Crear canal de feedback y pegar la URL | Panel + env | ⬜ |
-| 4 | Fijar el código de acceso del beta | env | ⬜ |
+| 4 | Fijar el código de acceso del beta | env | ⬜ (por defecto `recontrata2211`) |
 | 5 | Redeploy (`railway up`) y verificar | Deploy | ⬜ |
 
 Las variables `VITE_*` son **build-time**: se hornean al construir el frontend, así que **cualquier cambio en ellas requiere un nuevo deploy** (`railway up`). El Dockerfile ya las declara como build args y Railway las inyecta automáticamente desde las variables del servicio.
