@@ -57,12 +57,33 @@ function AuthenticatedApp() {
 
 // Layout que aplica el gate de pre-lanzamiento + intro de marca a todo MENOS el
 // Portal del Trabajador (que debe ser accesible públicamente por su token).
+//
+// Hardening móvil: un usuario YA autenticado (invitado que pasó el registro) no
+// debe toparse con el gate del código, sin importar el navegador/contexto. Esto
+// evita el re-prompt del código cuando la sesión de Clerk existe pero el flag
+// local del gate no (p. ej. al volver a la app instalada tras verificar por OTP).
 function GateLayout() {
+  if (!clerkEnabled) {
+    return (
+      <AccessGate>
+        <BootIntro />
+        <Outlet />
+      </AccessGate>
+    )
+  }
   return (
-    <AccessGate>
-      <BootIntro />
-      <Outlet />
-    </AccessGate>
+    <>
+      <SignedIn>
+        <BootIntro />
+        <Outlet />
+      </SignedIn>
+      <SignedOut>
+        <AccessGate>
+          <BootIntro />
+          <Outlet />
+        </AccessGate>
+      </SignedOut>
+    </>
   )
 }
 
