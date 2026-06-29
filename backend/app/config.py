@@ -28,6 +28,12 @@ class Settings(BaseSettings):
     CLERK_ISSUER: str = ""
     CLERK_AUDIENCE: str = ""
 
+    # Observabilidad (Sentry) — opcional. Si SENTRY_DSN está vacío, no se inicializa
+    # (no-op): el código queda listo y solo hay que pegar el DSN en Railway.
+    SENTRY_DSN: str = ""
+    SENTRY_ENVIRONMENT: str = "production"
+    SENTRY_TRACES_SAMPLE_RATE: float = 0.1
+
     # CORS
     CORS_ORIGINS: str = '["http://localhost:5173"]'
 

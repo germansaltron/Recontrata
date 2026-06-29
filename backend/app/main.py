@@ -22,7 +22,24 @@ from app.config import settings
 from app.database import engine
 from app.errors import ErrorCode
 
+try:
+    import sentry_sdk
+except ImportError:  # sentry-sdk no instalado en algún entorno local: degradar a no-op
+    sentry_sdk = None
+
 logger = structlog.get_logger()
+
+# Observabilidad: inicializa Sentry solo si hay DSN configurado (no-op en su ausencia).
+# La integración de FastAPI se autodetecta; send_default_pii=False evita filtrar datos
+# personales de trabajadores en los eventos de error.
+if sentry_sdk and settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        environment=settings.SENTRY_ENVIRONMENT,
+        traces_sample_rate=settings.SENTRY_TRACES_SAMPLE_RATE,
+        send_default_pii=False,
+    )
+    logger.info("Sentry inicializado", environment=settings.SENTRY_ENVIRONMENT)
 
 
 @asynccontextmanager
@@ -63,6 +80,10 @@ async def security_headers(request: Request, call_next):
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
     logger.error("Unhandled exception", path=request.url.path, method=request.method, error=str(exc), exc_info=True)
+    # El handler "consume" la excepción, así que la reportamos a Sentry explícitamente
+    # (si está configurado; capture_exception es no-op sin init).
+    if sentry_sdk and settings.SENTRY_DSN:
+        sentry_sdk.capture_exception(exc)
     return JSONResponse(
         status_code=500,
         content={"detail": "An internal server error occurred.", "code": ErrorCode.INTERNAL_ERROR},
