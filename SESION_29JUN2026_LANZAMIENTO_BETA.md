@@ -104,4 +104,32 @@ Ese mismo día (en otra sesión) se ejecutó la **independencia de cuentas**: Ca
 
 ---
 
+## 12. Revisión del flujo móvil + hardening + fixes (29 jun, tarde)
+
+Antes de invitar testers, se revisó a fondo el flujo de registro en celular (preocupaba el "magic link" en PWA iOS).
+
+### 12.1 Hallazgo clave: Clerk ya usa código OTP, no enlace mágico
+Consultando la config real de Clerk (`https://clerk.recontrata.cl/v1/environment`): `email_address_verification_strategies: ["email_code"]`. O sea, al registrarse llega un **código de 6 dígitos que se escribe en la misma app**, NO un enlace que abre otro navegador. → **El riesgo grave de iOS (magic link + contexto/cookies separados de la PWA) NO aplica.** El tutorial decía "enlace" por error (ver 12.4).
+
+### 12.2 Hardening aplicado: usuario autenticado salta el AccessGate
+`App.tsx` (commit `8d14e81`, en prod): si el usuario ya está autenticado (Clerk `SignedIn`), **no ve el gate del código**, sin importar el contexto/navegador. Evita el re-prompt del código si la sesión existe pero el flag local no. Guardado por `clerkEnabled` (no afecta mock/dev). Se decidió NO sacar `/sign-up` del gate (innecesario con OTP y dejaría registrarse a cualquiera).
+
+### 12.3 ⚠️ Gotcha resuelto: proyecto Railway DUPLICADO
+Al desplegar, el `railway up` fue a un proyecto **equivocado**: en la cuenta gsaltron hay **dos** proyectos parecidos — **`faenascore`** (minúscula, ID `7ec526bb`, service `a5ff98e5`) = **PRODUCCIÓN** (recontrata.cl), y **`FaenaScore`** (mayúscula, ID `1d85d02e`) = duplicado/extraviado sin dominio. El link local había quedado en el duplicado tras la migración. **Fix:** `railway link -p 7ec526bb-74bc-4796-bac4-4c89bde2d6bd` (siempre re-linkear por ID). Producción nunca se vio afectada. Anotado en memoria `recontrata-cuentas-infraestructura`. (El duplicado `FaenaScore` quedó con un deploy errado + un subdominio autogenerado; pendiente que el usuario decida si lo elimina.)
+
+### 12.4 Fix de copy "enlace → código" + re-render de clip1
+- Corregido el copy del registro (decía "te llega un enlace, haces clic") → **"te llega un código, lo escribes y entras"** en: guion `clip1.md` + narración/subtítulos `produce_clip1.py`. (Las menciones a "enlace" del Portal del Trabajador NO se tocaron: ahí sí es un link real.)
+- **Clip1 re-renderizado** (TTS + captura + ensamblado), subido por el usuario a YouTube → **nuevo ID `Dd4jEE_6vLQ`**; `tutorials.ts` actualizado, desplegado y verificado en vivo. El video anterior (`X0NaBzalW8Y`) lo eliminó el usuario (sin impacto: la app ya apuntaba al nuevo).
+- El frontend NO describe el registro como "enlace" (usa la UI de Clerk, que ya muestra el código).
+
+### 12.5 Pendientes al cerrar
+- **Ensayo en teléfono real** (Android + iPhone): instalar PWA → registrarse con el código → 1 evaluación. Riesgo ahora bajo (OTP confirmado), pero conviene antes de invitar.
+- Corregir la línea del **correo** a las testers ("enlace" → "código") — la versión corregida se entregó en el chat.
+- Decidir si se elimina el proyecto Railway duplicado `FaenaScore` (mayúscula).
+- Invitar a Daniela, Vanessa y Joanna al beta.
+- Backlog del estudio: monetización (Flow), validación legal del dato compartido, refinar SAM.
+- Costos: bajar Railway Pro→Hobby (~27 jul); vigilar Spend Cap de Saltronic (Supabase).
+
+---
+
 *Documento generado el 29 de junio de 2026.*
