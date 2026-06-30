@@ -132,4 +132,29 @@ Al desplegar, el `railway up` fue a un proyecto **equivocado**: en la cuenta gsa
 
 ---
 
-*Documento generado el 29 de junio de 2026.*
+## 13. Aclaración del flujo de login + comunicaciones del beta (30 jun)
+
+Sin cambios de código en Recontrata; fue verificación + preparación de las invitaciones.
+
+### 13.1 Cómo funciona el login REALMENTE (corrige una caracterización previa)
+Verificado vía `https://clerk.<dominio>/v1/environment` para Recontrata Y Casilisto — **ambos idénticos**:
+- `password: required` + `preferred_sign_in_strategy: password` → **sí piden contraseña** (mi nota previa de "passwordless/solo código" estaba incompleta).
+- `email_address_verification_strategies: ["email_code"]` → el **código** es solo para **confirmar el correo** al registrarse (no es enlace mágico → el análisis de iOS sigue válido).
+- **Google OAuth habilitado** (`oauth_google`) en ambos → se puede entrar con Google de un toque.
+- `second_factors: []` → **MFA NO obligatorio** en las apps.
+- **El "authenticator" que vio Germán en Casilisto era el 2FA de su propia cuenta de Google** (entró con "Iniciar sesión con Google"), no una exigencia de la app.
+- **Resumen del login (ambas apps):** entrar con Google, o con correo + contraseña (+ código al correo para confirmar). No piden teléfono.
+
+### 13.2 Distinción de dispositivo (importante para el copy)
+- **Recontrata = celular, en terreno** (PWA instalable, funciona sin señal).
+- **Casilisto = computador** (trabajar con formularios/PDFs). El "instálala como app en el celular" aplica SOLO a Recontrata.
+
+### 13.3 Comunicaciones del beta (redactadas, NO en repo)
+Se redactaron **4 mensajes de WhatsApp** individuales para los testers de confianza: **Daniela, Vanessa, Joanna, Eric** — invitación combinada a **Recontrata + CasiListo**. Notas: feedback por WhatsApp (botón de Recontrata como plus); nota de "no interrumpir vacaciones" para Daniela y Vanessa; copy de CasiListo alineado al **"beta honesto"** de hoy (ver repo Casilisto: sin "escaneado", sin audio). Los textos finales quedaron en el chat de la sesión.
+
+### 13.4 Pendiente cosmético (no bloquea invitar)
+El video tutorial clip1 de Recontrata dice "te llega un código… y entras" y **omite el paso de la contraseña / la opción Google**. No es falso pero es incompleto; re-render opcional en otra tanda.
+
+---
+
+*Documento generado el 29 de junio de 2026; addendum §13 el 30 de junio.*
