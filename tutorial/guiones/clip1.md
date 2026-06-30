@@ -44,7 +44,7 @@
 **CALLOUT**: "Entra con tu correo — sin instalar nada".
 
 **NARRACIÓN**:
-"Para empezar solo necesitas una cuenta. Regístrate con tu correo: te llega un enlace, haces clic y entras — no hay que instalar nada. Recontrata funciona desde el navegador del celular o del computador."
+"Para empezar solo necesitas una cuenta. Regístrate con tu correo: te llega un código, lo escribes y entras — no hay que instalar nada. Recontrata funciona desde el navegador del celular o del computador."
 
 ---
 

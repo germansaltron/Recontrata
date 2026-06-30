@@ -41,7 +41,7 @@ SCENES = {
             "de tus proyectos. Así, la próxima vez, recontratas a tus mejores con datos, "
             "no con memoria.",
     "esc4": "Para empezar solo necesitas una cuenta. Regístrate con tu correo: te llega "
-            "un enlace, haces clic y entras. No hay que instalar nada. Recontrata "
+            "un código, lo escribes y entras. No hay que instalar nada. Recontrata "
             "funciona desde el navegador del celular o del computador.",
 }
 ORDER = ["esc2", "esc3", "esc4"]
@@ -62,7 +62,7 @@ SUBS = {
     ],
     "esc4": [
         "Para empezar solo necesitas una cuenta.",
-        "Regístrate con tu correo: te llega un enlace, haces clic y entras.",
+        "Regístrate con tu correo: te llega un código, lo escribes y entras.",
         "No hay que instalar nada.",
         "Recontrata funciona desde el navegador del celular o del computador.",
     ],
