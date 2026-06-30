@@ -25,7 +25,7 @@ export const STAGES: { key: TutorialStage; label: string }[] = [
 
 export const TUTORIALS: Tutorial[] = [
   { clip: 1, key: 'clip1', title: 'Bienvenida y tu cuenta', stage: 'empezar', duration: '1:00',
-    blurb: 'Qué resuelve Recontrata y cómo crear tu cuenta.', youtubeId: 'X0NaBzalW8Y' },
+    blurb: 'Qué resuelve Recontrata y cómo crear tu cuenta.', youtubeId: 'Dd4jEE_6vLQ' },
   { clip: 2, key: 'clip2', title: 'Trae tu gente', stage: 'empezar', duration: '0:58',
     blurb: 'Carga a tus trabajadores, uno a uno o importando tu Excel.', youtubeId: 'z63Y6LO5Etc' },
   { clip: 3, key: 'clip3', title: 'Crea tu obra', stage: 'empezar', duration: '0:49',
