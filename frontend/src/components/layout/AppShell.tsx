@@ -9,11 +9,13 @@ import { useOnlineStatus } from '../../hooks/useOnlineStatus'
 import { usePendingSync } from '../../hooks/usePendingSync'
 import { useOfflineSync } from '../../hooks/useOfflineSync'
 
+// Orden por FLUJO del proceso para guiar al usuario nuevo: primero arma su gente,
+// luego sus proyectos, después evalúa y al final consulta resultados (Dashboard).
 const navItems = [
-  { to: '/app', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/app/projects', icon: FolderKanban, label: 'Proyectos' },
   { to: '/app/workers', icon: Users, label: 'Trabajadores' },
+  { to: '/app/projects', icon: FolderKanban, label: 'Proyectos' },
   { to: '/app/evaluate', icon: ClipboardCheck, label: 'Evaluar' },
+  { to: '/app', icon: LayoutDashboard, label: 'Dashboard' },
 ]
 
 // Items secundarios: solo en el sidebar de escritorio (la bottom-nav móvil

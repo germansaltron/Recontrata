@@ -57,7 +57,12 @@
           // QUITAR al lanzar: sin código de acceso no mostramos el intro (gate de pre-lanzamiento)
           var access = localStorage.getItem('recontrata_access');
           var unlocked = access && parseInt(access, 10) > Date.now();
-          if (seen || reduced || !unlocked) {
+          // El Portal del Trabajador (/p/:token) es público y NO renderiza BootIntro,
+          // así que nadie retiraría el splash desde React. Para un tester/empresa que
+          // SÍ tiene el código de acceso guardado, el splash quedaría encima para
+          // siempre ("el logo y nada más"). Retirarlo siempre en rutas del portal.
+          var isPortal = window.location.pathname.indexOf('/p/') === 0;
+          if (seen || reduced || !unlocked || isPortal) {
             var s = document.getElementById('boot-splash');
             if (s) s.remove();
           }

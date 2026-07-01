@@ -41,16 +41,31 @@ export default function ScoreFormula() {
     api.getScoringFormula(orgId).then(setFormula).catch(() => {}).finally(() => setLoading(false))
   }, [orgId])
 
+  // Refresco silencioso: re-sincroniza con el servidor SIN volver a mostrar el
+  // esqueleto de carga (se usa tras un cambio optimista de industria).
+  const refresh = useCallback(() => {
+    if (!orgId) return
+    api.getScoringFormula(orgId).then(setFormula).catch(() => {})
+  }, [orgId])
+
   useEffect(() => { load() }, [load])
 
   const changeIndustry = async (industry: string) => {
-    if (!orgId || industry === formula?.active_industry) return
+    if (!orgId || !formula || industry === formula.active_industry) return
+    const next = formula.profiles.find((p) => p.industry === industry)
+    if (!next) return
+    // Cambio optimista: los pesos de cada perfil ya están en el cliente, así que
+    // el selector y las barras reaccionan al instante, sin esperar el round-trip
+    // ni parpadear el esqueleto. El servidor se confirma en segundo plano.
+    const prev = formula
+    setFormula({ ...formula, active_industry: industry, active_profile: next })
     setSaving(true)
     try {
       await api.updateOrg(orgId, { industry })
       toast.success('Industria actualizada. Las nuevas evaluaciones usarán estos pesos.')
-      load()
+      refresh()
     } catch (e) {
+      setFormula(prev) // revertir si el servidor rechaza el cambio
       toast.error(e instanceof Error ? e.message : 'No se pudo cambiar la industria (¿eres admin?)')
     } finally {
       setSaving(false)
