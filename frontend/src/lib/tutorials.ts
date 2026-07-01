@@ -25,23 +25,23 @@ export const STAGES: { key: TutorialStage; label: string }[] = [
 
 export const TUTORIALS: Tutorial[] = [
   { clip: 1, key: 'clip1', title: 'Bienvenida y tu cuenta', stage: 'empezar', duration: '1:00',
-    blurb: 'Qué resuelve Recontrata y cómo crear tu cuenta.', youtubeId: 'Dd4jEE_6vLQ' },
+    blurb: 'Qué resuelve Recontrata y cómo crear tu cuenta.', youtubeId: 'M4AhheIygzY' },
   { clip: 2, key: 'clip2', title: 'Trae tu gente', stage: 'empezar', duration: '0:58',
-    blurb: 'Carga a tus trabajadores, uno a uno o importando tu Excel.', youtubeId: 'z63Y6LO5Etc' },
+    blurb: 'Carga a tus trabajadores, uno a uno o importando tu Excel.', youtubeId: 'B4ilbXCJWFY' },
   { clip: 3, key: 'clip3', title: 'Crea tu obra', stage: 'empezar', duration: '0:49',
-    blurb: 'Crea un proyecto y asígnale tu cuadrilla.', youtubeId: 'W4cubV-fANM' },
+    blurb: 'Crea un proyecto y asígnale tu cuadrilla.', youtubeId: 'mWKc2o1gumY' },
   { clip: 4, key: 'clip4', title: 'La fórmula del puntaje', stage: 'empezar', duration: '1:05',
-    blurb: 'Cómo se pondera el puntaje: en minería, la seguridad pesa más.', youtubeId: 'nZYOXJFPpC0' },
+    blurb: 'Cómo se pondera el puntaje: en minería, la seguridad pesa más.', youtubeId: 'alQxbKS1SyA' },
   { clip: 5, key: 'clip5', title: 'Evalúa en terreno', stage: 'terreno', duration: '1:25',
-    blurb: 'Evalúa a tu gente en 30 segundos, desde el celular.', youtubeId: 'FNMvaMhJrw4' },
+    blurb: 'Evalúa a tu gente en 30 segundos, desde el celular.', youtubeId: 'wky0-cgphlo' },
   { clip: 6, key: 'clip6', title: '¿Sin señal? Igual evalúas', stage: 'terreno', duration: '1:02',
-    blurb: 'Modo offline: evalúa sin internet y sincroniza al volver la señal.', youtubeId: 'cR_LtE0r7IY' },
+    blurb: 'Modo offline: evalúa sin internet y sincroniza al volver la señal.', youtubeId: 'MaSrm595J_g' },
   { clip: 7, key: 'clip7', title: 'Decide con datos', stage: 'decidir', duration: '0:58',
-    blurb: 'Lee el panel, el historial de cada trabajador y el ranking.', youtubeId: 'q46tg0Lge5A' },
+    blurb: 'Lee el panel, el historial de cada trabajador y el ranking.', youtubeId: 'RUxK-zv5CbE' },
   { clip: 8, key: 'clip8', title: 'Transparencia y confianza', stage: 'decidir', duration: '1:16',
-    blurb: 'Portal del Trabajador: derecho a réplica y certificado.', youtubeId: 'YypZtLhPT8U' },
+    blurb: 'Portal del Trabajador: derecho a réplica y certificado.', youtubeId: 'XOJkZ_KeXnI' },
   { clip: 9, key: 'clip9', title: 'Evaluaciones más justas', stage: 'avanzado', duration: '0:57',
-    blurb: 'Calibración de evaluadores para detectar sesgos.', youtubeId: 'lxZiDtaR3KA' },
+    blurb: 'Calibración de evaluadores para detectar sesgos.', youtubeId: 'Q1wwOXHARVQ' },
 ]
 
 export function getTutorial(key: string): Tutorial | undefined {
