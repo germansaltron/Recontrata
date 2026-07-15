@@ -215,14 +215,17 @@ y devuelve los IDs a pegar en Railway. Nunca commitear `apiKey`/`secretKey`.
 
 ## 9. Plan de implementación (fases sugeridas)
 
-1. **Modelo + migración** (`subscriptions`, `payment_events`) + toda org nace en `free`.
-2. **Enforcement de límites** (402 `PLAN_LIMIT`) + tests. *Ya aporta valor solo (candado freemium) sin cobro.*
+1. **✅ Modelo + migración** (`subscriptions`, `payment_events`) + toda org nace en `free`. *(hecho 15-jul, migración `1ac66b2f6de5`)*
+2. **✅ Enforcement de límites** (402 `PLAN_LIMIT`) + tests. *Ya aporta valor solo (candado freemium) sin cobro. (hecho 15-jul, 8 tests verdes)*
 3. **Cliente Flow** (`app/billing/flow_client.py`): firma HMAC + wrappers de endpoints + tests de firma.
 4. **Script bootstrap de planes** en Flow (sandbox) → obtener `planId`s.
 5. **Endpoints checkout / return / cancel** + creación de customer/subscription.
 6. **Webhook** `urlConfirmation` firmado + idempotencia + actualización de estados.
 7. **Frontend**: página Suscripción, paywall modal, return, banners.
 8. **QA end-to-end en sandbox** (tarjetas de prueba de Flow) → luego switch a prod.
+
+> Estado: Fases 1-2 implementadas y verificadas en local (suite 95/95). Fases 3+ requieren credenciales
+> **sandbox** de Flow (apiKey/secretKey) de la cuenta empresa.
 
 ---
 

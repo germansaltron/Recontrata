@@ -1,9 +1,10 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, select
+from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.billing.enforcement import assert_can_add_active_project, assert_can_add_active_workers
 from app.database import get_db
 from app.dependencies import get_org_member
 from app.errors import ErrorCode
@@ -88,6 +89,9 @@ async def create_project(
     db: AsyncSession = Depends(get_db),
     _member: OrgMember = Depends(get_org_member),
 ):
+    # Enforcement de plan: solo un proyecto que nace activo cuenta contra el tope.
+    if body.status == "active":
+        await assert_can_add_active_project(db, org_id)
     project = Project(org_id=org_id, **body.model_dump())
     db.add(project)
     await db.commit()
@@ -121,6 +125,41 @@ async def update_project(
     _member: OrgMember = Depends(get_org_member),
 ):
     project = await _get_project(org_id, project_id, db)
+
+    # Enforcement de plan: reactivar un proyecto (no-activo → activo) cuenta como un
+    # proyecto activo nuevo y hace facturables a sus trabajadores. Cerramos ese bypass
+    # (asignar en 'planning' y luego activar).
+    reactivating = body.status == "active" and project.status != "active"
+    if reactivating:
+        await assert_can_add_active_project(db, org_id)
+        # Trabajadores de este proyecto que quedarían nuevos-activos.
+        assigned_here = set(
+            (
+                await db.execute(
+                    select(ProjectWorker.worker_id)
+                    .join(Worker, Worker.id == ProjectWorker.worker_id)
+                    .where(ProjectWorker.project_id == project_id, Worker.is_active.is_(True))
+                )
+            ).scalars().all()
+        )
+        if assigned_here:
+            current_active = set(
+                (
+                    await db.execute(
+                        select(distinct(ProjectWorker.worker_id))
+                        .select_from(ProjectWorker)
+                        .join(Project, Project.id == ProjectWorker.project_id)
+                        .join(Worker, Worker.id == ProjectWorker.worker_id)
+                        .where(
+                            Project.org_id == org_id,
+                            Project.status == "active",
+                            Worker.is_active.is_(True),
+                        )
+                    )
+                ).scalars().all()
+            )
+            await assert_can_add_active_workers(db, org_id, adding=len(assigned_here - current_active))
+
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(project, field, value)
     await db.commit()
@@ -136,7 +175,49 @@ async def assign_workers(
     db: AsyncSession = Depends(get_db),
     _member: OrgMember = Depends(get_org_member),
 ):
-    await _get_project(org_id, project_id, db)
+    project = await _get_project(org_id, project_id, db)
+
+    # Enforcement de plan: asignar trabajadores solo afecta el conteo facturable si el
+    # proyecto está activo. Calculamos cuántos quedarían *nuevos-activos* y validamos
+    # ANTES de asignar (todo o nada), para no dejar asignaciones parciales.
+    if project.status == "active" and body.worker_ids:
+        assigned_here = set(
+            (
+                await db.execute(
+                    select(ProjectWorker.worker_id).where(ProjectWorker.project_id == project_id)
+                )
+            ).scalars().all()
+        )
+        eligible = set(
+            (
+                await db.execute(
+                    select(Worker.id).where(
+                        Worker.id.in_(body.worker_ids),
+                        Worker.org_id == org_id,
+                        Worker.is_active.is_(True),
+                    )
+                )
+            ).scalars().all()
+        ) - assigned_here
+        if eligible:
+            current_active = set(
+                (
+                    await db.execute(
+                        select(distinct(ProjectWorker.worker_id))
+                        .select_from(ProjectWorker)
+                        .join(Project, Project.id == ProjectWorker.project_id)
+                        .join(Worker, Worker.id == ProjectWorker.worker_id)
+                        .where(
+                            Project.org_id == org_id,
+                            Project.status == "active",
+                            Worker.is_active.is_(True),
+                        )
+                    )
+                ).scalars().all()
+            )
+            newly_active = eligible - current_active
+            await assert_can_add_active_workers(db, org_id, adding=len(newly_active))
+
     added = 0
     for wid in body.worker_ids:
         # Check worker exists in org

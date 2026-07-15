@@ -23,6 +23,9 @@ class Organization(Base):
     members: Mapped[list["OrgMember"]] = relationship("OrgMember", back_populates="organization", cascade="all, delete-orphan")
     projects: Mapped[list["Project"]] = relationship("Project", back_populates="organization", cascade="all, delete-orphan")
     workers: Mapped[list["Worker"]] = relationship("Worker", back_populates="organization", cascade="all, delete-orphan")
+    subscription: Mapped["Subscription"] = relationship(
+        "Subscription", back_populates="organization", uselist=False, cascade="all, delete-orphan"
+    )
 
 
 class OrgMember(Base):

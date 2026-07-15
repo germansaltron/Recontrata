@@ -1,6 +1,31 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-06-25 (tutoriales EN PROD: 9 clips embebidos en la app+landing)
+## Ultima actualizacion: 2026-07-15 (pasarela Flow: Fase 1-2 = modelo de suscripción + enforcement de límites)
+
+---
+
+## 💳 PASARELA DE PAGO (Flow) — EN CONSTRUCCIÓN
+
+Diseño completo en **`docs/PASARELA_PAGO_FLOW.md`** (8 fases, decisiones de negocio cerradas 15-jul).
+
+**✅ Fase 1 — Modelo de suscripción (hecho, verificado):**
+- Tablas nuevas `subscriptions` (1:1 con org) y `payment_events` (auditoría de webhooks). Migración `1ac66b2f6de5` con backfill: toda org existente → plan `free`. Org nueva nace `free` en `create_organization`.
+- Catálogo de planes en código: `app/billing/plans.py` (límites, precios CLP, trial 14d).
+
+**✅ Fase 2 — Enforcement de límites (hecho, verificado):**
+- `app/billing/enforcement.py`: cuenta trabajadores activos (distinct, asignados a proyectos `status='active'`) y proyectos activos. Al exceder → **HTTP 402 `PLAN_LIMIT`** con cuerpo estructurado (limit/current/plan/resource) para el paywall.
+- Enganchado en `create_project` (tope de proyectos activos) y `assign_workers` (tope de trabajadores activos, todo-o-nada). Fuera de `trialing`/`active` la suscripción degrada a límites free (historial NUNCA se borra).
+- `GET /organizations/{id}/billing/subscription` (solo lectura): plan + uso. Router `app/api/v1/billing.py`.
+- Tests: `tests/integration/test_billing_enforcement.py` (8 casos). **Suite completa: 95/95 verde.**
+
+**⏭️ Próximo (Fase 3+):** cliente Flow (firma HMAC), bootstrap de planes en Flow (sandbox), endpoints checkout/return/cancel, webhook `urlConfirmation` firmado, frontend (página Suscripción + paywall modal). Requiere credenciales **sandbox** de Flow (apiKey/secretKey) de la cuenta empresa.
+
+**Correr los tests de billing localmente:**
+```bash
+docker compose up -d   # Postgres (override local: puerto 5434)
+# crear DB de test una vez: CREATE DATABASE faenascore_test;
+cd backend && TEST_DATABASE_URL="postgresql+asyncpg://faenascore:faenascore_dev@localhost:5434/faenascore_test" python -m pytest tests/integration/test_billing_enforcement.py -v
+```
 
 ---
 

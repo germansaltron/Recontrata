@@ -9,6 +9,7 @@ from app.database import get_db
 from app.dependencies import get_current_user, get_org_admin, get_org_member
 from app.errors import ErrorCode
 from app.models.organization import Organization, OrgMember
+from app.models.subscription import Subscription
 from app.models.user import User
 from app.schemas.organization import OrganizationCreate, OrganizationResponse, OrganizationUpdate
 from app.services.score_calculator import WEIGHT_PROFILES
@@ -42,6 +43,10 @@ async def create_organization(
     # Auto-add creator as admin
     member = OrgMember(org_id=org.id, user_id=user.id, role="admin")
     db.add(member)
+
+    # Toda organización nace en el plan free (ver docs/PASARELA_PAGO_FLOW.md).
+    db.add(Subscription(org_id=org.id, plan="free", status="active"))
+
     await db.commit()
     await db.refresh(org)
 
