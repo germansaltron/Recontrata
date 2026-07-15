@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     # Pasado este plazo queda bloqueada para preservar la integridad del historial.
     EVALUATION_EDIT_WINDOW_HOURS: int = 72
 
+    # Billing: candado de límites de plan. OFF por defecto (secure-by-default para el
+    # beta: los testers/design partners tienen acceso libre). Prender (=True) recién al
+    # activar el cobro con Flow. Ver docs/PASARELA_PAGO_FLOW.md.
+    BILLING_ENFORCEMENT_ENABLED: bool = False
+
     # Auth
     AUTH_MOCK_ENABLED: bool = False
     ALLOW_MOCK_IN_PROD: bool = False

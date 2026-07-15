@@ -16,6 +16,8 @@
   - **A)** subir las orgs de testers a un plan alto (enterprise/ilimitado) o un "plan beta";
   - **B)** una bandera/bypass del enforcement mientras dure el beta;
   - **C)** no desplegar el enforcement todavía (mantenerlo en `master` y desplegarlo junto con Flow al cerrar el beta).
+  - **✅ ELEGIDO 15-jul (opción B):** flag `BILLING_ENFORCEMENT_ENABLED` (default **False**). El candado queda
+    **dormido** en prod → testers sin límites. Para activar el cobro con Flow, poner la env var en `True`.
 - Los fixes de feedback del 15-jul (copy ROI, aviso offline iOS) **tampoco** están en prod aún; van en el próximo `railway up`.
 
 ## Fixes de feedback de tester (15-jul)

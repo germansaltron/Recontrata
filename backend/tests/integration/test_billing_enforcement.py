@@ -8,11 +8,23 @@ Contra una DB real, verifican el "candado" del freemium:
 - una suscripción fuera de trialing/active degrada a los límites del free,
 - el endpoint de suscripción reporta el uso correcto.
 """
+import pytest
 from sqlalchemy import update
 
+from app.config import settings
 from app.models.subscription import Subscription
 
 API = "/api/v1"
+
+
+@pytest.fixture(autouse=True)
+def _enable_enforcement():
+    """El candado está OFF por defecto (flag). Estos tests validan su comportamiento,
+    así que lo prenden; se restaura al terminar."""
+    prev = settings.BILLING_ENFORCEMENT_ENABLED
+    settings.BILLING_ENFORCEMENT_ENABLED = True
+    yield
+    settings.BILLING_ENFORCEMENT_ENABLED = prev
 
 
 def _dv(body: int) -> str:
@@ -164,6 +176,22 @@ class TestWorkerLimits:
         usage = (await hx.client.get(f"{API}/organizations/{org}/billing/subscription")).json()["usage"]
         assert usage["active_workers"] == 16
         assert usage["active_workers_limit"] == 100
+
+
+class TestFlagDisabled:
+    async def test_enforcement_off_allows_exceeding_limits(self, hx):
+        # Con el flag OFF (estado de prod en el beta), un org free puede pasar los topes.
+        settings.BILLING_ENFORCEMENT_ENABLED = False
+        _, org = await _org(hx)
+        proj = await _project(hx, org, "Faena A")
+        workers = await _make_workers(hx, org, 20)
+        r = await hx.client.post(
+            f"{API}/organizations/{org}/projects/{proj}/workers", json={"worker_ids": workers}
+        )
+        assert r.status_code == 201 and r.json()["added"] == 20, r.text
+        # Un 2º proyecto activo tampoco se bloquea.
+        r2 = await hx.client.post(f"{API}/organizations/{org}/projects", json={"name": "Faena B", "status": "active"})
+        assert r2.status_code == 201, r2.text
 
 
 class TestDegradation:

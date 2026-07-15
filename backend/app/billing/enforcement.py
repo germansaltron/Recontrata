@@ -16,6 +16,7 @@ from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.billing.plans import Plan, PlanLimits, get_limits
+from app.config import settings
 from app.errors import ErrorCode
 from app.models.project import Project
 from app.models.project_worker import ProjectWorker
@@ -96,6 +97,8 @@ async def assert_can_add_active_workers(
 
     `adding` = cantidad de trabajadores que quedarían activos y que HOY no lo están
     (ya descontados los duplicados / los ya asignados a un proyecto activo)."""
+    if not settings.BILLING_ENFORCEMENT_ENABLED:
+        return
     if adding <= 0:
         return
     plan = await get_effective_plan(db, org_id)
@@ -109,6 +112,8 @@ async def assert_can_add_active_workers(
 
 async def assert_can_add_active_project(db: AsyncSession, org_id: uuid.UUID) -> None:
     """Verifica que crear/activar un proyecto activo más no exceda el plan."""
+    if not settings.BILLING_ENFORCEMENT_ENABLED:
+        return
     plan = await get_effective_plan(db, org_id)
     limits: PlanLimits = get_limits(plan)
     if limits.max_active_projects is None:
