@@ -28,6 +28,23 @@ class Settings(BaseSettings):
     CLERK_ISSUER: str = ""
     CLERK_AUDIENCE: str = ""
 
+    # Pasarela de pago (Flow) — ver docs/PASARELA_PAGO_FLOW.md.
+    # Vacío por defecto: el cliente no puede firmar sin credenciales (falla explícito).
+    # Sandbox: https://sandbox.flow.cl/api · Producción: https://www.flow.cl/api
+    FLOW_API_KEY: str = ""
+    FLOW_API_SECRET: str = ""
+    FLOW_API_BASE: str = "https://sandbox.flow.cl/api"
+    # planId (creados una vez en Flow con scripts/flow_bootstrap_plans.py).
+    FLOW_PLAN_ID_PRO_MONTHLY: str = ""
+    FLOW_PLAN_ID_PRO_ANNUAL: str = ""
+    FLOW_PLAN_ID_EMPRESA_MONTHLY: str = ""
+    FLOW_PLAN_ID_EMPRESA_ANNUAL: str = ""
+    # Cupón fundador (-50% de por vida) para los design partners.
+    FLOW_COUPON_FOUNDER: str = ""
+    # URLs de retorno/notificación (Railway build/runtime).
+    BILLING_RETURN_URL: str = ""
+    FLOW_WEBHOOK_URL: str = ""
+
     # Observabilidad (Sentry) — opcional. Si SENTRY_DSN está vacío, no se inicializa
     # (no-op): el código queda listo y solo hay que pegar el DSN en Railway.
     SENTRY_DSN: str = ""

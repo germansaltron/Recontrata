@@ -26,7 +26,14 @@ Diseño completo en **`docs/PASARELA_PAGO_FLOW.md`** (8 fases, decisiones de neg
 - Botón "Mejorar" muestra toast honesto ("el pago se habilita muy pronto") hasta conectar Flow.
 - Verificado E2E en navegador: crear 2º proyecto activo en free → paywall; "Ver planes" → Suscripción; uso 1/1. Build + lint limpios.
 
-**⏭️ Próximo (Fase 3+, necesita cuenta Flow):** cliente Flow (firma HMAC), bootstrap de planes en Flow (sandbox), endpoints checkout/return/cancel, webhook `urlConfirmation` firmado, y conectar el botón "Mejorar" al checkout. Requiere credenciales **sandbox** de Flow (apiKey/secretKey) de la cuenta empresa.
+**✅ Cliente Flow + Webhook (hecho 15-jul, tests offline):**
+- `app/billing/flow_client.py`: firma HMAC-SHA256 **calcada del cliente oficial de Flow** (params ordenados, `key+value`, apiKey firmado, `s` aparte). Wrappers: customer/plan/subscription/payment. Config `FLOW_*` en `config.py` + `.env.example`. 9 tests unitarios (vector conocido + requests con transporte mock httpx).
+- `app/billing/service.py`: normaliza el pago de Flow y lo aplica a la suscripción, **idempotente por `flow_token`** (pagado→active+período; rechazado/anulado→past_due). `payment_events.org_id` ahora nullable (migración `22502bd4cbd9`).
+- `app/api/v1/webhooks.py` → `POST /api/v1/webhooks/flow` (público). Flow **no firma** el webhook: solo manda `token` y se re-consulta `payment/getStatus` para confirmar. 503 si no se puede verificar (Flow reintenta). 8 tests de integración.
+- `scripts/flow_bootstrap_plans.py`: crea los 4 planes en Flow e imprime los `planId` (`--dry-run` verificado; falta EJECUTARLO con creds).
+- **Suite completa: 114/114 verde.**
+
+**⏭️ Próximo (necesita credenciales sandbox de Flow):** ejecutar el bootstrap de planes, endpoints checkout/return/cancel (Fase 5), conectar el botón "Mejorar" del frontend, y QA E2E en sandbox con tarjetas de prueba. Solo la EJECUCIÓN contra Flow queda pendiente; el código y su lógica ya están construidos y probados.
 
 **Correr los tests de billing localmente:**
 ```bash
