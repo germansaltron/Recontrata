@@ -311,7 +311,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
                 'Alertas y exportación',
                 '14 días de prueba gratis',
               ]}
-              roi="Evita 3 malas recontrataciones al año y ahorras ~$4,5M. El plan cuesta ~$600K/año: ROI sobre 7x."
+              roi="Con evitar una sola mala recontratación al año, el plan ya se paga solo: ahorras cerca de $1,5M y el plan cuesta unos $600 mil al año."
               cta={pricingCta.label}
               ctaTo={pricingCta.to}
             />
