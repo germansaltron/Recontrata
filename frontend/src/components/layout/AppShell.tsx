@@ -9,6 +9,7 @@ import { useOnlineStatus } from '../../hooks/useOnlineStatus'
 import { usePendingSync } from '../../hooks/usePendingSync'
 import { useOfflineSync } from '../../hooks/useOfflineSync'
 import { useSubscription } from '../../hooks/useSubscription'
+import { IosInstallHint } from '../IosInstallHint'
 
 // Orden por FLUJO del proceso para guiar al usuario nuevo: primero arma su gente,
 // luego sus proyectos, después evalúa y al final consulta resultados (Dashboard).
@@ -125,6 +126,9 @@ export default function AppShell() {
             <span className="text-sm text-gray-400">Modo demo</span>
           )}
         </header>
+        {/* iOS: guía para instalar (el modo sin señal en iOS requiere la app en la
+            pantalla de inicio). Se auto-oculta si ya está instalada o no es iOS. */}
+        <IosInstallHint />
         {/* Aviso de modo terreno: sin conexión la app sigue abriendo (app shell
             cacheado) y las evaluaciones se guardan en la cola offline (punto 2). */}
         {!online && (
