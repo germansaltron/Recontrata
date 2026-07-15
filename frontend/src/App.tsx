@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { SignedIn, SignedOut, SignIn, SignUp, useAuth } from '@clerk/clerk-react'
 import { OrgProvider } from './lib/org'
 import AppShell from './components/layout/AppShell'
+import PaywallProvider from './components/billing/PaywallProvider'
 import Landing from './pages/Landing'
 import BootIntro from './components/brand/LogoIntro'
 import AccessGate from './components/AccessGate'
@@ -22,6 +23,7 @@ const Privacy = lazy(() => import('./pages/Privacy'))
 const WorkerPortal = lazy(() => import('./pages/WorkerPortal'))
 const WorkerCertificate = lazy(() => import('./pages/WorkerCertificate'))
 const Ayuda = lazy(() => import('./pages/Ayuda'))
+const Billing = lazy(() => import('./pages/Billing'))
 
 const clerkEnabled = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) &&
   import.meta.env.VITE_AUTH_MOCK_ENABLED !== 'true'
@@ -31,20 +33,23 @@ const PageFallback = () => <div className="animate-pulse text-gray-400 p-6">Carg
 function ProtectedApp() {
   return (
     <OrgProvider>
-      <Routes>
-        <Route element={<AppShell />}>
-          <Route index element={<Suspense fallback={<PageFallback />}><Dashboard /></Suspense>} />
-          <Route path="projects" element={<Suspense fallback={<PageFallback />}><Projects /></Suspense>} />
-          <Route path="projects/:id" element={<Suspense fallback={<PageFallback />}><ProjectDetail /></Suspense>} />
-          <Route path="workers" element={<Suspense fallback={<PageFallback />}><Workers /></Suspense>} />
-          <Route path="workers/:id" element={<Suspense fallback={<PageFallback />}><WorkerDetail /></Suspense>} />
-          <Route path="evaluate" element={<Suspense fallback={<PageFallback />}><Evaluate /></Suspense>} />
-          <Route path="evaluate/:projectId/:workerId" element={<Suspense fallback={<PageFallback />}><EvaluateWorker /></Suspense>} />
-          <Route path="formula" element={<Suspense fallback={<PageFallback />}><ScoreFormula /></Suspense>} />
-          <Route path="calibracion" element={<Suspense fallback={<PageFallback />}><Calibration /></Suspense>} />
-          <Route path="ayuda" element={<Suspense fallback={<PageFallback />}><Ayuda /></Suspense>} />
-        </Route>
-      </Routes>
+      <PaywallProvider>
+        <Routes>
+          <Route element={<AppShell />}>
+            <Route index element={<Suspense fallback={<PageFallback />}><Dashboard /></Suspense>} />
+            <Route path="projects" element={<Suspense fallback={<PageFallback />}><Projects /></Suspense>} />
+            <Route path="projects/:id" element={<Suspense fallback={<PageFallback />}><ProjectDetail /></Suspense>} />
+            <Route path="workers" element={<Suspense fallback={<PageFallback />}><Workers /></Suspense>} />
+            <Route path="workers/:id" element={<Suspense fallback={<PageFallback />}><WorkerDetail /></Suspense>} />
+            <Route path="evaluate" element={<Suspense fallback={<PageFallback />}><Evaluate /></Suspense>} />
+            <Route path="evaluate/:projectId/:workerId" element={<Suspense fallback={<PageFallback />}><EvaluateWorker /></Suspense>} />
+            <Route path="formula" element={<Suspense fallback={<PageFallback />}><ScoreFormula /></Suspense>} />
+            <Route path="calibracion" element={<Suspense fallback={<PageFallback />}><Calibration /></Suspense>} />
+            <Route path="suscripcion" element={<Suspense fallback={<PageFallback />}><Billing /></Suspense>} />
+            <Route path="ayuda" element={<Suspense fallback={<PageFallback />}><Ayuda /></Suspense>} />
+          </Route>
+        </Routes>
+      </PaywallProvider>
     </OrgProvider>
   )
 }

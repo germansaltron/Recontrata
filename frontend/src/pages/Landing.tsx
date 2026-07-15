@@ -14,6 +14,10 @@ export default function Landing({ isSignedIn }: LandingProps) {
   const primaryCta = isSignedIn
     ? { to: '/app', label: 'Ir al Dashboard' }
     : { to: '/sign-in', label: 'Empezar gratis' }
+  // En la tabla de precios, un usuario logueado va a su página de Suscripción.
+  const pricingCta = isSignedIn
+    ? { to: '/app/suscripcion', label: 'Ver planes' }
+    : { to: '/sign-in', label: 'Empezar gratis' }
 
   // Entrada suave del hero (el splash del logo cubre la pantalla mientras carga).
   const heroIn = (i: number) => ({
@@ -291,8 +295,8 @@ export default function Landing({ isSignedIn }: LandingProps) {
                 'Historial completo por trabajador',
                 'Import / export Excel y CSV',
               ]}
-              cta={primaryCta.label}
-              ctaTo={primaryCta.to}
+              cta={pricingCta.label}
+              ctaTo={pricingCta.to}
             />
             <PricingCard
               name="Profesional"
@@ -308,8 +312,8 @@ export default function Landing({ isSignedIn }: LandingProps) {
                 '14 días de prueba gratis',
               ]}
               roi="Evita 3 malas recontrataciones al año y ahorras ~$4,5M. El plan cuesta ~$600K/año: ROI sobre 7x."
-              cta={primaryCta.label}
-              ctaTo={primaryCta.to}
+              cta={pricingCta.label}
+              ctaTo={pricingCta.to}
             />
             <PricingCard
               name="Empresa"
@@ -324,8 +328,8 @@ export default function Landing({ isSignedIn }: LandingProps) {
                 'Soporte prioritario',
               ]}
               roi="14 días de prueba gratis. Sin tarjeta de crédito."
-              cta={primaryCta.label}
-              ctaTo={primaryCta.to}
+              cta={pricingCta.label}
+              ctaTo={pricingCta.to}
             />
           </div>
           <p className="mt-8 text-center text-xs text-gray-500">

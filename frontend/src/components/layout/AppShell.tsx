@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, FolderKanban, Users, ClipboardCheck, Scale, Sliders, Menu, X, AlertTriangle, WifiOff, UploadCloud, LifeBuoy } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Users, ClipboardCheck, Scale, Sliders, Menu, X, AlertTriangle, WifiOff, UploadCloud, LifeBuoy, CreditCard } from 'lucide-react'
 import { UserButton } from '@clerk/clerk-react'
 import { useOrg } from '../../lib/org'
 import { api } from '../../lib/api'
@@ -8,6 +8,7 @@ import { prefetch } from '../../lib/swr'
 import { useOnlineStatus } from '../../hooks/useOnlineStatus'
 import { usePendingSync } from '../../hooks/usePendingSync'
 import { useOfflineSync } from '../../hooks/useOfflineSync'
+import { useSubscription } from '../../hooks/useSubscription'
 
 // Orden por FLUJO del proceso para guiar al usuario nuevo: primero arma su gente,
 // luego sus proyectos, después evalúa y al final consulta resultados (Dashboard).
@@ -23,6 +24,7 @@ const navItems = [
 const secondaryNavItems = [
   { to: '/app/formula', icon: Scale, label: 'Fórmula del puntaje' },
   { to: '/app/calibracion', icon: Sliders, label: 'Calibración' },
+  { to: '/app/suscripcion', icon: CreditCard, label: 'Suscripción' },
   { to: '/app/ayuda', icon: LifeBuoy, label: 'Ayuda' },
 ]
 
@@ -54,14 +56,14 @@ export default function AppShell() {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
+      <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 shrink-0">
           <h1 className="text-xl font-bold text-gray-900">Recontrata</h1>
           <button className="md:hidden p-1" onClick={() => setSidebarOpen(false)} aria-label="Cerrar menú">
             <X className="w-5 h-5" />
           </button>
         </div>
-        <nav className="p-4 space-y-1">
+        <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
           {navItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
@@ -95,6 +97,7 @@ export default function AppShell() {
             </NavLink>
           ))}
         </nav>
+        {orgId && <PlanChip orgId={orgId} />}
       </aside>
 
       {/* Main */}
@@ -187,6 +190,40 @@ export default function AppShell() {
         ))}
       </nav>
     </div>
+  )
+}
+
+// Chip de plan + uso al pie del sidebar: hace visible el estado freemium en toda
+// la app y enlaza a la página de Suscripción.
+function PlanChip({ orgId }: { orgId: string }) {
+  const { sub } = useSubscription(orgId)
+  if (!sub) return null
+
+  const w = sub.usage.active_workers
+  const wLimit = sub.usage.active_workers_limit
+  const nearFull = wLimit !== null && wLimit > 0 && w / wLimit >= 0.8
+
+  return (
+    <NavLink
+      to="/app/suscripcion"
+      className="block shrink-0 border-t border-gray-200 p-3 hover:bg-gray-50"
+    >
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-gray-900">{sub.plan_display_name}</span>
+        <span className="text-[11px] text-blue-600 font-medium">Ver planes</span>
+      </div>
+      <div className="mt-1.5 flex items-center gap-2">
+        <div className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+          <div
+            className={`h-full rounded-full ${nearFull ? 'bg-amber-500' : 'bg-blue-600'}`}
+            style={{ width: wLimit === null ? '100%' : `${Math.min(100, Math.round((w / Math.max(wLimit, 1)) * 100))}%` }}
+          />
+        </div>
+        <span className="text-[11px] text-gray-500 tabular-nums">
+          {w}/{wLimit === null ? '∞' : wLimit}
+        </span>
+      </div>
+    </NavLink>
   )
 }
 

@@ -221,10 +221,13 @@ y devuelve los IDs a pegar en Railway. Nunca commitear `apiKey`/`secretKey`.
 4. **Script bootstrap de planes** en Flow (sandbox) → obtener `planId`s.
 5. **Endpoints checkout / return / cancel** + creación de customer/subscription.
 6. **Webhook** `urlConfirmation` firmado + idempotencia + actualización de estados.
-7. **Frontend**: página Suscripción, paywall modal, return, banners.
+7. **✅ Frontend** (parcial, sin dependencia de Flow): página Suscripción, paywall modal, chip de uso en
+   sidebar, CTAs de Landing. *(hecho 15-jul, verificado en navegador)*. Falta conectar el botón "Mejorar"
+   al checkout (necesita Fase 5) y la página `/billing/return`.
 8. **QA end-to-end en sandbox** (tarjetas de prueba de Flow) → luego switch a prod.
 
-> Estado: Fases 1-2 implementadas y verificadas en local (suite 95/95). Fases 3+ requieren credenciales
+> Estado: Fases 1-2 + frontend del candado freemium implementados y verificados en local (backend 97/97,
+> frontend build+lint+E2E en navegador). Fases 3-6 y el resto del frontend requieren credenciales
 > **sandbox** de Flow (apiKey/secretKey) de la cuenta empresa.
 
 ---

@@ -18,7 +18,15 @@ Diseño completo en **`docs/PASARELA_PAGO_FLOW.md`** (8 fases, decisiones de neg
 - `GET /organizations/{id}/billing/subscription` (solo lectura): plan + uso. Router `app/api/v1/billing.py`.
 - Tests: `tests/integration/test_billing_enforcement.py` (8 casos). **Suite completa: 95/95 verde.**
 
-**⏭️ Próximo (Fase 3+):** cliente Flow (firma HMAC), bootstrap de planes en Flow (sandbox), endpoints checkout/return/cancel, webhook `urlConfirmation` firmado, frontend (página Suscripción + paywall modal). Requiere credenciales **sandbox** de Flow (apiKey/secretKey) de la cuenta empresa.
+**✅ Frontend del candado freemium (hecho 15-jul, verificado en navegador):**
+- Página **Suscripción** (`/app/suscripcion`, `pages/Billing.tsx`): plan actual + estado + barras de uso (X/límite, ámbar ≥80%) + tarjetas de planes.
+- **Paywall modal global** (`components/billing/PaywallProvider.tsx`): cualquier `402 PLAN_LIMIT` abre el modal ("no pierdas el historial…") vía handler global en `apiFetch` (`ApiError` + `setPlanLimitHandler`). Los form-modals se cierran para no apilar.
+- **Chip de plan/uso** en el pie del sidebar (`AppShell`) enlazando a Suscripción; hook `useSubscription`.
+- CTAs de precios de la Landing → `/app/suscripcion` para usuarios logueados.
+- Botón "Mejorar" muestra toast honesto ("el pago se habilita muy pronto") hasta conectar Flow.
+- Verificado E2E en navegador: crear 2º proyecto activo en free → paywall; "Ver planes" → Suscripción; uso 1/1. Build + lint limpios.
+
+**⏭️ Próximo (Fase 3+, necesita cuenta Flow):** cliente Flow (firma HMAC), bootstrap de planes en Flow (sandbox), endpoints checkout/return/cancel, webhook `urlConfirmation` firmado, y conectar el botón "Mejorar" al checkout. Requiere credenciales **sandbox** de Flow (apiKey/secretKey) de la cuenta empresa.
 
 **Correr los tests de billing localmente:**
 ```bash

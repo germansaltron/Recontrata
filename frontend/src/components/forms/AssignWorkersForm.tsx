@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Search } from 'lucide-react'
-import { api, type Worker } from '../../lib/api'
+import { api, ApiError, type Worker } from '../../lib/api'
 
 interface Props {
   orgId: string
@@ -55,6 +55,8 @@ export default function AssignWorkersForm({ orgId, projectId, excludeIds, onAssi
       await api.assignWorkers(orgId, projectId, Array.from(selected))
       onAssigned()
     } catch (err) {
+      // Límite de plan → el paywall global se muestra; cerramos este modal.
+      if (err instanceof ApiError && err.planLimit) { onCancel(); return }
       setError(err instanceof Error ? err.message : 'Error al asignar')
     } finally {
       setSubmitting(false)

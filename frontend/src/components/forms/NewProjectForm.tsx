@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { api, type Project } from '../../lib/api'
+import { api, ApiError, type Project } from '../../lib/api'
 import { PROJECT_STATUSES } from '../../lib/constants'
 
 interface Props {
@@ -49,6 +49,9 @@ export default function NewProjectForm({ orgId, initial, onCreated, onCancel }: 
       }
       onCreated()
     } catch (err) {
+      // Si es un límite de plan, el paywall global ya se abre: cerramos este modal
+      // para no apilar dos diálogos.
+      if (err instanceof ApiError && err.planLimit) { onCancel(); return }
       setError(err instanceof Error ? err.message : 'Error al guardar proyecto')
     } finally {
       setSubmitting(false)

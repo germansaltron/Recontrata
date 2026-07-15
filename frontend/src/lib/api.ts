@@ -33,6 +33,49 @@ function formatApiError(body: unknown, status: number): string {
   return `Error ${status}`
 }
 
+// --- Límite de plan (HTTP 402) ---
+export interface PlanLimitDetail {
+  code: 'PLAN_LIMIT'
+  resource: 'workers' | 'projects'
+  plan: string
+  limit: number
+  current: number
+  detail: string
+}
+
+/** Error de API que preserva el status y el `detail` estructurado del backend
+ *  (a diferencia de un Error plano). `planLimit` viene poblado en los 402 de plan. */
+export class ApiError extends Error {
+  status: number
+  detail: unknown
+  planLimit: PlanLimitDetail | null
+
+  constructor(message: string, status: number, detail: unknown, planLimit: PlanLimitDetail | null = null) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+    this.detail = detail
+    this.planLimit = planLimit
+  }
+}
+
+function extractPlanLimit(body: unknown): PlanLimitDetail | null {
+  const detail = (body as { detail?: unknown })?.detail
+  if (detail && typeof detail === 'object' && (detail as { code?: string }).code === 'PLAN_LIMIT') {
+    return detail as PlanLimitDetail
+  }
+  return null
+}
+
+// Handler global para límites de plan: la UI lo registra una vez (PaywallProvider)
+// y así CUALQUIER llamada que reciba 402 PLAN_LIMIT abre el paywall, sin tocar cada
+// call site.
+type PlanLimitHandler = (detail: PlanLimitDetail) => void
+let _onPlanLimit: PlanLimitHandler | null = null
+export function setPlanLimitHandler(handler: PlanLimitHandler | null) {
+  _onPlanLimit = handler
+}
+
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -53,7 +96,9 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: res.statusText }))
-    throw new Error(formatApiError(body, res.status))
+    const planLimit = extractPlanLimit(body)
+    if (planLimit && _onPlanLimit) _onPlanLimit(planLimit)
+    throw new ApiError(formatApiError(body, res.status), res.status, (body as { detail?: unknown })?.detail, planLimit)
   }
 
   if (res.status === 204) return undefined as T
@@ -161,6 +206,25 @@ export interface UserProfile {
   email: string
   full_name: string | null
   organizations: { org_id: string; org_name: string; role: string }[]
+}
+
+// --- Suscripción / plan ---
+export interface PlanUsage {
+  active_workers: number
+  active_workers_limit: number | null
+  active_projects: number
+  active_projects_limit: number | null
+}
+
+export interface SubscriptionResponse {
+  plan: string
+  plan_display_name: string
+  billing_period: string | null
+  status: string
+  trial_ends_at: string | null
+  current_period_end: string | null
+  canceled_at: string | null
+  usage: PlanUsage
 }
 
 export interface Project {
@@ -320,6 +384,9 @@ export const api = {
   getOrg: (orgId: string) => apiFetch<Organization>(`/organizations/${orgId}`),
   updateOrg: (orgId: string, data: { name?: string; industry?: string }) =>
     apiFetch<Organization>(`/organizations/${orgId}`, { method: 'PATCH', body: JSON.stringify(data) }),
+
+  // Billing / suscripción (solo lectura por ahora; checkout/cancel llegan con Flow)
+  getSubscription: (orgId: string) => apiFetch<SubscriptionResponse>(`/organizations/${orgId}/billing/subscription`),
 
   // Scoring (fórmula pública del puntaje)
   getScoringFormula: (orgId: string) => apiFetch<ScoringFormula>(`/organizations/${orgId}/scoring/formula`),
