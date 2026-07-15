@@ -74,3 +74,23 @@ cd backend && TEST_DATABASE_URL="postgresql+asyncpg://faenascore:faenascore_dev@
 
 Notas de entorno: prod **no** tiene auto-deploy (deploy = `railway up`); el `Dockerfile` corre
 `alembic upgrade head` al arrancar, así que las migraciones se aplican solas al desplegar.
+
+## Estado de despliegue (al cierre del 15-jul)
+
+- **Producción intacta y operativa**: recontrata.cl 200, API `/api/health` 200 (`database: connected`).
+  **Nada de esta sesión está desplegado** (no hay auto-deploy; no se corrió `railway up`). Los testers siguen
+  en la versión previa → nada se rompió para ellos.
+- **⚠️ Antes de desplegar el enforcement de planes durante el beta**: la migración pone a todas las orgs en
+  `free` (tope 15 trab./1 proyecto) y los testers son design partners con acceso libre. Ver el bloque
+  **"⚠️ ESTADO DE DESPLIEGUE"** al inicio de `PROGRESS.md` para las 3 opciones (plan alto a testers / bypass /
+  desplegar recién con Flow).
+
+## Fixes de feedback de tester (mismo día)
+
+Además del trabajo de Flow, se atendió feedback de una tester (nota de voz + mensaje):
+- ✅ **Copy del ROI** del plan Pro más claro (commit `085e855`).
+- ✅ **Offline iOS**: metas `apple-mobile-web-app-*` + banner "Agregar a inicio" (commit `206d5ab`).
+- ⚠️ **Doble email de código**: es config de Clerk (dashboard), no de nuestro código.
+- 🕓 **Voz de tutoriales**: pendiente (re-render de clips).
+
+(El detalle del feedback, con datos de la tester, está en un doc **local no versionado** por privacidad.)

@@ -1,6 +1,35 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-07-15 (pasarela Flow: Fase 1-2 = modelo de suscripción + enforcement de límites)
+## Ultima actualizacion: 2026-07-15 (pasarela Flow Fases 1-3/6 + frontend freemium + fixes de feedback)
+
+---
+
+## ⚠️ ESTADO DE DESPLIEGUE (15-jul-2026) — LEER ANTES DE HACER `railway up`
+
+- **Producción (recontrata.cl) está intacta y 100% operativa.** Verificado: API `/api/health` 200
+  (`database: connected`), recontrata.cl 200. Todo el trabajo del 15-jul está en `master` en GitHub pero
+  **NO desplegado** (no hay auto-deploy; deploy = `railway up`). Los testers siguen en la versión previa.
+- **⛔ CUIDADO al desplegar el enforcement de planes durante el beta:** la migración `1ac66b2f6de5`
+  backfillea **todas** las orgs a `free`, y el candado limita a **15 trabajadores activos / 1 proyecto
+  activo**. Los testers son **design partners con acceso libre** (`BETA_SETUP.md`). Si se despliega tal cual,
+  **los testers con >15 trabajadores o >1 proyecto activo chocarán con el paywall**. Antes de desplegar, elegir:
+  - **A)** subir las orgs de testers a un plan alto (enterprise/ilimitado) o un "plan beta";
+  - **B)** una bandera/bypass del enforcement mientras dure el beta;
+  - **C)** no desplegar el enforcement todavía (mantenerlo en `master` y desplegarlo junto con Flow al cerrar el beta).
+- Los fixes de feedback del 15-jul (copy ROI, aviso offline iOS) **tampoco** están en prod aún; van en el próximo `railway up`.
+
+## Fixes de feedback de tester (15-jul)
+
+- ✅ **#1 Copy del ROI** del plan Pro reescrito (se quitó "ROI sobre 7x", que confundía). commit `085e855`.
+- ⚠️ **#2 Doble email de código de verificación**: **NO es bug de nuestro código** (solo se usan los
+  componentes hospedados de Clerk; StrictMode es inerte en el build de prod). Es **configuración de Clerk**
+  (dashboard): probablemente "Email verification code" **y** "link" ambos activos → apagar uno. Requiere acceso
+  de Germán al dashboard de Clerk.
+- ✅ **#3 Offline en iOS Safari**: en iOS el modo sin señal solo funciona con la app instalada. Se agregaron
+  los metas `apple-mobile-web-app-*` + un banner que guía a "Agregar a inicio" (auto-oculto en desktop/Android
+  y si ya está instalada). commit `206d5ab`. Confirmar final en un iPhone real.
+- 🕓 **#4 Voz de los tutoriales** (muy lenta): pendiente; requiere re-render de los clips (TTS en
+  `tutorial/scripts/clipkit.py`) y re-subir a YouTube.
 
 ---
 
