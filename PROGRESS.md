@@ -1,14 +1,18 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-07-15 (pasarela Flow Fases 1-3/6 + frontend freemium + fixes de feedback)
+## Ultima actualizacion: 2026-07-15 (DESPLEGADO a prod: pasarela Flow + freemium + fixes, candado dormido)
 
 ---
 
-## ⚠️ ESTADO DE DESPLIEGUE (15-jul-2026) — LEER ANTES DE HACER `railway up`
+## ✅ DESPLIEGUE 15-jul-2026 — HECHO (con el candado DORMIDO)
 
-- **Producción (recontrata.cl) está intacta y 100% operativa.** Verificado: API `/api/health` 200
-  (`database: connected`), recontrata.cl 200. Todo el trabajo del 15-jul está en `master` en GitHub pero
-  **NO desplegado** (no hay auto-deploy; deploy = `railway up`). Los testers siguen en la versión previa.
+- **Desplegado a producción** (`railway up`, servicio `faenascore`) con **`BILLING_ENFORCEMENT_ENABLED=false`**
+  en Railway → el candado de planes queda **dormido**, los testers **NO** tienen límites. Verificado post-deploy:
+  health 200 (`database: connected` → migraciones corrieron), recontrata.cl 200, `/api/v1/webhooks/flow` 422
+  (ruta viva), billing 401 (auth), `/me` 401 (auth de testers intacta). Sin downtime.
+- **Para activar el cobro (con Flow):** poner `BILLING_ENFORCEMENT_ENABLED=true` en Railway + credenciales Flow
+  (Fase 5). ANTES de prenderlo, subir las orgs de testers a un plan alto o cerrar el beta.
+- Fixes de feedback (copy ROI, aviso offline iOS) **ya en producción** con este deploy.
 - **⛔ CUIDADO al desplegar el enforcement de planes durante el beta:** la migración `1ac66b2f6de5`
   backfillea **todas** las orgs a `free`, y el candado limita a **15 trabajadores activos / 1 proyecto
   activo**. Los testers son **design partners con acceso libre** (`BETA_SETUP.md`). Si se despliega tal cual,
