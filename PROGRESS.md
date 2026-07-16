@@ -1,6 +1,67 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-07-15 (DESPLEGADO a prod: pasarela Flow + freemium + fixes, candado dormido)
+## Ultima actualizacion: 2026-07-16 (Bot de WhatsApp de ventas — Fase 1: webhook seguro)
+
+---
+
+## 🤖 BOT DE WHATSAPP (ventas) — Fase 1 HECHA, dormido en prod
+
+Doc completa: **`docs/BOT_WHATSAPP.md`**. Commit `edce465`. **NO desplegado aún.**
+
+### Alcance: SOLO ventas (decisión del 16-jul)
+
+El bot capta **prospectos**. **NO consulta datos del producto** (no busca trabajadores, no
+muestra puntajes, no toca `organizations` ni `workers`). Razones:
+
+- Los puntajes son **datos personales (Ley 21.719)** y el producto los protege con
+  consentimiento, rastro inmutable, derecho a réplica y opt-out. Mandarlos por WhatsApp los
+  saca de esa estructura (quedan en teléfonos personales, se reenvían, se fotografían).
+- Los clientes RRHH **ya tienen la PWA** offline: el bot no les resuelve ninguna carencia.
+- **Soporte a clientes → `atencion@recontrata.cl`**. El bot lo entrega y cierra (mismo gesto
+  que el bot de Faymex usa con los CV).
+
+**Consecuencia:** sin lectura de datos, NO hace falta auth máquina-a-máquina, ni vínculo
+teléfono→org, ni API key por org. Por eso vive como **router dentro del backend**
+(`app/api/v1/whatsapp.py` + 2 líneas en `main.py`), sin superficie de seguridad nueva.
+
+### Fase 1 — hecho y verificado
+
+- Webhook Meta: `GET` de alta (`hub.verify_token`) + `POST` con **firma HMAC
+  `X-Hub-Signature-256` obligatoria** sobre el cuerpo crudo (`compare_digest`, falla cerrado
+  sin `META_APP_SECRET`). **Ni el bot de Faymex ni el de SoyMaestra validan firma.**
+- **Idempotencia por `wamid`** (índice unique en `bot_inbound_events`) — Meta reintenta las
+  entregas. Mismo patrón que `PaymentEvent.flow_token` en billing.
+- **Siempre responde 200**: un 5xx hace que Meta degrade/desactive la entrega (fue causa raíz
+  de una caída real en el bot de Faymex).
+- **`BOT_ENABLED` (default `false`)** — candado dormido, calcado de `BILLING_ENFORCEMENT_ENABLED`.
+- Modelos + migración `019426b0cd06`. Ninguna tabla del bot referencia tablas del producto.
+- **Verificación:** 141 tests verdes (115 previos + 26 nuevos) **y** prueba real con `curl`
+  contra servidor + Postgres: la base queda con **1 sola fila** — firma falsa rechazada,
+  reintento de Meta deduplicado, candado dormido respetado.
+
+### LLM: `claude-sonnet-5` (NO Opus — decisión explícita)
+
+Gotchas de Sonnet 5 ya considerados: corre thinking **adaptativo si se omite el campo**
+(al revés que 4.6) → se pone `thinking: disabled` explícito; `effort` default es `high` → se
+baja a `low`; **`temperature`/`top_p` dan 400** → el tono va solo en el prompt.
+
+### Próximos pasos del bot
+
+1. **Fase 2** — conversación: prompts + máquina de estados + `AsyncAnthropic` con tool-use.
+   KB comercial desde `app/billing/plans.py` (fuente de verdad de planes/precios) y
+   `JUSTIFICACION_FAENASCORE.md`.
+2. **Fase 3** — leads por Resend + `derivar_a_soporte` + `escalar_a_humano`.
+3. **Fase 4** — infra Meta: desarrollar contra el **número de prueba**; el definitivo va bajo
+   la cuenta de **Saltronic** (NO la de Faymex — Recontrata es de Saltronic). La verificación
+   de negocio de Meta **toma días**: iniciarla temprano, en paralelo.
+
+### ⚠️ Deuda anotada (fuera del alcance del bot)
+
+Prod corre con **`AUTH_MOCK_ENABLED=True` + `ALLOW_MOCK_IN_PROD=True`** en Railway: la
+verificación de Clerk está puenteada y todo request entra como `dev_user_001` sin mirar el
+token. El código está bien (`config.py` deja ambos en `False` por defecto); son las env vars.
+Hoy lo tapa el código de acceso del prelanzamiento, y **este bot no depende de eso** porque no
+lee datos del producto. **Hay que apagarlo antes de abrir el beta.**
 
 ---
 
