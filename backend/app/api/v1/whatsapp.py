@@ -19,21 +19,48 @@ Dos reglas no obvias, ambas aprendidas en producción con el bot de Faymex:
 Ver docs/BOT_WHATSAPP.md.
 """
 
+import asyncio
 import hashlib
 import hmac
 
 import structlog
+from anthropic import AsyncAnthropic
 from fastapi import APIRouter, Depends, Request, Response, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.bot.client import send_whatsapp_text
+from app.bot.conversation import BotEngine
 from app.config import settings
-from app.database import get_db
+from app.database import async_session, get_db
 from app.models.bot import BotInboundEvent
 
 logger = structlog.get_logger()
 
 router = APIRouter(prefix="/whatsapp", tags=["whatsapp"])
+
+_anthropic_client: AsyncAnthropic | None = None
+
+
+def get_anthropic_client() -> AsyncAnthropic:
+    """Cliente Anthropic perezoso y reutilizado (los tests inyectan otro por el engine)."""
+    global _anthropic_client
+    if _anthropic_client is None:
+        _anthropic_client = AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
+    return _anthropic_client
+
+
+async def _process_bot_message(phone: str, text: str) -> None:
+    """Corre la conversación en segundo plano, con su PROPIA sesión de DB (la del request
+    ya está cerrada), y envía la respuesta. Nunca revienta: el webhook ya respondió 200."""
+    try:
+        async with async_session() as db:
+            engine = BotEngine(db, get_anthropic_client())
+            reply = await engine.handle_message(phone, text)
+        if reply:
+            await send_whatsapp_text(phone, reply)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("bot_process_failed", phone=phone, error=str(e))
 
 
 def verify_signature(raw_body: bytes, header: str | None) -> bool:
@@ -169,6 +196,8 @@ async def receive_webhook(request: Request, db: AsyncSession = Depends(get_db)) 
 
         text = message_text(message)
         logger.info("whatsapp_message_received", wamid=wamid, phone=phone, chars=len(text))
-        # Fase 2 engancha aquí la conversación (buffer + LLM).
+        # La conversación corre en segundo plano para responder 200 a Meta de inmediato:
+        # la latencia del LLM no puede colgar la respuesta al webhook.
+        asyncio.create_task(_process_bot_message(phone, text))
 
     return {"received": True}
