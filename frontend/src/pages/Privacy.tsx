@@ -17,7 +17,9 @@ export default function Privacy() {
         <p className="text-sm text-gray-500">Última actualización: 4 de junio de 2026</p>
 
         <p className="mt-6">
-          Esta Política describe cómo Recontrata ("nosotros") trata los datos personales
+          Esta Política describe cómo Recontrata, marca operada por Saltronic SpA
+          (RUT 78.462.524-9, domicilio en Quilpué, Región de Valparaíso, Chile) ("nosotros"),
+          trata los datos personales
           que los usuarios del Servicio ("Usuario") ingresan o generan al usar la plataforma.
           Respetamos la Ley N° 21.719, que regula la protección y el tratamiento de los datos
           personales y moderniza la Ley N° 19.628, y, para usuarios de la Unión Europea, el

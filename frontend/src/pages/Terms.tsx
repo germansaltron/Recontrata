@@ -18,7 +18,8 @@ export default function Terms() {
 
         <p className="mt-6">
           Estos Términos de Servicio ("Términos") regulan el uso de la plataforma Recontrata
-          ("el Servicio"), propiedad de su desarrollador ("nosotros", "nuestro"). Al crear una
+          ("el Servicio"), marca operada por Saltronic SpA, RUT 78.462.524-9, con domicilio en
+          Quilpué, Región de Valparaíso, Chile ("nosotros", "nuestro"). Al crear una
           cuenta o usar el Servicio, usted ("el Usuario") acepta estos Términos.
         </p>
 

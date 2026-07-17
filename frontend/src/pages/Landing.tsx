@@ -369,7 +369,8 @@ export default function Landing({ isSignedIn }: LandingProps) {
             <div>
               <p className="font-semibold text-gray-900">Recontrata</p>
               <p className="mt-2 text-gray-500">Evaluación de desempeño de trabajadores para contratistas de minería y construcción.</p>
-              <p className="mt-2 text-gray-400 text-xs">Hecho en Chile</p>
+              <p className="mt-2 text-gray-400 text-xs">Un producto de Saltronic SpA · RUT 78.462.524-9</p>
+              <p className="mt-1 text-gray-400 text-xs">Hecho en Chile</p>
             </div>
             <div>
               <p className="font-semibold text-gray-900">Producto</p>
@@ -389,7 +390,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
             </div>
           </div>
           <div className="mt-8 pt-6 border-t border-gray-100 text-xs text-gray-400 flex flex-col md:flex-row items-center justify-between gap-2">
-            <p>© {new Date().getFullYear()} Recontrata. Todos los derechos reservados.</p>
+            <p>© {new Date().getFullYear()} Saltronic SpA (RUT 78.462.524-9). Recontrata es una marca de Saltronic SpA. Todos los derechos reservados.</p>
             <p>Para contratistas de minería y construcción.</p>
           </div>
         </div>
