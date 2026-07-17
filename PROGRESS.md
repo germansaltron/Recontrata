@@ -1,6 +1,39 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-07-16 (Bot de WhatsApp de ventas — Fase 1: webhook seguro)
+## Ultima actualizacion: 2026-07-17 (DESPLEGADO: landing público + Fase 1 del bot dormida)
+
+---
+
+## ✅ DESPLIEGUE 17-jul-2026 — landing PÚBLICO + Fase 1 del bot (dormida)
+
+`railway up --service faenascore`. Commits `edce465` (bot fase 1), `81143d6` (doc), `8f4706a` (landing).
+
+**Qué cambió para el visitante:** `recontrata.cl` ahora muestra el **landing sin pedir código**.
+`/terminos` y `/privacidad` también. La app (`/app`), el registro y todos los datos siguen detrás de
+`recontrata2211`, y el `noindex` se mantiene → **no es el lanzamiento**, solo se destapó la vitrina.
+
+**Por qué:** la revisión de Meta para el bot de WhatsApp valida que el negocio existe visitando el
+sitio; un muro de contraseña es causa probable de rechazo (días perdidos por cada reintento). Y el
+bot de ventas necesita un landing al cual derivar. Ver `docs/BOT_WHATSAPP.md`.
+
+**Verificado post-deploy (en prod, no en local):**
+- `/api/health` → 200 `database: connected` (⇒ la migración `019426b0cd06` corrió: 4 tablas del bot).
+- `recontrata.cl/` → landing público ✅ · `recontrata.cl/app` → gate pidiendo código ✅
+- `POST /api/v1/whatsapp/webhook` sin firma → 200 sin procesar ✅
+- `GET /api/v1/whatsapp/webhook` sin verify token → 403 (falla cerrado) ✅
+- **Bot DORMIDO**: no hay ninguna var del bot en Railway ⇒ `BOT_ENABLED=False` por default del código.
+
+### ⚠️ Dos trampas de verificación que casi me engañan (anotar para la próxima)
+
+1. **El service worker sirve el bundle viejo.** Tras el deploy, `recontrata.cl` me seguía mostrando el
+   gate con el aviso "Hay una versión nueva". Un visitante NUEVO (sin SW) sí ve el landing. Para
+   verificar de verdad hay que desregistrar el SW y borrar `caches` antes de recargar. **Los testers
+   con la PWA instalada verán la versión vieja hasta que toquen "Actualizar"** (comportamiento normal).
+2. **`localStorage.recontrata_access` dura 90 días.** Si tu navegador ya pasó el gate alguna vez, la app
+   te abre sin pedir código y parece que el gate está roto. Hay que borrar esa marca para probar.
+
+También: el `.env` local tiene `VITE_ACCESS_GATE=false` (intencional, para dev) → **el gate NUNCA se ve
+en local**. Para probarlo hay que construir sin `.env`, como hace el Dockerfile.
 
 ---
 
