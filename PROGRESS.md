@@ -1,6 +1,44 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-07-17 (DESPLEGADO: landing público + Fase 1 del bot dormida)
+## Ultima actualizacion: 2026-07-17 (Meta: portafolio Saltronic SpA + dominio verificado; verif. de negocio EN REVISIÓN)
+
+---
+
+## 🟢 META WHATSAPP — trámite en curso (17-jul)
+
+Portafolio comercial de Meta para el bot: **"Saltronic SpA"** (id 528027061198782), bajo el
+login **gsaltron@gmail.com**. Doc del bot: `docs/BOT_WHATSAPP.md`.
+
+**Cómo se llegó:** los 3 portafolios de gsaltron estaban al tope (límite 3). Se reutilizó el
+portafolio **VACÍO** "Germán Saltron Mellado" (0 activos, sin verificar) → renombrado a
+Saltronic SpA + info legal (RUT 78.462.524-9, dirección Quilpué). **NO se borró Luddos**
+(tiene página FB de 1.400 seg + IG que se quieren conservar; además es otra sociedad, EIRL
+76.933.353-3). **NO se tocó "joannasoymaestra"** (portafolio de SoyMaestra SpA, 78.393.119-2).
+
+**Estado del trámite:**
+- ✅ **Dominio recontrata.cl VERIFICADO** (metaetiqueta `facebook-domain-verification` en el
+  `index.html` estático, commit del 17-jul; el crawler lee HTML crudo, no pasa por el SW).
+- ⏳ **Verificación de negocio EN REVISIÓN** (2-10 días hábiles). Se subió la **constitución**
+  + el **e-RUT** (por la dirección). Tipo de negocio elegido: **"Empresa privada"** (un SpA
+  NO es las opciones "Sociedad" de Meta, que son bolsa/partnership).
+- Para reforzar la revisión, recontrata.cl ahora **nombra a Saltronic SpA** (pie + términos +
+  privacidad, commit `d40566c`), porque es el sitio declarado como web del negocio.
+
+**Reglas aprendidas (para Casilisto después):**
+- Número WhatsApp: **1 portafolio (Saltronic) → 1 verificación**, y adentro **1 WABA + 1 App +
+  1 webhook + 1 número por producto**. Casilisto hereda la verificación (mismo SpA); solo suma
+  su número + App apuntando al backend de Fillanyform.
+- Cada número debe estar **limpio** (sin WhatsApp), recibir SMS una vez, registrado con RUT
+  Saltronic, y **nunca instalarle WhatsApp**. Chips de plan barato WOM (no prepago: se muere a
+  los 180 días sin recarga y el bot no avisa).
+- El nombre del portafolio/negocio NO puede ir en mayúsculas (Meta lo rechaza salvo siglas):
+  usar "Saltronic SpA", no "SALTRONIC SPA".
+
+**Pendiente del trámite:** esperar la verificación de negocio. En paralelo se puede crear la App
+de Meta + número de PRUEBA (no requiere verificación) para probar el bot.
+
+---
+
 
 ---
 
