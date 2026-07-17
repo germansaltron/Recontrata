@@ -10,6 +10,7 @@ import pytest_asyncio
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+import app.bot.notifications as notif
 from app.bot.conversation import BotEngine
 from app.config import settings
 from app.models.bot import BotConversation, BotLead, BotMessage
@@ -73,6 +74,19 @@ async def _count(db, model, **filt) -> int:
     for k, v in filt.items():
         q = q.where(getattr(model, k) == v)
     return (await db.execute(q)).scalar_one()
+
+
+@pytest.fixture
+def captured_emails(monkeypatch):
+    """Intercepta el envío por Resend: captura (subject, html, to) sin tocar la red."""
+    sent = []
+
+    async def fake_send(subject, html_body, to):
+        sent.append({"subject": subject, "html": html_body, "to": to})
+        return True
+
+    monkeypatch.setattr(notif, "_send", fake_send)
+    return sent
 
 
 # --- Tests ------------------------------------------------------------------
@@ -189,3 +203,60 @@ class TestConversacion:
         # respuesta aún no existe cuando se llama al modelo.
         second_call_messages = fake.messages.calls[1]["messages"]
         assert [m["content"] for m in second_call_messages] == ["primera", "respuesta 1", "segunda"]
+
+
+@pytest.mark.asyncio
+class TestNotificaciones:
+    async def test_registrar_prospecto_manda_correo_de_lead(self, db, captured_emails, monkeypatch):
+        monkeypatch.setattr(settings, "ALERTS_TEST_MODE", True)
+        monkeypatch.setattr(settings, "ALERTS_TEST_EMAILS", '["test@x.cl"]')
+        fake = FakeAnthropic(
+            tool_response(
+                "registrar_prospecto",
+                {"name": "Juan Pérez", "company": "Mineralex", "interest": "cotizar plan Pro"},
+            ),
+            text_response("Listo, te contactamos."),
+        )
+        await BotEngine(db, fake).handle_message(PHONE, "quiero contratar, soy Juan de Mineralex")
+
+        assert len(captured_emails) == 1
+        mail = captured_emails[0]
+        assert "LEAD" in mail["subject"]
+        assert "Juan Pérez" in mail["subject"] and "Mineralex" in mail["subject"]
+        # Marcha blanca: va al correo de prueba, no a los reales.
+        assert mail["to"] == ["test@x.cl"]
+        # Trae los datos y la transcripción.
+        assert "Mineralex" in mail["html"]
+        assert "quiero contratar" in mail["html"]
+
+    async def test_sin_marcha_blanca_va_a_los_reales(self, db, captured_emails, monkeypatch):
+        monkeypatch.setattr(settings, "ALERTS_TEST_MODE", False)
+        monkeypatch.setattr(settings, "BOT_LEAD_EMAILS", '["ventas@recontrata.cl"]')
+        fake = FakeAnthropic(
+            tool_response("registrar_prospecto", {"interest": "x"}),
+            text_response("ok"),
+        )
+        await BotEngine(db, fake).handle_message(PHONE, "hola")
+        assert captured_emails[0]["to"] == ["ventas@recontrata.cl"]
+
+    async def test_escalar_manda_correo_de_escalamiento(self, db, captured_emails, monkeypatch):
+        monkeypatch.setattr(settings, "ALERTS_TEST_MODE", True)
+        monkeypatch.setattr(settings, "ALERTS_TEST_EMAILS", '["test@x.cl"]')
+        fake = FakeAnthropic(
+            tool_response("escalar_a_humano", {"reason": "quiere un vendedor"}),
+            text_response("Un miembro del equipo te responderá."),
+        )
+        await BotEngine(db, fake).handle_message(PHONE, "quiero hablar con alguien")
+
+        assert len(captured_emails) == 1
+        assert "ESCALAMIENTO" in captured_emails[0]["subject"]
+        assert PHONE in captured_emails[0]["subject"]
+
+    async def test_derivar_a_soporte_no_manda_correo(self, db, captured_emails):
+        """Soporte solo entrega el correo al cliente; no genera aviso al equipo."""
+        fake = FakeAnthropic(
+            tool_response("derivar_a_soporte", {"reason": "no puede entrar"}),
+            text_response("Escríbenos a atencion@recontrata.cl y te ayudamos."),
+        )
+        await BotEngine(db, fake).handle_message(PHONE, "soy cliente y no puedo entrar")
+        assert captured_emails == []

@@ -16,6 +16,7 @@ import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.bot.notifications import send_escalation_email, send_lead_email
 from app.bot.prompts import SYSTEM_PROMPT
 from app.bot.tools import TOOLS
 from app.config import settings
@@ -38,8 +39,13 @@ class BotEngine:
     def __init__(self, db: AsyncSession, anthropic_client):
         self.db = db
         self.client = anthropic_client
+        # Avisos por correo pendientes: se acumulan durante el tool-use y se mandan tras
+        # el commit (así un fallo de correo no revierte la conversación). Cada entrada es
+        # ("lead"|"escalation", datos, transcripción).
+        self._pending: list[tuple] = []
 
     async def handle_message(self, phone: str, text: str) -> str | None:
+        self._pending = []
         conv = await self._get_or_create_conversation(phone)
         await self._add_message(conv, "user", text)
 
@@ -58,7 +64,21 @@ class BotEngine:
             await self._add_message(conv, "assistant", reply)
         conv.last_message_at = _now()
         await self.db.commit()
+
+        await self._flush_notifications()
         return reply
+
+    async def _flush_notifications(self) -> None:
+        """Envía los avisos pendientes tras el commit. Mejor esfuerzo: nunca revienta."""
+        for kind, data, transcript in self._pending:
+            try:
+                if kind == "lead":
+                    await send_lead_email(data, transcript)
+                elif kind == "escalation":
+                    await send_escalation_email(data["phone"], data.get("reason", ""), transcript)
+            except Exception as e:  # noqa: BLE001
+                logger.warning("bot_notification_failed", kind=kind, error=str(e))
+        self._pending = []
 
     # --- Estado de la conversación ------------------------------------------
 
@@ -102,6 +122,17 @@ class BotEngine:
         ).scalars().all()
         history = [{"role": m.role, "content": m.content} for m in rows]
         return history[-MAX_HISTORY:]
+
+    async def _transcript(self, conv: BotConversation) -> list[tuple[str, str]]:
+        """La conversación como (role, texto), para incluirla en los correos de aviso."""
+        rows = (
+            await self.db.execute(
+                select(BotMessage)
+                .where(BotMessage.conversation_id == conv.id)
+                .order_by(BotMessage.created_at.asc())
+            )
+        ).scalars().all()
+        return [(m.role, m.content) for m in rows]
 
     # --- LLM + tool-use -----------------------------------------------------
 
@@ -161,7 +192,10 @@ class BotEngine:
             conv.notified_at = _now()
             conv.collect_turns = (conv.collect_turns or 0) + 1
             conv.collected = {**(conv.collected or {}), **{k: v for k, v in inp.items() if v}}
-            # Fase 3: notificar por correo (Resend).
+            snapshot = {**{k: inp.get(k) for k in
+                           ("name", "company", "email", "industry", "workers_estimate", "interest")},
+                        "phone": conv.phone}
+            self._pending.append(("lead", snapshot, await self._transcript(conv)))
             return (
                 "Prospecto registrado; el equipo comercial será avisado. "
                 "Confirma a la persona, breve y cordial, que la contactarán pronto."
@@ -178,7 +212,10 @@ class BotEngine:
         if name == "escalar_a_humano":
             conv.handed_off = True
             conv.notified_at = _now()
-            # Fase 3: notificar al equipo.
+            self._pending.append(
+                ("escalation", {"phone": conv.phone, "reason": inp.get("reason", "")},
+                 await self._transcript(conv))
+            )
             return (
                 "Escalado a una persona del equipo; el bot queda en pausa en esta "
                 "conversación. Dile que un miembro del equipo le va a responder."
