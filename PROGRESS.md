@@ -124,7 +124,9 @@ baja a `low`; **`temperature`/`top_p` dan 400** → el tono va solo en el prompt
    KB de precios generada desde `app/billing/plans.py`. Webhook procesa en tarea de fondo.
    148 tests verdes (7 nuevos con cliente Anthropic falso). **Falta prueba EN VIVO** (modelo,
    caché, tokens) — necesita `ANTHROPIC_API_KEY` + número de prueba de Meta.
-2. **Fase 3** — correo del lead por Resend (el `BotLead` ya se crea; falta el envío).
+2. ✅ **Fase 3 HECHA** (commit `ab516d0`) — `app/bot/notifications.py`: correo de lead y de
+   escalamiento por Resend, con redirección por `ALERTS_TEST_MODE` (marcha blanca). Avisos se
+   mandan tras el commit (mejor esfuerzo). 152 tests verdes. **Falta el envío real** (`RESEND_API_KEY`).
 3. **Fase 4** — infra Meta: **verificación de negocio de Saltronic SpA EN REVISIÓN** (arriba).
    Falta crear la App de Meta + número de PRUEBA (no requiere verificación) para probar el bot
    en vivo, y luego el número definitivo + revisión del nombre para mostrar.

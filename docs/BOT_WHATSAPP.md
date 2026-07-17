@@ -178,12 +178,15 @@ Firma válida → una fila. Firma falsa → cero filas. Mismo `wamid` dos veces 
   de fondo para responder 200 al toque. 148 tests verdes (7 nuevos del motor, con cliente
   Anthropic falso). **Falta verificar en vivo** (modelo, caché, tokens) — necesita la llave y
   el número de prueba (pasos 3/5/6 de Verificación).
-- **Fase 3 ⏳** — el correo del lead por Resend (`registrar_prospecto` ya crea el `BotLead` y
-  marca `notified_at`; falta el envío). `derivar_a_soporte` y `escalar_a_humano` ya funcionan.
-- **Fase 4 ⏳** — infra Meta. Desarrollo contra el **número de prueba** de Meta para no
-  quedar bloqueados. El número definitivo va bajo la cuenta de **Saltronic**, no la de
-  Faymex: Recontrata es de Saltronic y mezclarlo con el WABA de otra empresa es un enredo
-  de propiedad. La verificación de negocio de Meta toma días — se inicia temprano.
+- **Fase 3 ✅** — `app/bot/notifications.py`: correo del lead y del escalamiento por Resend.
+  `registrar_prospecto` avisa al equipo con los datos + la conversación; `escalar_a_humano`
+  avisa y pausa el bot; `derivar_a_soporte` NO manda correo (solo entrega el correo al
+  cliente). **Marcha blanca:** con `ALERTS_TEST_MODE` (default on) las alertas se redirigen a
+  `ALERTS_TEST_EMAILS`. Sin `RESEND_API_KEY` → loguea, no manda. 152 tests verdes. **Falta el
+  envío real** (necesita `RESEND_API_KEY`); la forma HTTP es la de Resend, igual que Faymex.
+- **Fase 4 ⏳** — infra Meta. Verificación de negocio de Saltronic SpA EN REVISIÓN. Falta el
+  número de **prueba** (para probar el bot en vivo: modelo, caché, correo real) y luego el
+  número **definitivo** bajo la cuenta de **Saltronic** + revisión del nombre para mostrar.
 
 ## Gotchas
 
