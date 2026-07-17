@@ -60,8 +60,26 @@ function AuthenticatedApp() {
   return <ProtectedApp />
 }
 
-// Layout que aplica el gate de pre-lanzamiento + intro de marca a todo MENOS el
-// Portal del Trabajador (que debe ser accesible públicamente por su token).
+// Layout de la vitrina pública (landing + legales): intro de marca, SIN gate.
+//
+// El gate de pre-lanzamiento protege la aplicación —los datos, las evaluaciones,
+// el registro—, no el escaparate. Un visitante debe poder ver de qué se trata el
+// producto sin un código, y hay dos razones concretas:
+//   * el bot de WhatsApp deriva prospectos aquí (docs/BOT_WHATSAPP.md);
+//   * la revisión de Meta valida que el negocio existe visitando el sitio, y un
+//     muro de contraseña es causa probable de rechazo.
+// El `noindex` de index.html sigue evitando que aparezca en buscadores.
+function PublicLayout() {
+  return (
+    <>
+      <BootIntro />
+      <Outlet />
+    </>
+  )
+}
+
+// Layout que aplica el gate de pre-lanzamiento + intro de marca a la app y al
+// registro (el Portal del Trabajador y la vitrina pública quedan fuera).
 //
 // Hardening móvil: un usuario YA autenticado (invitado que pasó el registro) no
 // debe toparse con el gate del código, sin importar el navegador/contexto. Esto
@@ -99,32 +117,36 @@ export default function App() {
       <Route path="/p/:token" element={<Suspense fallback={<PageFallback />}><WorkerPortal /></Suspense>} />
       <Route path="/p/:token/certificado" element={<Suspense fallback={<PageFallback />}><WorkerCertificate /></Suspense>} />
 
+      {/* Vitrina pública: landing y legales, FUERA del AccessGate. */}
+      <Route element={<PublicLayout />}>
+        <Route
+          path="/"
+          element={
+            !clerkEnabled ? (
+              <Landing isSignedIn={true} />
+            ) : (
+              <>
+                <SignedIn>
+                  <Landing isSignedIn={true} />
+                </SignedIn>
+                <SignedOut>
+                  <Landing isSignedIn={false} />
+                </SignedOut>
+              </>
+            )
+          }
+        />
+        <Route path="/terminos" element={<Suspense fallback={<PageFallback />}><Terms /></Suspense>} />
+        <Route path="/privacidad" element={<Suspense fallback={<PageFallback />}><Privacy /></Suspense>} />
+      </Route>
+
       <Route element={<GateLayout />}>
         {!clerkEnabled ? (
           <>
-            <Route path="/" element={<Landing isSignedIn={true} />} />
-            <Route path="/terminos" element={<Suspense fallback={<PageFallback />}><Terms /></Suspense>} />
-            <Route path="/privacidad" element={<Suspense fallback={<PageFallback />}><Privacy /></Suspense>} />
             <Route path="/app/*" element={<ProtectedApp />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
           </>
         ) : (
           <>
-            <Route
-              path="/"
-              element={
-                <>
-                  <SignedIn>
-                    <Landing isSignedIn={true} />
-                  </SignedIn>
-                  <SignedOut>
-                    <Landing isSignedIn={false} />
-                  </SignedOut>
-                </>
-              }
-            />
-            <Route path="/terminos" element={<Suspense fallback={<PageFallback />}><Terms /></Suspense>} />
-            <Route path="/privacidad" element={<Suspense fallback={<PageFallback />}><Privacy /></Suspense>} />
             <Route
               path="/sign-in/*"
               element={
@@ -154,10 +176,13 @@ export default function App() {
                 </>
               }
             />
-            <Route path="*" element={<Navigate to="/" replace />} />
           </>
         )}
       </Route>
+
+      {/* Ruta desconocida → landing público (no al gate: rebotar a un muro de
+          contraseña es hostil para un visitante que llegó por un enlace viejo). */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
