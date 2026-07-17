@@ -170,12 +170,16 @@ Firma válida → una fila. Firma falsa → cero filas. Mismo `wamid` dos veces 
 
 ## Estado y qué falta
 
-- **Fase 1 ✅** — webhook seguro, modelos, migración, settings. 26 tests nuevos; 141 en
-  total verdes. Verificado con `curl` contra servidor y Postgres reales.
-- **Fase 2 ⏳** — conversación: prompts, máquina de estados, `AsyncAnthropic` con tool-use,
-  base de conocimiento comercial (planes y precios desde `app/billing/plans.py`, que es la
-  fuente de verdad; argumentos desde `JUSTIFICACION_FAENASCORE.md`).
-- **Fase 3 ⏳** — leads por Resend, `derivar_a_soporte`, `escalar_a_humano`.
+- **Fase 1 ✅** — webhook seguro, modelos, migración, settings. 26 tests nuevos.
+  Verificado con `curl` contra servidor y Postgres reales.
+- **Fase 2 ✅** — conversación: `app/bot/` (knowledge, prompts, tools, conversation, client).
+  `AsyncAnthropic` con tool-use, Sonnet 5 (thinking off, effort low, sin temperature, system
+  cacheado). KB de precios generada desde `app/billing/plans.py`. El webhook procesa en tarea
+  de fondo para responder 200 al toque. 148 tests verdes (7 nuevos del motor, con cliente
+  Anthropic falso). **Falta verificar en vivo** (modelo, caché, tokens) — necesita la llave y
+  el número de prueba (pasos 3/5/6 de Verificación).
+- **Fase 3 ⏳** — el correo del lead por Resend (`registrar_prospecto` ya crea el `BotLead` y
+  marca `notified_at`; falta el envío). `derivar_a_soporte` y `escalar_a_humano` ya funcionan.
 - **Fase 4 ⏳** — infra Meta. Desarrollo contra el **número de prueba** de Meta para no
   quedar bloqueados. El número definitivo va bajo la cuenta de **Saltronic**, no la de
   Faymex: Recontrata es de Saltronic y mezclarlo con el WABA de otra empresa es un enredo

@@ -118,13 +118,16 @@ baja a `low`; **`temperature`/`top_p` dan 400** → el tono va solo en el prompt
 
 ### Próximos pasos del bot
 
-1. **Fase 2** — conversación: prompts + máquina de estados + `AsyncAnthropic` con tool-use.
-   KB comercial desde `app/billing/plans.py` (fuente de verdad de planes/precios) y
-   `JUSTIFICACION_FAENASCORE.md`.
-2. **Fase 3** — leads por Resend + `derivar_a_soporte` + `escalar_a_humano`.
-3. **Fase 4** — infra Meta: desarrollar contra el **número de prueba**; el definitivo va bajo
-   la cuenta de **Saltronic** (NO la de Faymex — Recontrata es de Saltronic). La verificación
-   de negocio de Meta **toma días**: iniciarla temprano, en paralelo.
+1. ✅ **Fase 2 HECHA** (commit `c213077`) — motor de conversación en `backend/app/bot/`:
+   `AsyncAnthropic` + tool-use, Sonnet 5 (thinking off, effort low, sin temperature, system
+   cacheado). 3 herramientas: `registrar_prospecto`, `derivar_a_soporte`, `escalar_a_humano`.
+   KB de precios generada desde `app/billing/plans.py`. Webhook procesa en tarea de fondo.
+   148 tests verdes (7 nuevos con cliente Anthropic falso). **Falta prueba EN VIVO** (modelo,
+   caché, tokens) — necesita `ANTHROPIC_API_KEY` + número de prueba de Meta.
+2. **Fase 3** — correo del lead por Resend (el `BotLead` ya se crea; falta el envío).
+3. **Fase 4** — infra Meta: **verificación de negocio de Saltronic SpA EN REVISIÓN** (arriba).
+   Falta crear la App de Meta + número de PRUEBA (no requiere verificación) para probar el bot
+   en vivo, y luego el número definitivo + revisión del nombre para mostrar.
 
 ### ⚠️ Deuda anotada (fuera del alcance del bot)
 
