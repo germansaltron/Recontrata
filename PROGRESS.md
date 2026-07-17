@@ -1,6 +1,41 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-07-17 (Meta: portafolio Saltronic SpA + dominio verificado; verif. de negocio EN REVISIÓN)
+## Ultima actualizacion: 2026-07-17 (Bot Fases 1-3 hechas; trámite Meta en revisión) — CONTINÚA MAÑANA
+
+---
+
+## 📌 SESIÓN 17-JUL — RESUMEN Y CÓMO RETOMAR MAÑANA
+
+Doc completa del bot: **`docs/BOT_WHATSAPP.md`**. Todo pusheado a `master`.
+
+**Lo que se hizo hoy:**
+1. **Bot de WhatsApp de ventas — Fases 1, 2 y 3 HECHAS** (código completo, 152 tests verdes,
+   bot DORMIDO con `BOT_ENABLED=false`). Vive en `backend/app/bot/` + `app/api/v1/whatsapp.py`.
+   - F1 (`edce465`): webhook con firma HMAC + idempotencia por `wamid`.
+   - F2 (`c213077`): motor de conversación, Sonnet 5 + tool-use (registrar_prospecto,
+     derivar_a_soporte, escalar_a_humano). Tono formal-cercano, tú, saludo aprobado.
+   - F3 (`ab516d0`): correo de lead y escalamiento por Resend, con marcha blanca (ALERTS_TEST_MODE).
+2. **Landing público desplegado** (`8f4706a`): recontrata.cl se ve sin código; la app sigue
+   con `recontrata2211`. **Saltronic SpA nombrado** en sitio/términos/privacidad (`d40566c`).
+3. **Trámite Meta** (ver sección de abajo): portafolio **Saltronic SpA** creado, **dominio
+   recontrata.cl VERIFICADO**, **verificación de negocio EN REVISIÓN** (2-10 días, corre sola).
+4. **Datos demo sembrados** en la org del tester Eric (erojas): 20 trabajadores, 3 faenas,
+   37 evaluaciones (org slug `mi-empresa-a72e5f`, id `aede6fb3-...`).
+
+**Qué falta / próximo paso (por dónde seguir mañana):**
+- **Fase 4 del bot — infra Meta.** Se puede AVANZAR YA sin esperar la verificación: crear la
+  **App de Meta** (en developers.facebook.com, vinculada al portafolio Saltronic) + producto
+  WhatsApp → da un **número de PRUEBA** al instante. Con eso + una `ANTHROPIC_API_KEY` se
+  prueba el bot EN VIVO (que Sonnet 5 responda bien, que el caché funcione, que llegue el
+  correo real por Resend). Necesito 3 datos de esa App: **App Secret, Phone Number ID, token**.
+- **Verificación en vivo del bot** (pasos 3/5/6 del plan): pendiente hasta tener llave + número.
+- **Envío real de correo:** falta `RESEND_API_KEY` (cuenta Resend de Recontrata).
+- **Número definitivo:** chip WOM de PLAN (no prepago) a nombre de Saltronic, sin instalarle
+  WhatsApp, para cuando apruebe la verificación de negocio.
+
+**⚠️ Bug descubierto (anotado, no urgente):** los correos de los usuarios se guardan VACÍOS en
+la base (el provisioning desde Clerk no captura el email). Hoy no se puede identificar usuarios
+por correo. Revisar cuando toque.
 
 ---
 

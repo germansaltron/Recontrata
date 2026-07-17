@@ -34,9 +34,16 @@ vive como un router más dentro del backend, sin superficie de seguridad nueva.
 
 ```
 backend/app/
-  api/v1/whatsapp.py    # webhook: GET verify + POST recepción
+  api/v1/whatsapp.py    # webhook: GET verify + POST recepción; procesa en tarea de fondo
   models/bot.py         # BotConversation, BotMessage, BotLead, BotInboundEvent
   main.py               # 2 líneas: import + include_router
+  bot/
+    knowledge.py        # base de conocimiento comercial (precios desde billing/plans.py)
+    prompts.py          # SYSTEM_PROMPT (persona + KB), estable y cacheable
+    tools.py            # 3 tools: registrar_prospecto, derivar_a_soporte, escalar_a_humano
+    conversation.py     # motor: AsyncAnthropic tool-use + máquina de estados
+    client.py           # envío a WhatsApp (Graph API)
+    notifications.py    # correo de lead y escalamiento (Resend)
 ```
 
 Dentro del monolito porque el bot comparte dominio con el landing que genera los
