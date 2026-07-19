@@ -1,6 +1,6 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-07-17 (Bot Fases 1-3 hechas; trámite Meta en revisión) — CONTINÚA MAÑANA
+## Ultima actualizacion: 2026-07-19 (verificación de negocio ENVIADA de verdad y En revisión; ver corrección)
 
 ---
 
@@ -18,7 +18,9 @@ Doc completa del bot: **`docs/BOT_WHATSAPP.md`**. Todo pusheado a `master`.
 2. **Landing público desplegado** (`8f4706a`): recontrata.cl se ve sin código; la app sigue
    con `recontrata2211`. **Saltronic SpA nombrado** en sitio/términos/privacidad (`d40566c`).
 3. **Trámite Meta** (ver sección de abajo): portafolio **Saltronic SpA** creado, **dominio
-   recontrata.cl VERIFICADO**, **verificación de negocio EN REVISIÓN** (2-10 días, corre sola).
+   recontrata.cl VERIFICADO**. La verificación de negocio se creyó enviada el 17-jul pero
+   **había quedado como borrador**; se ENVIÓ de verdad el **19-jul** y ahora sí está
+   **"En revisión"** (~2 días laborables ⇒ ~mié 22-jul). Ver la corrección más abajo.
 4. **Datos demo sembrados** en la org del tester Eric (erojas): 20 trabajadores, 3 faenas,
    37 evaluaciones (org slug `mi-empresa-a72e5f`, id `aede6fb3-...`).
 
@@ -53,9 +55,21 @@ Saltronic SpA + info legal (RUT 78.462.524-9, dirección Quilpué). **NO se borr
 **Estado del trámite:**
 - ✅ **Dominio recontrata.cl VERIFICADO** (metaetiqueta `facebook-domain-verification` en el
   `index.html` estático, commit del 17-jul; el crawler lee HTML crudo, no pasa por el SW).
-- ⏳ **Verificación de negocio EN REVISIÓN** (2-10 días hábiles). Se subió la **constitución**
-  + el **e-RUT** (por la dirección). Tipo de negocio elegido: **"Empresa privada"** (un SpA
-  NO es las opciones "Sociedad" de Meta, que son bolsa/partnership).
+- ⏳ **Verificación de negocio EN REVISIÓN — enviada el DOM 19-jul** (~2 días laborables ⇒
+  respuesta esperable ~mié 22-jul, porque el 19 es domingo). Se subió la **constitución** +
+  el **e-RUT** (por la dirección). Tipo de negocio: **"Empresa privada"** (un SpA NO es las
+  opciones "Sociedad" de Meta, que son bolsa/partnership).
+
+  > ⚠️ **CORRECCIÓN (19-jul).** Esta bitácora decía desde el 17-jul que la verificación estaba
+  > "en revisión". **Era FALSO**: el 17 se subieron los documentos pero se salió del flujo
+  > (para ir a verificar el dominio) **sin llegar al paso final de envío**. La solicitud quedó
+  > como BORRADOR — el Centro de seguridad mostraba *"Retoma el proceso de verificación donde
+  > lo dejaste · Solicitud pendiente · [Continuar]"*, y por eso nunca llegó correo de Meta ni
+  > corrió el plazo. Se detectó el 19-jul al revisar y se completó ese día.
+  >
+  > **Lección (aplica a todo trámite web):** la confirmación real es el ESTADO en la pantalla
+  > tras recargar, no lo que uno cree que envió ni el cuadro de "gracias". Estado bueno =
+  > **"En revisión"** (sin botón "Continuar"). Verificar SIEMPRE recargando la página.
 - Para reforzar la revisión, recontrata.cl ahora **nombra a Saltronic SpA** (pie + términos +
   privacidad, commit `d40566c`), porque es el sitio declarado como web del negocio.
 
