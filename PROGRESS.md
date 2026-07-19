@@ -40,6 +40,24 @@ espacios separados para Recontrata y Casilisto.
 4. **Número definitivo** +56 9 2731 5616 (chip WOM nuevo, sin WhatsApp, a nombre personal por ahora):
    registrar cuando apruebe la verificación de negocio.
 
+### 📄 Documentación consolidada (19-jul)
+
+`docs/BOT_WHATSAPP.md` se reescribió completo. Había crecido por partes y **contradecía** lo que
+quedó implementado: pedía fusionar el SPF de Resend en la raíz (justo lo que evitamos con el
+subdominio), daba el +56 9 2731 5616 como destinatario de pruebas (ese número **no debe tener
+WhatsApp**; se probó con el +56 9 3565 2743), y listaba `BOT_FROM_EMAIL`/`BOT_ENABLED` con
+valores viejos.
+
+**Tres settings están declaradas en `config.py` pero el código NO las usa** — verificado con grep,
+ahora documentadas como deuda en el §9 del doc:
+
+- `MESSAGE_BUFFER_SECONDS` — **el buffer de mensajes nunca se implementó.** Cada mensaje entrante
+  dispara su propia llamada al LLM, así que tres mensajes seguidos generan tres respuestas. El bot
+  de Faymex sí lo tiene (acumula y cancela el timer anterior); de ahí habría que copiarlo.
+- `MAX_TURNS` — no limita nada; el motor se apoya en que Claude decide cuándo registrar el lead.
+- `BOT_SUPPORT_EMAIL` — `atencion@recontrata.cl` está **escrita a mano** en `prompts.py` y
+  `tools.py`. Cambiar la variable de entorno no cambia lo que el bot responde.
+
 ---
 
 ## 📌 SESIÓN 17-JUL — RESUMEN Y CÓMO RETOMAR MAÑANA
@@ -162,7 +180,7 @@ en local**. Para probarlo hay que construir sin `.env`, como hace el Dockerfile.
 
 ---
 
-## 🤖 BOT DE WHATSAPP (ventas) — Fase 1 HECHA, dormido en prod
+## 🤖 BOT DE WHATSAPP (ventas) — [HISTÓRICO 17-jul] Fase 1. Estado actual: ver sección del 19-jul
 
 Doc completa: **`docs/BOT_WHATSAPP.md`**. Commit `edce465`. **NO desplegado aún.**
 
