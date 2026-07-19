@@ -84,6 +84,43 @@ entrega**. En el bot de Faymex eso fue causa raíz de una caída real de `subscr
 Un error nuestro no puede costarnos el canal: se loguea y se responde 200 igual. Una firma
 inválida también responde 200 — no le damos señal a quien sondea — pero no procesa nada.
 
+## Infraestructura de Meta (19-jul-2026)
+
+Portafolio comercial: **Saltronic SpA** (`528027061198782`).
+
+| | Valor |
+|---|---|
+| App | **Recontrata Bot** — App ID `1777753076558682` |
+| Cuenta WhatsApp (WABA) de prueba | `2799045830476773` |
+| Número de prueba | **+1 (555) 181-5450** — Phone Number ID `1145341392005969` |
+
+Secretos (NO van aquí, van en Railway): `WHATSAPP_TOKEN`, `META_APP_SECRET`,
+`WHATSAPP_VERIFY_TOKEN`, `ANTHROPIC_API_KEY`.
+
+⚠️ Al autorizar la app, el diálogo de Meta ofrece también la cuenta de WhatsApp de **Luddos**
+(otra empresa). **Se seleccionó SOLO la de prueba** — nunca marcar Luddos ni "todos los
+actuales y futuros", porque ese "todos" la incluye.
+
+El número de prueba solo puede escribir a números en su **lista de destinatarios permitidos**
+(hasta 5). Ahí va el +56 9 2731 5616 para las pruebas.
+
+## Números de WhatsApp
+
+| | Número | Estado |
+|---|---|---|
+| **Producción (provisorio)** | **+56 9 2731 5616** | Chip WOM nuevo (activado 18-jul-2026), **nunca tuvo WhatsApp**. A nombre **personal de Germán**, NO de Saltronic: WOM exige 4 meses de empresa funcionando para poner la línea a nombre de la sociedad. |
+| Desarrollo | Número de prueba de Meta | Sale al instante con la App, sin verificación. Hasta 5 destinatarios en lista blanca. |
+
+**Que la línea esté a nombre personal NO afecta la verificación de Meta**: Meta valida la
+*empresa* con documentos (el portafolio Saltronic SpA), no a nombre de quién está el chip.
+
+⚠️ **Dos cuidados con el número provisorio:**
+1. Registrarlo en la API es **permanente**: ese número pierde WhatsApp normal para siempre.
+2. Se cambiará al definitivo (a nombre de Saltronic) en ~4 meses. Migrar es barato **mientras
+   no se difunda**: quien tenga el número viejo guardado quedaría escribiéndole a un número
+   muerto, y el historial no se migra. **No publicarlo como número oficial** (landing,
+   tarjetas, publicidad) mientras sea provisorio.
+
 ## Configuración
 
 | Variable | Default | Nota |
