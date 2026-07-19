@@ -84,6 +84,25 @@ entrega**. En el bot de Faymex eso fue causa raíz de una caída real de `subscr
 Un error nuestro no puede costarnos el canal: se loguea y se responde 200 igual. Una firma
 inválida también responde 200 — no le damos señal a quien sondea — pero no procesa nada.
 
+## Correo del dominio (Cloudflare Email Routing, 19-jul-2026)
+
+`recontrata.cl` usa **Cloudflare Email Routing** (gratis, solo RECIBE y reenvía):
+
+| Dirección | Reenvía a | Para qué |
+|---|---|---|
+| `atencion@recontrata.cl` | gsaltron@gmail.com | **El correo que el bot le da a los clientes** (antes no existía: rebotaba). |
+| `gsaltron@recontrata.cl` | gsaltron@gmail.com | Correo distinto para crear la organización de **Anthropic a nombre de Saltronic** (la org actual factura a Faymex, RUT 76.536.742-5). |
+
+Catch-all queda **deshabilitado** a propósito: una dirección inexistente rebota en vez de
+caer en un pozo silencioso.
+
+⚠️ **SPF — trampa para cuando se configure Resend.** Cloudflare agregó este registro:
+`"v=spf1 include:_spf.mx.cloudflare.net ~all"`. Autoriza SOLO a Cloudflare a enviar como
+recontrata.cl. Cuando el bot mande los correos de leads por **Resend** (desde
+`bot@recontrata.cl`), hay que **agregar Resend a ESE MISMO registro** — NO crear un segundo
+SPF: un dominio admite uno solo y tener dos los invalida a ambos. (Es lo que rompió el correo
+de Faymex en julio.) Cloudflare deja el SPF "Unlocked" justamente para poder editarlo.
+
 ## Infraestructura de Meta (19-jul-2026)
 
 Portafolio comercial: **Saltronic SpA** (`528027061198782`).
