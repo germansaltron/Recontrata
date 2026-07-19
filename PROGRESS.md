@@ -25,11 +25,12 @@ espacios separados para Recontrata y Casilisto.
 
 ### ⚠️ Pendientes de esta sesión
 
-1. **Rotar credenciales expuestas — falta SOLO `ADMIN_TOKEN`.** ✅ `DATABASE_URL` (Supabase),
-   ✅ `CLERK_SECRET_KEY` (que además NO se usa en el código: la auth va por JWKS) y ✅ el token de
-   WhatsApp ya fueron rotados. El `ADMIN_TOKEN` necesita **≥32 caracteres** (si es más corto, el
-   endpoint de admin queda bloqueado por diseño). **Cargarlo por el PANEL WEB de Railway**, nunca
-   por comando — el valor no debe pasar por el chat.
+1. ✅ **Credenciales expuestas: TODAS rotadas** (19-jul) — `DATABASE_URL` (Supabase),
+   `CLERK_SECRET_KEY` (que además NO se usa en el código: la auth va por JWKS), token de WhatsApp
+   y `ADMIN_TOKEN`. Verificado tras el deploy: health OK y `/admin/*` devuelve 403 con token
+   inválido. **Regla aprendida:** los secretos se cargan por el **PANEL WEB de Railway**, nunca
+   por comando en el chat (el valor quedaría en el historial, que fue el error original), y las
+   consultas de variables se hacen pidiendo **solo nombres**, nunca valores.
 2. **Token de WhatsApp**: es temporal y vence a **hora fija**. Montar **token permanente de
    usuario del sistema** antes de producción, para no depender de regenerarlo a mano.
 3. **`RESEND_API_KEY`**: sin ella los correos de leads solo se loguean. Al configurarla, **EDITAR**
