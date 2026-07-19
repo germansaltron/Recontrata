@@ -25,11 +25,13 @@ espacios separados para Recontrata y Casilisto.
 
 ### ⚠️ Pendientes de esta sesión
 
-1. **Rotar credenciales expuestas** (2 de 3 hechas): falta re-rotar **`DATABASE_URL`** (Supabase) y
-   **`ADMIN_TOKEN`**. ✅ `CLERK_SECRET_KEY` rotada (y NO se usa en el código: la auth va por JWKS).
-   **Cargarlas por el PANEL WEB de Railway**, nunca por comando — el valor no debe pasar por el chat.
-2. **Token de WhatsApp temporal**: vence a hora fija. Montar **token permanente de usuario del
-   sistema** antes de producción. Además quedó visible en una captura → regenerarlo.
+1. **Rotar credenciales expuestas — falta SOLO `ADMIN_TOKEN`.** ✅ `DATABASE_URL` (Supabase),
+   ✅ `CLERK_SECRET_KEY` (que además NO se usa en el código: la auth va por JWKS) y ✅ el token de
+   WhatsApp ya fueron rotados. El `ADMIN_TOKEN` necesita **≥32 caracteres** (si es más corto, el
+   endpoint de admin queda bloqueado por diseño). **Cargarlo por el PANEL WEB de Railway**, nunca
+   por comando — el valor no debe pasar por el chat.
+2. **Token de WhatsApp**: es temporal y vence a **hora fija**. Montar **token permanente de
+   usuario del sistema** antes de producción, para no depender de regenerarlo a mano.
 3. **`RESEND_API_KEY`**: sin ella los correos de leads solo se loguean. Al configurarla, **EDITAR**
    el SPF de Cloudflare (no crear un segundo) para incluir a Resend.
 4. **Número definitivo** +56 9 2731 5616 (chip WOM nuevo, sin WhatsApp, a nombre personal por ahora):
