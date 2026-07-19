@@ -31,10 +31,12 @@ espacios separados para Recontrata y Casilisto.
    inválido. **Regla aprendida:** los secretos se cargan por el **PANEL WEB de Railway**, nunca
    por comando en el chat (el valor quedaría en el historial, que fue el error original), y las
    consultas de variables se hacen pidiendo **solo nombres**, nunca valores.
-2. **Token de WhatsApp**: es temporal y vence a **hora fija**. Montar **token permanente de
-   usuario del sistema** antes de producción, para no depender de regenerarlo a mano.
-3. **`RESEND_API_KEY`**: sin ella los correos de leads solo se loguean. Al configurarla, **EDITAR**
-   el SPF de Cloudflare (no crear un segundo) para incluir a Resend.
+2. ✅ **Token de WhatsApp PERMANENTE** (usuario del sistema `recontrata-bot` en el Business
+   Manager de Saltronic). El temporal venció **dos veces el mismo día**. Verificado con
+   `debug_token`: `SYSTEM_USER`, `expires_at=0`, con los scopes `management` + `messaging`.
+3. ✅ **Correo de leads por Resend FUNCIONANDO** — cuenta propia de Saltronic, dominio
+   **`send.recontrata.cl`** (subdominio, para NO tocar el SPF de la raíz que usa Email Routing;
+   verificado que quedó intacto). API key acotada a ese dominio y solo de envío.
 4. **Número definitivo** +56 9 2731 5616 (chip WOM nuevo, sin WhatsApp, a nombre personal por ahora):
    registrar cuando apruebe la verificación de negocio.
 

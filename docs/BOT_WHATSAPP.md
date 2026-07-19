@@ -3,7 +3,53 @@
 > Estado: **FUNCIONANDO en producción con el número de PRUEBA de Meta** (19-jul-2026).
 > Fases 1-3 completas y verificadas en vivo. Falta el número definitivo (Fase 4).
 
+## Correo de leads — Resend (19-jul-2026) ✅ FUNCIONANDO
+
+Cuenta **propia de Saltronic** (registrada con `gsaltron@recontrata.cl`, NO la personal que usa
+SoyMaestra ni la de Faymex). Dominio verificado: **`send.recontrata.cl`** (subdominio a
+propósito).
+
+**Por qué subdominio y no `recontrata.cl` a secas:** el dominio raíz ya tiene el SPF de
+Cloudflare Email Routing, y un dominio admite **un solo SPF**. Usando un subdominio, Resend
+pone su SPF en `send.send.recontrata.cl` y **no hay que tocar** el de la raíz — que es
+justamente la operación que rompió el correo de Faymex en julio. Verificado tras configurar:
+los MX y el SPF de la raíz quedaron intactos.
+
+El DNS se cargó con **Domain Connect** de Cloudflare: autorización de **un solo uso**, acotada
+a recontrata.cl, sin dejar token vivo. Mejor que entregar una API key de Cloudflare.
+
+La API key de Resend está **acotada al dominio** `send.recontrata.cl` y con permiso solo de
+envío: si se filtrara, no podría enviar como ningún otro dominio.
+
+Variables: `RESEND_API_KEY` + `BOT_FROM_EMAIL=bot@send.recontrata.cl` (si el remitente no
+coincide con el dominio verificado, Resend rechaza el envío).
+
+## Token de WhatsApp — PERMANENTE (19-jul-2026)
+
+El token temporal **venció dos veces en un mismo día** (expira a hora fija, no a las 24 h),
+dejando al bot sin poder responder. Solución definitiva: **usuario del sistema** en el
+Business Manager de Saltronic (`recontrata-bot`), con la app y la WABA asignadas en **control
+total**. Verificado con `debug_token`:
+
+```
+tipo: SYSTEM_USER · válido: True · expira: 0 (nunca)
+scopes: whatsapp_business_management, whatsapp_business_messaging, public_profile
+```
+
+Los dos scopes son necesarios: `management` para leer configuración, `messaging` para enviar.
+
 ## ✅ Verificado en vivo (19-jul-2026)
+
+**Circuito completo, extremo a extremo (22:21):**
+
+```
+whatsapp_message_received → bot_tool_call(registrar_prospecto) → bot_email_sent → whatsapp_sent
+```
+
+11 segundos desde que el prospecto escribe hasta que recibe respuesta y el lead está en la
+bandeja. El correo llegó a Gmail sin rebote ni spam, desde `bot@send.recontrata.cl`, con los
+datos extraídos por el modelo (dedujo rubro "mineria" de "faenas mineras" y la banda 100-500
+a partir de "unos 200 trabajadores").
 
 Conversación real desde WhatsApp contra el número de prueba, ~5 s de latencia por respuesta:
 
