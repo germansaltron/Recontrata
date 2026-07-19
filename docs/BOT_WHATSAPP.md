@@ -1,7 +1,32 @@
 # Bot de WhatsApp — captación de prospectos
 
-> Estado: **Fase 1 completa** (webhook seguro). El bot está **dormido** en producción
-> (`BOT_ENABLED=false`) y todavía no contesta nada.
+> Estado: **FUNCIONANDO en producción con el número de PRUEBA de Meta** (19-jul-2026).
+> Fases 1-3 completas y verificadas en vivo. Falta el número definitivo (Fase 4).
+
+## ✅ Verificado en vivo (19-jul-2026)
+
+Conversación real desde WhatsApp contra el número de prueba, ~5 s de latencia por respuesta:
+
+| Prueba | Resultado |
+|---|---|
+| Saludo | Respondió **textual** el saludo aprobado |
+| Segundo "Hola" | **No repitió** el saludo (la regla del prompt funciona) |
+| "¿Cuánto cuesta?" | Precios correctos, generados desde `plans.py`, + pregunta de seguimiento |
+| "Soy Germán de Constructora Andes, 60 trabajadores" | `registrar_prospecto` → **lead creado**; dedujo rubro=construccion y banda 16-100 |
+| "Soy cliente y no puedo entrar" | `derivar_a_soporte` → entregó `atencion@recontrata.cl`, estado→`support` |
+
+Firma HMAC validando, idempotencia operando, historial y persistencia OK.
+
+### Costo real medido (con `count_tokens`, no estimado a ojo)
+
+- Prefijo estable (system + tools): **3.821 tokens** → **supera** el mínimo de caché de
+  Sonnet 5 (2.048), así que **el caché sí aplica**.
+- Conversación típica de 6 turnos: **~USD 0,0021 (~$2 CLP)** con caché, vs ~$35 CLP sin él.
+- 1.000 conversaciones ≈ **USD 2** (~$2.000 CLP).
+
+> Los **conteos de tokens son reales**; la proyección de costo asume ~120 tokens de salida por
+> turno y que los turnos caen dentro de la ventana de caché (5 min). Con conversaciones muy
+> espaciadas el costo real sube hacia el número sin caché.
 
 ## Qué es y qué no es
 
@@ -250,6 +275,34 @@ Firma válida → una fila. Firma falsa → cero filas. Mismo `wamid` dos veces 
 - **Fase 4 ⏳** — infra Meta. Verificación de negocio de Saltronic SpA EN REVISIÓN. Falta el
   número de **prueba** (para probar el bot en vivo: modelo, caché, correo real) y luego el
   número **definitivo** bajo la cuenta de **Saltronic** + revisión del nombre para mostrar.
+
+## Gotchas de la puesta en marcha (19-jul, todos vividos)
+
+**1. `subscribed_apps` — el que dejó al bot mudo.** Suscribir el campo `messages` en el panel
+de la app **NO basta**: la **WABA** tiene que estar suscrita **a la app**. La WABA de prueba
+venía suscrita solo a una app interna de Meta (*WA DevX Webhook Events 1P App*), así que los
+mensajes nunca llegaban. Diagnóstico y arreglo (token desde el entorno, nunca en el chat):
+
+```bash
+# ¿qué apps están suscritas?
+curl -s "https://graph.facebook.com/v22.0/<WABA_ID>/subscribed_apps" \
+  -H "Authorization: Bearer ${WHATSAPP_TOKEN}"
+# suscribir la nuestra
+curl -s -X POST "https://graph.facebook.com/v22.0/<WABA_ID>/subscribed_apps" \
+  -H "Authorization: Bearer ${WHATSAPP_TOKEN}"
+```
+
+**2. El token temporal NO dura 24 h desde que lo generas.** Vence a una **hora fija** (vimos
+"expired on 11:00 PDT"), así que puede durar minutos. Síntoma: `whatsapp_send_failed` con
+`OAuthException code 190`. Para producción → **token permanente de usuario del sistema**.
+
+**3. `(#131030) Recipient phone number not in allowed list`.** El número de prueba solo puede
+**responder** a números en su lista blanca. El mensaje entrante SÍ llega y se procesa; lo que
+falla es el envío. Agregar el número en el panel del número de prueba.
+
+**4. El número de producción NUNCA debe tener WhatsApp instalado**, ni siquiera para agregarlo
+como destinatario de prueba. Los destinatarios son teléfonos de personas; el número de
+producción es la identidad del bot.
 
 ## Gotchas
 

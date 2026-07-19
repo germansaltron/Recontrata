@@ -1,6 +1,39 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-07-19 (verificación de negocio ENVIADA de verdad y En revisión; ver corrección)
+## Ultima actualizacion: 2026-07-19 (🎉 BOT FUNCIONANDO en vivo con el número de prueba de Meta)
+
+---
+
+## 🎉 SESIÓN 19-JUL — EL BOT FUNCIONA EN VIVO (número de PRUEBA)
+
+Doc completa: **`docs/BOT_WHATSAPP.md`** (incluye los 4 gotchas de puesta en marcha y el costo medido).
+
+**Conversación real por WhatsApp, verificada de punta a punta:** saludo textual, no repite saludo,
+precios correctos desde `plans.py`, `registrar_prospecto` creó un **lead** (dedujo rubro y banda de
+trabajadores solo), y `derivar_a_soporte` entregó `atencion@recontrata.cl`. ~5 s de latencia.
+
+**Costo medido con `count_tokens`** (no estimado): prefijo estable 3.821 tokens (⇒ el caché aplica),
+**~$2 CLP por conversación** de 6 turnos con caché; 1.000 conversaciones ≈ USD 2.
+
+**Infra montada hoy:** App de Meta "Recontrata Bot" (`1777753076558682`) bajo el portafolio
+Saltronic; número de prueba +1 555 181-5450; **correo del dominio** con Cloudflare Email Routing
+(`atencion@recontrata.cl` ya EXISTE — antes el bot daba una dirección que rebotaba); organización
+de **Anthropic a nombre de Saltronic** (la anterior facturaba a Faymex, RUT 76.536.742-5) con
+espacios separados para Recontrata y Casilisto.
+
+**Verificación de negocio de Meta:** ENVIADA el 19-jul, "En revisión" (~2 días laborables).
+
+### ⚠️ Pendientes de esta sesión
+
+1. **Rotar credenciales expuestas** (2 de 3 hechas): falta re-rotar **`DATABASE_URL`** (Supabase) y
+   **`ADMIN_TOKEN`**. ✅ `CLERK_SECRET_KEY` rotada (y NO se usa en el código: la auth va por JWKS).
+   **Cargarlas por el PANEL WEB de Railway**, nunca por comando — el valor no debe pasar por el chat.
+2. **Token de WhatsApp temporal**: vence a hora fija. Montar **token permanente de usuario del
+   sistema** antes de producción. Además quedó visible en una captura → regenerarlo.
+3. **`RESEND_API_KEY`**: sin ella los correos de leads solo se loguean. Al configurarla, **EDITAR**
+   el SPF de Cloudflare (no crear un segundo) para incluir a Resend.
+4. **Número definitivo** +56 9 2731 5616 (chip WOM nuevo, sin WhatsApp, a nombre personal por ahora):
+   registrar cuando apruebe la verificación de negocio.
 
 ---
 
