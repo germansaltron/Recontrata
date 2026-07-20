@@ -1,6 +1,30 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-07-19 (🎉 BOT FUNCIONANDO en vivo con el número de prueba de Meta)
+## Ultima actualizacion: 2026-07-20 (revisión pre-producción + fix A1 desplegado + auto-deploy GitHub)
+
+---
+
+## 🔍 SESIÓN 20-JUL — REVISIÓN PRE-PRODUCCIÓN + FIX A1 + AUTO-DEPLOY
+
+Doc completa: **`SESION_20JUL2026_REVISION_PREPROD.md`** (hallazgos priorizados + pendientes).
+
+**Revisión exhaustiva pre-lanzamiento.** Producto sólido, sin bloqueadores críticos de
+código. Se arregló el único hallazgo bloqueante y se automatizó el deploy.
+
+- ✅ **Fix A1 (pérdida de evaluaciones offline) — EN PRODUCCIÓN.** El flush de la cola
+  offline borraba la evaluación ante cualquier error que no fuera de red (401 por token
+  lento, 5xx, 402). Ahora solo descarta validación/duplicado (`400/409/422`); todo lo demás
+  se conserva y reintenta. Además `apiFetch` ya no manda requests sin `Authorization` al
+  vencer el race del token. Se agregó **Vitest** (17 tests). Commit `9952025`, verificado en
+  el bundle real de prod.
+- 🔄 **DEPLOY AHORA ES AUTOMÁTICO:** se conectó el repo GitHub (`germansaltron/Recontrata`,
+  branch `master`) a Railway. **Cada push a master despliega solo** (antes era `railway up`
+  manual). ⚠️ Ojo: `git push` a master = deploy a prod. Ver INFRAESTRUCTURA.md.
+- ⏳ **Pendientes de calidad (no bloqueantes):** M1 bot fire-and-forget (`whatsapp.py:201`),
+  M2 aislamiento en creación de evaluaciones, M3 rate limiting, M4 buffer de mensajes del
+  bot, M5/M6 manejo de 401/403 en frontend, M7 endurecimiento de infra. Detalle en el doc.
+- 🟡 **Bloqueadores externos sin cambios:** Meta (verificación Saltronic "En revisión",
+  ~22-jul) y Flow (falta CODIFICAR la Fase 5 de checkout, no solo pegar credenciales).
 
 ---
 

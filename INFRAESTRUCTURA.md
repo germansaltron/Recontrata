@@ -8,8 +8,13 @@
 - **Railway** (cuenta `germansaltron` / gsaltron@gmail.com). Proyecto de producción =
   **`Recontrata`** (renombrado desde `faenascore` el 1 jul 2026; el rename NO cambia el ID).
   - **Project ID:** `7ec526bb-74bc-4796-bac4-4c89bde2d6bd` · **Service:** `a5ff98e5`.
-  - Sirve **recontrata.cl**. **Deploy = `railway up`** (sin source GitHub, NO auto-deploy).
-    Re-linkear siempre por ID: `railway link -p 7ec526bb-74bc-4796-bac4-4c89bde2d6bd`.
+  - Sirve **recontrata.cl**. **Deploy = AUTO desde GitHub** (desde 20-jul-2026): el proyecto
+    tiene conectado el source repo `germansaltron/Recontrata`, branch `master`. **Cada push a
+    master despliega solo.** ⚠️ `git push` a master = deploy a producción.
+  - **Plan B de deploy** (si el auto-deploy falla): `./deploy.sh` en la raíz usa un **project
+    token** (`RAILWAY_TOKEN` en `.railway-token`, gitignored), porque el Railway CLI de este
+    equipo está logueado en la cuenta de **Faymex** (bodegaquilp01), NO en gsaltron → un
+    `railway up` normal apunta al workspace equivocado. Ver cabecera de `deploy.sh`.
   - Plan Railway en **Pro** → bajar a **Hobby** antes del ~27-29 jul.
 - **GitHub** = `germansaltron/Recontrata` (repo renombrado desde `FaenaScore`). El repo local
   vive en `C:\Users\JEF_INT\Claude Code German\FaenaScore` con `origin` a `germansaltron/Recontrata`.
@@ -22,6 +27,17 @@
 - El backend **no consume APIs de IA de pago** (score = promedio ponderado).
 
 ## Bitácora de cambios de infraestructura
+
+### 20 jul 2026 — Auto-deploy desde GitHub
+- Se conectó el **Source Repo `germansaltron/Recontrata`** (branch `master`) al proyecto
+  Railway. **El deploy pasó de manual (`railway up`) a automático en cada push a master.**
+- Motivo: el Railway CLI de este equipo está logueado en la cuenta de **Faymex**
+  (`bodegaquilp01`); Recontrata vive en **gsaltron@gmail.com** → `railway up` apuntaba al
+  workspace equivocado. El auto-deploy desde GitHub evita el problema de cuenta cruzada.
+- Se recomendó activar **"Wait for CI"** (solo desplegar con el CI en verde). El dashboard
+  mostraba "Auto deploy unavailable" — si los push no disparan deploy, revisar permisos de la
+  GitHub App de Railway sobre el repo.
+- Fallback: `deploy.sh` + project token (`.railway-token`, gitignored).
 
 ### 1 jul 2026 — Limpieza y rename en Railway
 - **Duplicado BORRADO:** `FaenaScore` (mayúscula, ID `1d85d02e`) era un proyecto huérfano
