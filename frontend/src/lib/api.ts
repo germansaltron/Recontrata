@@ -89,6 +89,12 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
     ])
     if (token) {
       headers['Authorization'] = `Bearer ${token}`
+    } else {
+      // No se obtuvo token (Clerk lento o señal marginal en faena). NO mandamos la
+      // request sin Authorization: el backend respondería 401 y, en el flush de la
+      // cola offline, un 401 antes descartaba la evaluación para siempre. Fallar
+      // aquí con 401 la deja reintentable (se conserva en la cola). Ver offlineSync.
+      throw new ApiError('No se pudo obtener el token de sesión', 401, null)
     }
   }
 
