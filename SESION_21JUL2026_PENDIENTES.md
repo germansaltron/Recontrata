@@ -64,5 +64,11 @@ solo selecciona la clave por `kid` y valida firma/exp/issuer/audience con `algor
 - **Tests:** `tests/test_auth_jwt.py` — 6 casos con tokens RSA reales (válido / expirado /
   issuer malo / audience malo / kid desconocido / firma de otra clave). Backend 166 verdes.
 - **Docker Linux:** build OK, PyJWT presente, `import jose` → ModuleNotFoundError.
-- **Prod:** todo token inválido → 401, nunca 500 (firma falsa incluida). Happy path (login
-  real) a confirmar por Germán abriendo la app.
+- **Prod:** todo token inválido → 401, nunca 500 (firma falsa incluida).
+- **Happy path CONFIRMADO (21-jul):** Germán inició sesión en prod y entró a la app → el
+  backend validó su token real de Clerk con PyJWT y lo dejó pasar. Migración verificada
+  extremo a extremo.
+  - Nota lateral: `gsaltron@gmail.com` NO existía como cuenta en la instancia de Clerk de
+    Recontrata (`clerk.recontrata.cl`) y tuvo que registrarse. No era un bug del deploy: la
+    llave `pk_live` del bundle era la correcta; el error "no existe cuenta" lo daba Clerk
+    antes de emitir token. Su cuenta de Recontrata, si tenía una previa, usa otro email.

@@ -36,8 +36,9 @@ Se atacaron los pendientes de la revisión pre-prod del 20-jul (5 commits):
 Se reemplazó la librería de verificación de JWT de Clerk (python-jose, poco mantenida y
 con CVEs) por **PyJWT[crypto]**, fijando `algorithms=["RS256"]`. Se conserva el fetch
 async del JWKS (PyJWKClient es síncrono y bloquearía el loop). 6 tests nuevos con tokens
-RSA reales. Verificado en prod: todo token inválido → 401 (nunca 500). Falta que Germán
-confirme el happy path (login real) abriendo la app.
+RSA reales. Verificado en prod: todo token inválido → 401 (nunca 500). **Happy path
+CONFIRMADO**: Germán inició sesión en prod y entró — el backend validó su token real de
+Clerk con PyJWT. Migración cerrada.
 
 ---
 
