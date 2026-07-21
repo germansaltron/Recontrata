@@ -8,12 +8,13 @@ Ver docs/PASARELA_PAGO_FLOW.md §5.
 """
 
 import structlog
-from fastapi import APIRouter, Depends, Form, HTTPException, status
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.billing.flow_client import FlowClient, FlowError
 from app.billing.service import apply_payment_result, normalize_payment_status
 from app.database import get_db
+from app.ratelimit import limiter
 
 logger = structlog.get_logger()
 
@@ -26,7 +27,9 @@ def get_flow_client() -> FlowClient:
 
 
 @router.post("/flow")
+@limiter.limit("60/minute")
 async def flow_confirmation(
+    request: Request,
     token: str = Form(...),
     db: AsyncSession = Depends(get_db),
     client: FlowClient = Depends(get_flow_client),

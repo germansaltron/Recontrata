@@ -21,9 +21,13 @@ from app.api.v1.admin import router as admin_router
 from app.api.v1.billing import router as billing_router
 from app.api.v1.webhooks import router as webhooks_router
 from app.api.v1.whatsapp import router as whatsapp_router
+from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
+
 from app.config import settings
 from app.database import engine
 from app.errors import ErrorCode
+from app.ratelimit import limiter
 
 try:
     import sentry_sdk
@@ -58,6 +62,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title=settings.APP_NAME, version="0.1.0", lifespan=lifespan)
+
+# Rate limiting (slowapi) para endpoints públicos. El estado y el handler 429 se
+# registran a nivel app; los límites se declaran por endpoint con @limiter.limit.
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,

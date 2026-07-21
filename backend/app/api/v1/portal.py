@@ -6,11 +6,12 @@ contratista. Da transparencia (art. 16 Ley 21.719), derecho a réplica y opt-out
 """
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
+from app.ratelimit import limiter
 from app.errors import ErrorCode
 from app.models.evaluation import Evaluation
 from app.models.organization import Organization
@@ -42,7 +43,8 @@ async def _get_worker_by_token(token: str, db: AsyncSession) -> Worker:
 
 
 @router.get("/{token}", response_model=PortalProfile)
-async def get_portal(token: str, db: AsyncSession = Depends(get_db)):
+@limiter.limit("120/minute")
+async def get_portal(request: Request, token: str, db: AsyncSession = Depends(get_db)):
     worker = await _get_worker_by_token(token, db)
 
     org = (await db.execute(
@@ -103,8 +105,9 @@ async def get_portal(token: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/{token}/evaluations/{eval_id}/reply", response_model=PortalEvaluation)
+@limiter.limit("20/minute")
 async def reply_to_evaluation(
-    token: str, eval_id: str, body: PortalReplyRequest, db: AsyncSession = Depends(get_db)
+    request: Request, token: str, eval_id: str, body: PortalReplyRequest, db: AsyncSession = Depends(get_db)
 ):
     """Derecho a réplica: el trabajador responde a una evaluación suya."""
     worker = await _get_worker_by_token(token, db)
@@ -144,7 +147,8 @@ async def reply_to_evaluation(
 
 
 @router.post("/{token}/opt-out", status_code=204)
-async def opt_out(token: str, body: PortalOptOutRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit("20/minute")
+async def opt_out(request: Request, token: str, body: PortalOptOutRequest, db: AsyncSession = Depends(get_db)):
     """El trabajador solicita dejar de ser evaluado: marca su consentimiento como revocado."""
     worker = await _get_worker_by_token(token, db)
     result = await db.execute(select(WorkerConsent).where(WorkerConsent.worker_id == worker.id))
