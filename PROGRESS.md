@@ -1,6 +1,37 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-07-20 (revisión pre-producción + fix A1 desplegado + auto-deploy GitHub)
+## Ultima actualizacion: 2026-07-21 (pendientes M1-M7 resueltos y desplegados)
+
+---
+
+## ✅ SESIÓN 21-JUL — PENDIENTES DE CALIDAD RESUELTOS Y EN PRODUCCIÓN
+
+Doc completa: **`SESION_21JUL2026_PENDIENTES.md`**. Todo desplegado (auto-deploy GitHub
+confirmado funcionando: bundle nuevo + health 200 verificados).
+
+Se atacaron los pendientes de la revisión pre-prod del 20-jul (5 commits):
+
+- **M1** bot: la task en background se retiene (el GC ya no la mata a medias).
+- **M2** aislamiento multi-tenant al crear evaluaciones (worker/project deben ser de la
+  org) + 2 tests en el CI-gate de aislamiento.
+- **M3** rate limiting (slowapi) en webhook Flow + portal, por IP real (CF-Connecting-IP).
+- **M4** buffer de mensajes del bot: agrupa ráfagas fragmentadas en 1 respuesta
+  (MESSAGE_BUFFER_SECONDS ahora SÍ se usa). Solo activo con BOT_ENABLED=true.
+- **M5** handler global de 401 → cierra sesión al expirar, con salvaguarda para NO romper
+  A1 (el flush offline y el token lento no deslogean).
+- **M6** detección de 403 por `ApiError.status`, no por string frágil.
+- **M7-a** contenedor corre como usuario no-root (uid 10001).
+- **Limpieza**: deps fijadas a versión exacta (build reproducible), `BOT_SUPPORT_EMAIL`
+  cableado (ya no hardcodeado en 3 sitios), `MAX_TURNS` muerto eliminado.
+
+**Backend 160 tests · Frontend 21 tests · 2 Docker builds OK.**
+
+### Pendientes que se dejaron a propósito (con razón, ver doc)
+- alembic en release phase (riesgo de downtime, beneficio nulo con 1 réplica).
+- Prefijo `faenascore:draft:` en localStorage (cambiarlo pierde borradores en curso).
+- Email vacío de usuarios: config del dashboard de Clerk (JWT template), no código.
+- Lock transitivo de deps (uv/pip-tools en Linux) — follow-up.
+- **python-jose → PyJWT: PENDIENTE DE DECISIÓN de Germán** (toca el camino de auth).
 
 ---
 
