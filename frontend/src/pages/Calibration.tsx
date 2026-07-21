@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { WatchButton } from '../components/ui/TutorialModal'
 import { Link } from 'react-router-dom'
 import { Sliders, Info } from 'lucide-react'
-import { api, type CalibrationResponse, type EvaluatorCalibration } from '../lib/api'
+import { api, ApiError, type CalibrationResponse, type EvaluatorCalibration } from '../lib/api'
 import { useOrg } from '../lib/org'
 
 const FLAG_META: Record<string, { label: string; cls: string; help: string }> = {
@@ -29,7 +29,7 @@ export default function Calibration() {
     setLoading(true)
     api.getCalibration(orgId)
       .then((d) => { setData(d); setForbidden(false) })
-      .catch((e) => { if (String(e).includes('403') || String(e).toLowerCase().includes('admin')) setForbidden(true) })
+      .catch((e) => { if (e instanceof ApiError && e.status === 403) setForbidden(true) })
       .finally(() => setLoading(false))
   }, [orgId])
 

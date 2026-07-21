@@ -68,6 +68,22 @@ async def _build_response(ev: Evaluation, db: AsyncSession) -> EvaluationRespons
 
 
 async def _create_single(org_id: uuid.UUID, body: EvaluationCreate, evaluator: User, db: AsyncSession) -> Evaluation:
+    # Aislamiento multi-tenant: el proyecto y el trabajador DEBEN pertenecer a esta org.
+    # Sin esto, un miembro de la org A podría crear una evaluación referenciando el
+    # worker/project de la org B (los IDs vienen del body). Mismo patrón de validación
+    # que ya usa assign_workers. Se valida antes del duplicate check para fallar rápido.
+    proj_ok = await db.execute(
+        select(Project.id).where(Project.id == body.project_id, Project.org_id == org_id)
+    )
+    if proj_ok.scalar_one_or_none() is None:
+        raise HTTPException(status_code=404, detail={"detail": "Proyecto no encontrado", "code": ErrorCode.PROJECT_NOT_FOUND})
+
+    worker_ok = await db.execute(
+        select(Worker.id).where(Worker.id == body.worker_id, Worker.org_id == org_id)
+    )
+    if worker_ok.scalar_one_or_none() is None:
+        raise HTTPException(status_code=404, detail={"detail": "Trabajador no encontrado", "code": ErrorCode.WORKER_NOT_FOUND})
+
     # Check duplicate (ignora evaluaciones borradas: se puede re-evaluar tras un soft-delete)
     existing = await db.execute(
         select(Evaluation).where(

@@ -27,6 +27,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ .
 COPY --from=frontend-build /app/frontend/dist ./static
 
+# Ejecuta como usuario no-root en runtime (reduce la superficie de ataque en prod).
+# El proceso no escribe en disco: alembic solo lee migraciones, uvicorn sirve, y el
+# frontend estático se lee. Los archivos copiados quedan legibles para todos (755/644).
+RUN useradd --create-home --uid 10001 appuser
+USER appuser
+
 ENV PORT=8080
 EXPOSE 8080
 

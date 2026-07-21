@@ -41,6 +41,12 @@ router = APIRouter(prefix="/whatsapp", tags=["whatsapp"])
 
 _anthropic_client: AsyncAnthropic | None = None
 
+# El event loop solo guarda referencias DÉBILES a las tasks creadas con
+# asyncio.create_task; sin retenerlas, el GC puede recolectar una task a mitad de
+# ejecución y la respuesta del bot nunca se enviaría. Se guarda una referencia fuerte
+# aquí y se descarta al terminar. Ver https://docs.python.org/3/library/asyncio-task.html#asyncio.create_task
+_background_tasks: set[asyncio.Task] = set()
+
 
 def get_anthropic_client() -> AsyncAnthropic:
     """Cliente Anthropic perezoso y reutilizado (los tests inyectan otro por el engine)."""
@@ -197,7 +203,10 @@ async def receive_webhook(request: Request, db: AsyncSession = Depends(get_db)) 
         text = message_text(message)
         logger.info("whatsapp_message_received", wamid=wamid, phone=phone, chars=len(text))
         # La conversación corre en segundo plano para responder 200 a Meta de inmediato:
-        # la latencia del LLM no puede colgar la respuesta al webhook.
-        asyncio.create_task(_process_bot_message(phone, text))
+        # la latencia del LLM no puede colgar la respuesta al webhook. Se retiene la
+        # referencia a la task (ver _background_tasks) para que el GC no la mate a medias.
+        task = asyncio.create_task(_process_bot_message(phone, text))
+        _background_tasks.add(task)
+        task.add_done_callback(_background_tasks.discard)
 
     return {"received": True}

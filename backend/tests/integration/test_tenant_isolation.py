@@ -87,6 +87,38 @@ class TestWriteIsolation:
         )
         assert r.status_code == 403, r.text
 
+    async def test_user_a_cannot_evaluate_worker_from_org_b(self, hx, two_tenants):
+        # Evaluar en la PROPIA org (A) pero apuntando a un worker de B debe dar 404:
+        # de lo contrario se crearía una evaluación cruzada que ensucia el portal del
+        # worker de B. (Aislamiento en la creación de evaluaciones — hallazgo M2.)
+        hx.act_as(two_tenants["a"])
+        proj_a = (await hx.client.post(
+            f"{API}/organizations/{two_tenants['org_a']}/projects", json={"name": "Obra A"}
+        )).json()["id"]
+        r = await hx.client.post(
+            f"{API}/organizations/{two_tenants['org_a']}/evaluations",
+            json={"project_id": proj_a, "worker_id": two_tenants["worker_b"],
+                  "score_quality": 4, "score_safety": 5, "score_punctuality": 3,
+                  "score_teamwork": 4, "score_technical": 4, "would_rehire": "yes"},
+        )
+        assert r.status_code == 404, r.text
+
+    async def test_user_a_cannot_evaluate_into_project_from_org_b(self, hx, two_tenants):
+        # Worker válido de A pero project de B: también 404.
+        worker_a = await _new_worker(hx, two_tenants["a"], two_tenants["org_a"], "11.111.111-1")
+        hx.act_as(two_tenants["b"])
+        proj_b = (await hx.client.post(
+            f"{API}/organizations/{two_tenants['org_b']}/projects", json={"name": "Obra B"}
+        )).json()["id"]
+        hx.act_as(two_tenants["a"])
+        r = await hx.client.post(
+            f"{API}/organizations/{two_tenants['org_a']}/evaluations",
+            json={"project_id": proj_b, "worker_id": worker_a,
+                  "score_quality": 4, "score_safety": 5, "score_punctuality": 3,
+                  "score_teamwork": 4, "score_technical": 4, "would_rehire": "yes"},
+        )
+        assert r.status_code == 404, r.text
+
 
 class TestPositiveControl:
     """El harness no falla por bloquear todo: el dueño SÍ accede a su org."""
