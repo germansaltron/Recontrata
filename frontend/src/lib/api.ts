@@ -76,7 +76,24 @@ export function setPlanLimitHandler(handler: PlanLimitHandler | null) {
   _onPlanLimit = handler
 }
 
-async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+// Handler global de sesión expirada: la UI lo registra una vez (SessionGuard) y así
+// un 401 DEL SERVIDOR (sesión revocada/expirada que Clerk ya no puede refrescar)
+// dispara el cierre de sesión → login, en vez de dejar toasts de error en silencio.
+// OJO: NO se dispara para el 401 que lanzamos por token ausente (transitorio), ni en
+// llamadas con `silent` (el flush de la cola offline), para no sacar al usuario por
+// un token lento en terreno. Ver offlineSync y el fix A1.
+type UnauthorizedHandler = () => void
+let _onUnauthorized: UnauthorizedHandler | null = null
+export function setUnauthorizedHandler(handler: UnauthorizedHandler | null) {
+  _onUnauthorized = handler
+}
+
+export interface ApiFetchOptions {
+  /** Suprime el handler global de 401 (lo usa el flush de la cola offline). */
+  silent?: boolean
+}
+
+async function apiFetch<T>(path: string, options: RequestInit = {}, apiOpts: ApiFetchOptions = {}): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string> || {}),
@@ -94,6 +111,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
       // request sin Authorization: el backend respondería 401 y, en el flush de la
       // cola offline, un 401 antes descartaba la evaluación para siempre. Fallar
       // aquí con 401 la deja reintentable (se conserva en la cola). Ver offlineSync.
+      // No dispara el handler de sesión: es transitorio, no una sesión inválida.
       throw new ApiError('No se pudo obtener el token de sesión', 401, null)
     }
   }
@@ -104,6 +122,8 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
     const body = await res.json().catch(() => ({ detail: res.statusText }))
     const planLimit = extractPlanLimit(body)
     if (planLimit && _onPlanLimit) _onPlanLimit(planLimit)
+    // 401 del servidor = sesión efectivamente inválida (Clerk no pudo refrescar).
+    if (res.status === 401 && !apiOpts.silent && _onUnauthorized) _onUnauthorized()
     throw new ApiError(formatApiError(body, res.status), res.status, (body as { detail?: unknown })?.detail, planLimit)
   }
 
@@ -466,8 +486,10 @@ export const api = {
   },
 
   // Evaluations
-  createEvaluation: (orgId: string, data: CreateEvaluationData) =>
-    apiFetch<Evaluation>(`/organizations/${orgId}/evaluations`, { method: 'POST', body: JSON.stringify(data) }),
+  // apiOpts permite al flush de la cola offline pasar { silent: true } y así un 401
+  // por token lento en terreno NO cierra la sesión (ver offlineSync / fix A1).
+  createEvaluation: (orgId: string, data: CreateEvaluationData, apiOpts?: ApiFetchOptions) =>
+    apiFetch<Evaluation>(`/organizations/${orgId}/evaluations`, { method: 'POST', body: JSON.stringify(data) }, apiOpts),
   listEvaluations: (orgId: string, params?: { page?: number; project_id?: string; worker_id?: string }) => {
     const q = new URLSearchParams()
     if (params?.page) q.set('page', String(params.page))

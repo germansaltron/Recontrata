@@ -1,5 +1,6 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { toast } from './lib/toast'
 import { SignedIn, SignedOut, SignIn, SignUp, useAuth } from '@clerk/clerk-react'
 import { OrgProvider } from './lib/org'
 import AppShell from './components/layout/AppShell'
@@ -7,7 +8,7 @@ import PaywallProvider from './components/billing/PaywallProvider'
 import Landing from './pages/Landing'
 import BootIntro from './components/brand/LogoIntro'
 import AccessGate from './components/AccessGate'
-import { setAuthTokenGetter } from './lib/api'
+import { setAuthTokenGetter, setUnauthorizedHandler } from './lib/api'
 
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Projects = lazy(() => import('./pages/Projects'))
@@ -55,8 +56,23 @@ function ProtectedApp() {
 }
 
 function AuthenticatedApp() {
-  const { getToken } = useAuth()
+  const { getToken, signOut } = useAuth()
   setAuthTokenGetter(() => getToken())
+
+  // Sesión expirada (401 del servidor): avisa una vez y cierra sesión → login.
+  // El guard evita disparar signOut en bucle si hay varias requests con 401 a la vez.
+  useEffect(() => {
+    let firedAt = 0
+    setUnauthorizedHandler(() => {
+      const now = Date.now()
+      if (now - firedAt < 10_000) return
+      firedAt = now
+      toast.info('Tu sesión expiró', 'Vuelve a iniciar sesión para continuar.')
+      void signOut()
+    })
+    return () => setUnauthorizedHandler(null)
+  }, [signOut])
+
   return <ProtectedApp />
 }
 

@@ -51,7 +51,9 @@ export async function flushQueue(): Promise<FlushResult> {
     for (const item of items) {
       if (!navigator.onLine) break // se cayó la red de nuevo: el resto queda para el próximo intento
       try {
-        await api.createEvaluation(item.orgId, item.payload)
+        // silent: un 401 durante la sync (token lento en terreno) NO debe cerrar la
+        // sesión; se maneja como transitorio y la evaluación se conserva en la cola.
+        await api.createEvaluation(item.orgId, item.payload, { silent: true })
         await removeQueuedEvaluation(item.id)
         sent++
       } catch (e) {
