@@ -14,7 +14,7 @@ structlog==26.1.0
 sentry-sdk[fastapi]==2.65.0
 httpx==0.28.1
 anthropic==0.117.0
-python-jose[cryptography]==3.5.0
+PyJWT[crypto]==2.10.1
 python-multipart==0.0.32
 openpyxl==3.1.5
 slowapi==0.1.10

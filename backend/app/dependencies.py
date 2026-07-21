@@ -2,10 +2,10 @@
 
 import uuid
 
+import jwt
 import structlog
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,7 +33,7 @@ async def get_current_user(
 
     try:
         claims = await verify_clerk_token(credentials.credentials)
-    except JWTError as e:
+    except jwt.PyJWTError as e:
         logger.warning("JWT verification failed", error=str(e))
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
 

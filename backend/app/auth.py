@@ -1,10 +1,17 @@
-"""Clerk JWT verification using JWKS (RS256)."""
+"""Verificación de JWT de Clerk vía JWKS (RS256), con PyJWT.
 
+El JWKS se obtiene de Clerk con httpx async y se cachea (el cliente síncrono de PyJWT
+bloquearía el event loop, por eso NO se usa PyJWKClient). PyJWT solo selecciona la clave
+por `kid` y decodifica/valida (firma, exp, issuer y audience).
+"""
+
+import json
 import time
 
 import httpx
+import jwt
 import structlog
-from jose import jwt, JWTError
+from jwt.algorithms import RSAAlgorithm
 
 from app.config import settings
 
@@ -37,31 +44,37 @@ def _invalidate_jwks_cache() -> None:
     _jwks_fetched_at = 0
 
 
+def _signing_key(token: str, jwks: dict):
+    """Clave pública del JWKS que corresponde al `kid` del token (RS256)."""
+    try:
+        kid = jwt.get_unverified_header(token).get("kid")
+    except jwt.PyJWTError as e:
+        raise jwt.InvalidTokenError(f"Cabecera de token inválida: {e}") from e
+    for jwk in jwks.get("keys", []):
+        if jwk.get("kid") == kid:
+            return RSAAlgorithm.from_jwk(json.dumps(jwk))
+    raise jwt.InvalidTokenError("Ninguna clave del JWKS coincide con el kid del token")
+
+
+def _decode(token: str, jwks: dict) -> dict:
+    return jwt.decode(
+        token,
+        key=_signing_key(token, jwks),
+        algorithms=["RS256"],
+        issuer=settings.CLERK_ISSUER or None,
+        audience=settings.CLERK_AUDIENCE or None,
+        options={"verify_aud": bool(settings.CLERK_AUDIENCE)},
+    )
+
+
 async def verify_clerk_token(token: str) -> dict:
     jwks = await _fetch_jwks()
-
-    options = {"verify_aud": bool(settings.CLERK_AUDIENCE)}
-    audience = settings.CLERK_AUDIENCE or None
-
     try:
-        payload = jwt.decode(
-            token,
-            jwks,
-            algorithms=["RS256"],
-            issuer=settings.CLERK_ISSUER or None,
-            audience=audience,
-            options=options,
-        )
-        return payload
-    except JWTError:
+        return _decode(token, jwks)
+    except jwt.PyJWTError:
+        # Puede ser que Clerk haya rotado la clave (kid nuevo) y tengamos el JWKS viejo
+        # en caché: se invalida, se re-descarga y se reintenta UNA vez. Si vuelve a
+        # fallar (token realmente inválido/expirado), la excepción se propaga.
         _invalidate_jwks_cache()
         jwks = await _fetch_jwks()
-        payload = jwt.decode(
-            token,
-            jwks,
-            algorithms=["RS256"],
-            issuer=settings.CLERK_ISSUER or None,
-            audience=audience,
-            options=options,
-        )
-        return payload
+        return _decode(token, jwks)
