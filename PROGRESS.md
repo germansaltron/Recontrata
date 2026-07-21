@@ -40,6 +40,20 @@ RSA reales. Verificado en prod: todo token inválido → 401 (nunca 500). **Happ
 CONFIRMADO**: Germán inició sesión en prod y entró — el backend validó su token real de
 Clerk con PyJWT. Migración cerrada.
 
+### 🔑 Acceso a la app (aclarado 21-jul)
+La cuenta de Germán en Recontrata (Clerk prod, `clerk.recontrata.cl`) es **`gsaltron@faymex.cl`**
+(ahí está su organización/datos). `gsaltron@gmail.com` NO tiene cuenta en esa instancia:
+intentar entrar con él da "no existe cuenta" y registrarse crea una cuenta NUEVA vacía (pasó
+el 21-jul). No es bug del deploy (la `pk_live` del bundle es la correcta). Ver memoria
+[[recontrata-cuentas-infraestructura]].
+
+### 🟡 Verificación de Meta (Saltronic) — sigue EN REVISIÓN (chequeado 21-jul)
+El Centro de Seguridad del portafolio (`528027061198782`) sigue mostrando "En revisión"
+(enviada 19-jul; ~2 días hábiles = lun 20 / mar 21 → resolución esperada hoy o mañana 22-jul).
+Sin correo de Meta todavía. El bot de Recontrata sigue con número de PRUEBA y `BOT_ENABLED=false`
+hasta que aprueben. **Al aprobar (Fase 4 del bot):** dar de alta el número definitivo
+**+56 9 2731 5616** y prender el bot. Ver `docs/BOT_WHATSAPP.md`.
+
 ---
 
 ## 🔍 SESIÓN 20-JUL — REVISIÓN PRE-PRODUCCIÓN + FIX A1 + AUTO-DEPLOY
