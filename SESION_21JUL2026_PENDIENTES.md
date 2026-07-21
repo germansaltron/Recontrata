@@ -52,6 +52,17 @@
 4. **Lock transitivo de deps:** se fijaron las directas (`==`). El lock del árbol completo
    conviene generarlo con uv/pip-tools **en Linux** (no en el .venv Windows, que metería
    paquetes específicos de SO).
-5. **python-jose → PyJWT: PENDIENTE DE DECISIÓN.** python-jose está poco mantenida y con
-   CVEs, pero las mitigamos fijando `algorithms=["RS256"]`. Migración acotada pero toca el
-   camino de auth → esperar visto bueno de Germán.
+## Adición — python-jose → PyJWT: MIGRADO (commit `c3ceb4b`)
+
+Germán dio el visto bueno y se migró. `app/auth.py` y `app/dependencies.py` ahora usan
+**PyJWT[crypto] 2.10.1** en vez de python-jose (poco mantenida, con CVEs). Se conserva el
+fetch async del JWKS con httpx (PyJWKClient es síncrono y bloquearía el event loop); PyJWT
+solo selecciona la clave por `kid` y valida firma/exp/issuer/audience con `algorithms=
+["RS256"]`. Mismas garantías. `requirements.txt`: fuera `python-jose[cryptography]`, dentro
+`PyJWT[crypto]==2.10.1`.
+
+- **Tests:** `tests/test_auth_jwt.py` — 6 casos con tokens RSA reales (válido / expirado /
+  issuer malo / audience malo / kid desconocido / firma de otra clave). Backend 166 verdes.
+- **Docker Linux:** build OK, PyJWT presente, `import jose` → ModuleNotFoundError.
+- **Prod:** todo token inválido → 401, nunca 500 (firma falsa incluida). Happy path (login
+  real) a confirmar por Germán abriendo la app.

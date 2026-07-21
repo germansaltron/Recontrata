@@ -31,7 +31,13 @@ Se atacaron los pendientes de la revisión pre-prod del 20-jul (5 commits):
 - Prefijo `faenascore:draft:` en localStorage (cambiarlo pierde borradores en curso).
 - Email vacío de usuarios: config del dashboard de Clerk (JWT template), no código.
 - Lock transitivo de deps (uv/pip-tools en Linux) — follow-up.
-- **python-jose → PyJWT: PENDIENTE DE DECISIÓN de Germán** (toca el camino de auth).
+
+### ✅ python-jose → PyJWT: MIGRADO (commit `c3ceb4b`, en prod)
+Se reemplazó la librería de verificación de JWT de Clerk (python-jose, poco mantenida y
+con CVEs) por **PyJWT[crypto]**, fijando `algorithms=["RS256"]`. Se conserva el fetch
+async del JWKS (PyJWKClient es síncrono y bloquearía el loop). 6 tests nuevos con tokens
+RSA reales. Verificado en prod: todo token inválido → 401 (nunca 500). Falta que Germán
+confirme el happy path (login real) abriendo la app.
 
 ---
 
