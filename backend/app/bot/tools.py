@@ -7,6 +7,8 @@ thinking apagado invoca menos herramientas, así que hay que decirle claramente 
 La ejecución vive en conversation.py; acá solo están las definiciones (esquemas).
 """
 
+from app.config import settings
+
 TOOLS = [
     {
         "name": "registrar_prospecto",
@@ -43,7 +45,7 @@ TOOLS = [
     {
         "name": "derivar_a_soporte",
         "description": (
-            "Deriva a la persona al correo de soporte (atencion@recontrata.cl). "
+            f"Deriva a la persona al correo de soporte ({settings.BOT_SUPPORT_EMAIL}). "
             "LLAMA A ESTO cuando quien escribe es un CLIENTE que YA usa Recontrata y necesita "
             "ayuda con su cuenta (no puede entrar, un problema técnico, cómo hacer algo dentro "
             "de la plataforma, facturación). El bot es de ventas, no de soporte: no intentes "

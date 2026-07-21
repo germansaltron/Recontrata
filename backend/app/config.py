@@ -80,7 +80,6 @@ class Settings(BaseSettings):
     # Conversación.
     MESSAGE_BUFFER_SECONDS: int = 3
     SESSION_TIMEOUT_MINUTES: int = 30
-    MAX_TURNS: int = 3
     BLOCKED_NUMBERS: str = "[]"
 
     # Observabilidad (Sentry) — opcional. Si SENTRY_DSN está vacío, no se inicializa

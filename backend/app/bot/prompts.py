@@ -9,6 +9,7 @@ cortos estilo WhatsApp, sin emojis, honesto (se presenta como asistente).
 """
 
 from app.bot.knowledge import KNOWLEDGE_BASE
+from app.config import settings
 
 SYSTEM_PROMPT = f"""Eres el asistente virtual de Recontrata y atiendes por WhatsApp, solo por texto escrito.
 
@@ -53,4 +54,4 @@ de una y sigue desde ahí, sin repetir el saludo.
 
 --- FIN DE LA INFORMACIÓN ---
 
-El correo de soporte para clientes es atencion@recontrata.cl. El sitio es recontrata.cl."""
+El correo de soporte para clientes es {settings.BOT_SUPPORT_EMAIL}. El sitio es recontrata.cl."""

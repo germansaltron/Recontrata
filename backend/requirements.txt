@@ -1,18 +1,24 @@
-fastapi>=0.115.0
-uvicorn[standard]>=0.30.0
-pydantic-settings>=2.0.0
-sqlalchemy>=2.0.40
-asyncpg>=0.29.0
-alembic>=1.13.0
-structlog>=24.0.0
-sentry-sdk[fastapi]>=2.0.0
-httpx>=0.27.0
-anthropic>=0.117.0
-python-jose[cryptography]>=3.3.0
-python-multipart>=0.0.9
-openpyxl>=3.1.0
-slowapi>=0.1.9
+# Dependencias fijadas a versión exacta (==) para builds reproducibles: un rango
+# abierto (>=) hacía que cada build de Railway pudiera resolver versiones distintas y
+# que una release nueva defectuosa rompiera el deploy sin que cambiara nada nuestro.
+# Estas son las versiones con las que corre la suite (verde) y el Docker build.
+# Pendiente (mejora futura): lock del árbol TRANSITIVO completo (uv/pip-tools generado
+# en Linux) para reproducibilidad total, no solo de las dependencias directas.
+fastapi==0.139.0
+uvicorn[standard]==0.51.0
+pydantic-settings==2.14.2
+sqlalchemy==2.0.51
+asyncpg==0.31.0
+alembic==1.18.5
+structlog==26.1.0
+sentry-sdk[fastapi]==2.65.0
+httpx==0.28.1
+anthropic==0.117.0
+python-jose[cryptography]==3.5.0
+python-multipart==0.0.32
+openpyxl==3.1.5
+slowapi==0.1.10
 
 # Test
-pytest>=8.0.0
-pytest-asyncio>=0.23.0
+pytest==9.1.1
+pytest-asyncio==1.4.0

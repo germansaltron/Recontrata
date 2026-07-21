@@ -205,7 +205,7 @@ class BotEngine:
             conv.state = "support"
             return (
                 "Es un cliente existente con una consulta de soporte. Entrégale el correo "
-                "atencion@recontrata.cl para que lo ayuden, y cierra con amabilidad. "
+                f"{settings.BOT_SUPPORT_EMAIL} para que lo ayuden, y cierra con amabilidad. "
                 "No intentes resolver el problema técnico."
             )
 
