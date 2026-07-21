@@ -41,11 +41,17 @@ router = APIRouter(prefix="/whatsapp", tags=["whatsapp"])
 
 _anthropic_client: AsyncAnthropic | None = None
 
-# El event loop solo guarda referencias DÉBILES a las tasks creadas con
-# asyncio.create_task; sin retenerlas, el GC puede recolectar una task a mitad de
-# ejecución y la respuesta del bot nunca se enviaría. Se guarda una referencia fuerte
-# aquí y se descarta al terminar. Ver https://docs.python.org/3/library/asyncio-task.html#asyncio.create_task
-_background_tasks: set[asyncio.Task] = set()
+# Buffer de mensajes por teléfono (MESSAGE_BUFFER_SECONDS). WhatsApp fragmenta: la
+# gente manda 3 líneas seguidas. Sin esto, cada línea dispara su propia llamada al LLM
+# y el bot responde 3 veces. Con un debounce, los mensajes que llegan dentro de la
+# ventana se agrupan en UNA sola respuesta: cada mensaje nuevo reinicia el timer, y al
+# pasar la ventana sin mensajes nuevos se procesa todo junto.
+#
+# Los timers se guardan en un dict que también sirve de referencia fuerte: el event
+# loop solo guarda referencias DÉBILES a las tasks de create_task, así que sin retener
+# la task el GC podría matarla a medias y la respuesta nunca se enviaría.
+_msg_buffers: dict[str, list[str]] = {}
+_msg_timers: dict[str, asyncio.Task] = {}
 
 
 def get_anthropic_client() -> AsyncAnthropic:
@@ -67,6 +73,37 @@ async def _process_bot_message(phone: str, text: str) -> None:
             await send_whatsapp_text(phone, reply)
     except Exception as e:  # noqa: BLE001
         logger.warning("bot_process_failed", phone=phone, error=str(e))
+
+
+def buffer_message(phone: str, text: str) -> None:
+    """Acumula un mensaje entrante y (re)arma el timer de debounce para ese teléfono.
+
+    Cada mensaje nuevo cancela el timer anterior y arranca uno nuevo, de modo que solo
+    cuando pasan MESSAGE_BUFFER_SECONDS sin mensajes nuevos se procesa toda la ráfaga
+    junta. Ver la nota de _msg_buffers/_msg_timers."""
+    _msg_buffers.setdefault(phone, []).append(text)
+    old = _msg_timers.get(phone)
+    if old is not None and not old.done():
+        old.cancel()
+    task = asyncio.create_task(_flush_after_delay(phone))
+    _msg_timers[phone] = task
+    # Al terminar, limpia su propia referencia sin pisar un timer más nuevo.
+    task.add_done_callback(
+        lambda t, p=phone: _msg_timers.pop(p, None) if _msg_timers.get(p) is t else None
+    )
+
+
+async def _flush_after_delay(phone: str) -> None:
+    """Espera la ventana de debounce y procesa todos los mensajes acumulados juntos.
+    Si otro mensaje llega antes (cancela este timer), no hace nada: el timer nuevo se
+    encargará con el buffer completo."""
+    try:
+        await asyncio.sleep(settings.MESSAGE_BUFFER_SECONDS)
+    except asyncio.CancelledError:
+        return
+    texts = _msg_buffers.pop(phone, [])
+    if texts:
+        await _process_bot_message(phone, "\n".join(texts))
 
 
 def verify_signature(raw_body: bytes, header: str | None) -> bool:
@@ -202,11 +239,9 @@ async def receive_webhook(request: Request, db: AsyncSession = Depends(get_db)) 
 
         text = message_text(message)
         logger.info("whatsapp_message_received", wamid=wamid, phone=phone, chars=len(text))
-        # La conversación corre en segundo plano para responder 200 a Meta de inmediato:
-        # la latencia del LLM no puede colgar la respuesta al webhook. Se retiene la
-        # referencia a la task (ver _background_tasks) para que el GC no la mate a medias.
-        task = asyncio.create_task(_process_bot_message(phone, text))
-        _background_tasks.add(task)
-        task.add_done_callback(_background_tasks.discard)
+        # Se agrupa la ráfaga (debounce) y se procesa en segundo plano: así se responde
+        # 200 a Meta de inmediato (la latencia del LLM no puede colgar el webhook) y las
+        # líneas fragmentadas se contestan de una sola vez. Ver buffer_message.
+        buffer_message(phone, text)
 
     return {"received": True}
