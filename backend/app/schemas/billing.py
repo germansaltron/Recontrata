@@ -21,3 +21,17 @@ class SubscriptionResponse(BaseModel):
     current_period_end: datetime | None
     canceled_at: datetime | None
     usage: PlanUsage
+
+
+class CheckoutRequest(BaseModel):
+    """Plan y período que el cliente quiere contratar. Se validan en el service
+    (deben ser self-serve: pro|empresa × monthly|annual)."""
+
+    plan: str
+    billing_period: str
+
+
+class CheckoutResponse(BaseModel):
+    """URL de Flow a la que el frontend redirige al usuario para registrar su tarjeta."""
+
+    redirect_url: str

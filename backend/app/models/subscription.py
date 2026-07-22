@@ -31,6 +31,12 @@ class Subscription(Base):
     flow_subscription_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
     flow_plan_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
+    # Plan/período elegidos en el checkout, MIENTRAS el usuario registra su tarjeta en
+    # Flow. Se leen en /billing/return para crear la suscripción con el plan correcto,
+    # sin confiarlo a la URL de retorno (manipulable). Se limpian al concretar.
+    pending_plan: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    pending_period: Mapped[str | None] = mapped_column(String(20), nullable=True)
+
     # Ventanas de tiempo.
     trial_ends_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     current_period_start: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

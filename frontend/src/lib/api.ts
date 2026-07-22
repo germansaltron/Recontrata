@@ -416,8 +416,17 @@ export const api = {
   updateOrg: (orgId: string, data: { name?: string; industry?: string }) =>
     apiFetch<Organization>(`/organizations/${orgId}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
-  // Billing / suscripción (solo lectura por ahora; checkout/cancel llegan con Flow)
+  // Billing / suscripción
   getSubscription: (orgId: string) => apiFetch<SubscriptionResponse>(`/organizations/${orgId}/billing/subscription`),
+  // Inicia el checkout con Flow: devuelve la URL a la que se redirige al usuario para
+  // registrar su tarjeta.
+  checkout: (orgId: string, plan: string, billing_period: string) =>
+    apiFetch<{ redirect_url: string }>(`/organizations/${orgId}/billing/checkout`, {
+      method: 'POST',
+      body: JSON.stringify({ plan, billing_period }),
+    }),
+  cancelSubscription: (orgId: string) =>
+    apiFetch<SubscriptionResponse>(`/organizations/${orgId}/billing/cancel`, { method: 'POST' }),
 
   // Legal — aceptación del contrato (gate de primer ingreso)
   getContractStatus: () => apiFetch<ContractStatus>('/legal/contract-status'),

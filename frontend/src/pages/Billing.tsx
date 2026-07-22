@@ -1,13 +1,29 @@
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Check, Infinity as InfinityIcon, Sparkles } from 'lucide-react'
 import { useOrg } from '../lib/org'
 import { useSubscription } from '../hooks/useSubscription'
 import { PLANS, STATUS_LABEL, formatCLP, type PlanMeta } from '../lib/plans'
 import { toast } from '../lib/toast'
-import type { PlanUsage } from '../lib/api'
+import { api, type PlanUsage } from '../lib/api'
 
 export default function Billing() {
   const { orgId } = useOrg()
   const { sub, loading, error } = useSubscription(orgId)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // Retorno desde Flow (?checkout=success|error): avisa y limpia el parámetro.
+  useEffect(() => {
+    const checkout = searchParams.get('checkout')
+    if (!checkout) return
+    if (checkout === 'success') {
+      toast.success('¡Listo!', 'Tu plan quedó activo. Comienzas con 14 días de prueba.')
+    } else {
+      toast.error('No se pudo completar la contratación', 'No se registró tu tarjeta. Puedes intentarlo de nuevo.')
+    }
+    searchParams.delete('checkout')
+    setSearchParams(searchParams, { replace: true })
+  }, [searchParams, setSearchParams])
 
   if (loading && !sub) {
     return (
@@ -39,7 +55,7 @@ export default function Billing() {
         <h2 className="text-lg font-semibold text-gray-900">Planes</h2>
         <div className="mt-4 grid md:grid-cols-3 gap-5">
           {PLANS.map((plan) => (
-            <PlanCard key={plan.key} plan={plan} current={plan.key === currentPlan} />
+            <PlanCard key={plan.key} plan={plan} current={plan.key === currentPlan} orgId={orgId} />
           ))}
         </div>
         <p className="mt-6 text-center text-xs text-gray-500">
@@ -116,12 +132,22 @@ function UsageBar({ label, current, limit }: { label: string; current: number; l
   )
 }
 
-function PlanCard({ plan, current }: { plan: PlanMeta; current: boolean }) {
+function PlanCard({ plan, current, orgId }: { plan: PlanMeta; current: boolean; orgId: string | null }) {
   const isFree = plan.key === 'free'
+  const [loading, setLoading] = useState(false)
 
-  function handleUpgrade() {
-    // El checkout con Flow aún no está conectado (Fase 3+). Comunicamos honestamente.
-    toast.info('El pago en línea se habilita muy pronto', 'Estamos terminando la integración con la pasarela de pago (Flow).')
+  async function handleUpgrade() {
+    if (!orgId || loading) return
+    setLoading(true)
+    try {
+      // v1: contratación mensual. El toggle mensual/anual llega como mejora posterior.
+      const { redirect_url } = await api.checkout(orgId, plan.key, 'monthly')
+      // Redirige a Flow para registrar la tarjeta; vuelve a /app/suscripcion?checkout=...
+      window.location.href = redirect_url
+    } catch (e) {
+      toast.fromError(e, 'No se pudo iniciar la contratación')
+      setLoading(false)
+    }
   }
 
   return (
@@ -164,9 +190,10 @@ function PlanCard({ plan, current }: { plan: PlanMeta; current: boolean }) {
         ) : (
           <button
             onClick={handleUpgrade}
-            className={`w-full px-4 py-2.5 rounded-lg text-sm font-medium ${plan.featured ? 'bg-blue-600 text-white hover:bg-blue-700' : 'border border-gray-300 text-gray-800 hover:bg-gray-50'}`}
+            disabled={loading || !orgId}
+            className={`w-full px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed ${plan.featured ? 'bg-blue-600 text-white hover:bg-blue-700' : 'border border-gray-300 text-gray-800 hover:bg-gray-50'}`}
           >
-            Mejorar a {plan.name.split(' ')[0]}
+            {loading ? 'Redirigiendo…' : `Mejorar a ${plan.name.split(' ')[0]}`}
           </button>
         )}
       </div>
