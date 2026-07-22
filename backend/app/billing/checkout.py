@@ -95,7 +95,7 @@ async def start_checkout(
             )
         except FlowError as e:
             raise CheckoutError(f"No se pudo crear el cliente en Flow: {e}") from e
-        customer_id = resp.get("customerId") or resp.get("customerid")  # QA: confirmar campo
+        customer_id = resp.get("customerId")  # validado en sandbox 22-jul
         if not customer_id:
             raise CheckoutError("Flow no devolvió customerId al crear el cliente.")
         subscription.flow_customer_id = customer_id
@@ -131,9 +131,9 @@ async def complete_return(db: AsyncSession, token: str, client: FlowClient) -> S
     except FlowError as e:
         raise CheckoutError(f"No se pudo verificar el registro de tarjeta: {e}") from e
 
-    customer_id = status.get("customerId") or status.get("customerid")  # QA: confirmar campo
-    # QA: confirmar cómo indica Flow que el registro fue exitoso (status/status.status).
-    ok = bool(customer_id) and str(status.get("status", "")) in ("1", "", "0")
+    customer_id = status.get("customerId")  # validado en sandbox 22-jul
+    # Flow: status "1" = tarjeta registrada correctamente (validado contra el sandbox).
+    ok = bool(customer_id) and str(status.get("status")) == "1"
     if not customer_id:
         raise CheckoutError("Flow no devolvió customerId al confirmar la tarjeta.")
 
@@ -172,7 +172,7 @@ async def complete_return(db: AsyncSession, token: str, client: FlowClient) -> S
     except FlowError as e:
         raise CheckoutError(f"No se pudo crear la suscripción en Flow: {e}") from e
 
-    sub_id = created.get("subscriptionId") or created.get("subscriptionid")  # QA: confirmar campo
+    sub_id = created.get("subscriptionId")  # validado en sandbox 22-jul
     now = datetime.now(timezone.utc)
     sub.plan = plan.value
     sub.billing_period = period.value
