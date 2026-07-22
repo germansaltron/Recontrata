@@ -217,20 +217,20 @@ export default function Landing({ isSignedIn }: LandingProps) {
         </div>
       </section>
 
-      {/* Diferenciador: alternativa legal a las listas negras */}
+      {/* Diferenciador: decisiones de recontratación defendibles (no "a dedo") */}
       <section className="bg-gray-900 py-16 md:py-20">
         <div className="max-w-4xl mx-auto px-4 md:px-6 text-center">
           <span className="inline-block text-xs font-semibold uppercase tracking-wide text-blue-400">
             La diferencia
           </span>
           <h3 className="mt-4 text-2xl md:text-4xl font-bold text-white leading-tight">
-            La alternativa legal a las listas negras.
+            El fin de las decisiones a dedo.
           </h3>
           <p className="mt-5 text-base md:text-lg text-gray-300 leading-relaxed max-w-2xl mx-auto">
-            Las listas negras son ilegales y la Dirección del Trabajo las persigue, pero siguen
-            existiendo porque no había una alternativa estructurada. Recontrata es esa alternativa:
-            evaluaciones de desempeño objetivas, con motivo registrado, consentimiento del trabajador
-            y derecho a réplica. Decisiones que puedes defender — no rumores que te exponen.
+            Hoy se decide a quién recontratar por memoria, simpatía o el WhatsApp del capataz — y
+            cuando eso se tuerce, termina en rumores que exponen a tu empresa. Recontrata lo reemplaza
+            por evidencia: evaluaciones objetivas, con motivo, consentimiento del trabajador y derecho
+            a réplica. Criterio que puedes mostrar y defender.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-gray-400">
             <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-blue-400" /> Criterios objetivos, no rumores</span>
@@ -307,8 +307,8 @@ export default function Landing({ isSignedIn }: LandingProps) {
               features={[
                 'Hasta 100 trabajadores activos',
                 'Proyectos y supervisores ilimitados',
-                'Búsqueda y filtros avanzados',
-                'Alertas y exportación',
+                'Búsqueda y filtros',
+                'Exportación a Excel y CSV',
                 '14 días de prueba gratis',
               ]}
               roi="Con evitar una sola mala recontratación al año, el plan ya se paga solo: ahorras cerca de $1,5M y el plan cuesta unos $600 mil al año."
@@ -323,8 +323,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
               features={[
                 'Hasta 500 trabajadores activos',
                 'Multi-proyecto y multi-usuario',
-                'Acceso a la API e integraciones',
-                'Insights con IA y onboarding asistido',
+                'Onboarding asistido',
                 'Soporte prioritario',
               ]}
               roi="14 días de prueba gratis. Sin tarjeta de crédito."
