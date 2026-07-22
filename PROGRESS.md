@@ -1,6 +1,32 @@
 # FaenaScore — Progreso de Desarrollo
 
-## Ultima actualizacion: 2026-07-21 (pendientes M1-M7 resueltos y desplegados)
+## Ultima actualizacion: 2026-07-22 (pasarela Flow EN PRODUCCIÓN + contrato + dominio saltronic.cl)
+
+---
+
+## 💳 SESIÓN 22-JUL — PASARELA DE PAGO FLOW EN PRODUCCIÓN
+
+Doc completa: **`SESION_22JUL2026_PASARELA_FLOW.md`** (estado + pendientes + cómo retomar).
+
+Sesión enorme. De un solo tirón:
+- ✅ **Contrato B2B** (`/terminos`) + **gate de aceptación** obligatorio al primer ingreso
+  (tabla `contract_acceptances`). Word para el abogado en `Downloads\`.
+- ✅ **Landing sincerado**: fuera features inexistentes (IA/API/alertas), reencuadre sin
+  "listas negras", precios netos **+ IVA**.
+- ✅ **Dominio `saltronic.cl`** (NIC → Cloudflare) + **correo `@saltronic.cl`** (Email Routing:
+  contacto@/facturacion@/catch-all → gsaltron@gmail.com). Verificado E2E.
+- ✅ **Pasarela Flow — Fase 5 EN PRODUCCIÓN**: checkout/return/cancel + botón "Mejorar"
+  conectado. **QA E2E validado contra el sandbox real** (los 4 campos de Flow confirmados).
+  Bootstrap de planes en sandbox Y producción. Deploy a master OK (172+21 tests, CI verde).
+
+### ⚠️ Pendientes para mañana (ver el doc de sesión)
+1. **Prueba real**: contratar Pro con tarjeta real → verificar "trialing" (no cobra al instante,
+   trial 14d).
+2. **Webhook de renovaciones**: los planes prod se crearon SIN `url_callback` (faltaba
+   `FLOW_WEBHOOK_URL` al correr el bootstrap). Arreglar antes del primer cobro (no urge; hay 14
+   días). No afecta la contratación inicial.
+3. 🧹 **Restaurar `backend/.env` a sandbox** (ahora tiene credenciales de producción de Flow;
+   las de prod viven en Railway).
 
 ---
 
