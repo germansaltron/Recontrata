@@ -41,7 +41,14 @@ class FakeFlow:
 
 
 @pytest.fixture
-def fake_flow():
+def fake_flow(monkeypatch):
+    # Plan IDs dummy: el test no debe depender de las env vars FLOW_PLAN_ID_* (que no
+    # existen en el CI). El FakeFlow ignora el valor; solo importa que estén definidos.
+    from app.config import settings
+    monkeypatch.setattr(settings, "FLOW_PLAN_ID_PRO_MONTHLY", "plan-pro-m")
+    monkeypatch.setattr(settings, "FLOW_PLAN_ID_PRO_ANNUAL", "plan-pro-a")
+    monkeypatch.setattr(settings, "FLOW_PLAN_ID_EMPRESA_MONTHLY", "plan-emp-m")
+    monkeypatch.setattr(settings, "FLOW_PLAN_ID_EMPRESA_ANNUAL", "plan-emp-a")
     fake = FakeFlow()
     app.dependency_overrides[get_flow_client] = lambda: fake
     yield fake
