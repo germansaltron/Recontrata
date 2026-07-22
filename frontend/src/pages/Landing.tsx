@@ -282,6 +282,9 @@ export default function Landing({ isSignedIn }: LandingProps) {
           <p className="mt-3 text-center text-gray-600">
             Pagas por trabajadores activos, no por usuario. Supervisores e historial ilimitados en todos los planes.
           </p>
+          <p className="mt-1 text-center text-sm text-gray-400">
+            Valores netos en CLP; no incluyen IVA.
+          </p>
           <div className="mt-10 grid md:grid-cols-3 gap-6">
             <PricingCard
               name="Gratis"
@@ -301,7 +304,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
             <PricingCard
               name="Profesional"
               price="$49.990"
-              period="CLP / mes"
+              period="CLP / mes + IVA"
               description="Para contratistas con proyectos activos de forma permanente."
               featured
               features={[
@@ -318,7 +321,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
             <PricingCard
               name="Empresa"
               price="$149.990"
-              period="CLP / mes"
+              period="CLP / mes + IVA"
               description="Para empresas con múltiples equipos y muchos trabajadores."
               features={[
                 'Hasta 500 trabajadores activos',
@@ -334,7 +337,7 @@ export default function Landing({ isSignedIn }: LandingProps) {
           <p className="mt-8 text-center text-xs text-gray-500">
             ¿Más de 500 trabajadores? Tenemos plan Enterprise a medida —{' '}
             <a href="mailto:contacto@recontrata.cl?subject=Plan%20Enterprise" className="underline hover:text-blue-600">escríbenos</a>.
-            Facturación mensual o anual (2 meses gratis). Precios en CLP, referenciales en fase de lanzamiento.
+            Facturación mensual o anual (2 meses gratis). Valores netos en CLP (no incluyen IVA), referenciales en fase de lanzamiento.
           </p>
         </div>
       </section>

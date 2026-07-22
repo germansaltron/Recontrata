@@ -52,7 +52,7 @@ todos los planes, incluido el gratis.
 - {PLAN_DISPLAY_NAME[Plan.ENTERPRISE]} — Sin límites, a cotización (para más de 500 trabajadores). Para esto conviene tomar los datos y derivar al equipo comercial.
 
 Los planes Pro y Empresa se contratan directo en la plataforma, con {TRIAL_PERIOD_DAYS} días de prueba
-gratis. Durante el lanzamiento los precios son referenciales."""
+gratis. Todos los precios son NETOS y no incluyen IVA. Durante el lanzamiento los precios son referenciales."""
 
 
 QUE_ES = """QUÉ ES RECONTRATA:
