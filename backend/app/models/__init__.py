@@ -16,3 +16,4 @@ from app.models.evaluation_audit import EvaluationAuditLog  # noqa: E402, F401
 from app.models.worker_consent import WorkerConsent  # noqa: E402, F401
 from app.models.subscription import Subscription, PaymentEvent  # noqa: E402, F401
 from app.models.bot import BotConversation, BotInboundEvent, BotLead, BotMessage  # noqa: E402, F401
+from app.models.contract_acceptance import ContractAcceptance  # noqa: E402, F401

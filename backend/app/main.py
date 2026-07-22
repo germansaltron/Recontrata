@@ -21,6 +21,7 @@ from app.api.v1.admin import router as admin_router
 from app.api.v1.billing import router as billing_router
 from app.api.v1.webhooks import router as webhooks_router
 from app.api.v1.whatsapp import router as whatsapp_router
+from app.api.v1.legal import router as legal_router
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 
@@ -117,6 +118,7 @@ app.include_router(admin_router, prefix="/api/v1")
 app.include_router(billing_router, prefix="/api/v1")
 app.include_router(webhooks_router, prefix="/api/v1")
 app.include_router(whatsapp_router, prefix="/api/v1")
+app.include_router(legal_router, prefix="/api/v1")
 
 # Serve frontend static files (production: built by Dockerfile)
 static_dir = Path(__file__).parent.parent / "static"

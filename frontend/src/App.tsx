@@ -5,6 +5,7 @@ import { SignedIn, SignedOut, SignIn, SignUp, useAuth } from '@clerk/clerk-react
 import { OrgProvider } from './lib/org'
 import AppShell from './components/layout/AppShell'
 import PaywallProvider from './components/billing/PaywallProvider'
+import ContractGate from './components/ContractGate'
 import Landing from './pages/Landing'
 import BootIntro from './components/brand/LogoIntro'
 import AccessGate from './components/AccessGate'
@@ -33,9 +34,10 @@ const PageFallback = () => <div className="animate-pulse text-gray-400 p-6">Carg
 
 function ProtectedApp() {
   return (
-    <OrgProvider>
-      <PaywallProvider>
-        <Routes>
+    <ContractGate>
+      <OrgProvider>
+        <PaywallProvider>
+          <Routes>
           <Route element={<AppShell />}>
             <Route index element={<Suspense fallback={<PageFallback />}><Dashboard /></Suspense>} />
             <Route path="projects" element={<Suspense fallback={<PageFallback />}><Projects /></Suspense>} />
@@ -50,8 +52,9 @@ function ProtectedApp() {
             <Route path="ayuda" element={<Suspense fallback={<PageFallback />}><Ayuda /></Suspense>} />
           </Route>
         </Routes>
-      </PaywallProvider>
-    </OrgProvider>
+        </PaywallProvider>
+      </OrgProvider>
+    </ContractGate>
   )
 }
 

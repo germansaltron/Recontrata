@@ -253,6 +253,11 @@ export interface SubscriptionResponse {
   usage: PlanUsage
 }
 
+export interface ContractStatus {
+  current_version: string
+  accepted: boolean
+}
+
 export interface Project {
   id: string
   name: string
@@ -413,6 +418,10 @@ export const api = {
 
   // Billing / suscripción (solo lectura por ahora; checkout/cancel llegan con Flow)
   getSubscription: (orgId: string) => apiFetch<SubscriptionResponse>(`/organizations/${orgId}/billing/subscription`),
+
+  // Legal — aceptación del contrato (gate de primer ingreso)
+  getContractStatus: () => apiFetch<ContractStatus>('/legal/contract-status'),
+  acceptContract: () => apiFetch<ContractStatus>('/legal/accept', { method: 'POST' }),
 
   // Scoring (fórmula pública del puntaje)
   getScoringFormula: (orgId: string) => apiFetch<ScoringFormula>(`/organizations/${orgId}/scoring/formula`),
