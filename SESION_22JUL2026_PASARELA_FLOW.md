@@ -45,11 +45,19 @@ los 4 `FLOW_PLAN_ID_*`, `BILLING_RETURN_URL=https://recontrata.cl/api/v1/billing
 
 ## 2. PENDIENTES para mañana (en orden)
 
-### 2.1 Prueba real (valida que las credenciales prod funcionan) — PRIMERO
+### 2.1 Prueba real (valida que las credenciales prod funcionan) — ÚNICO PENDIENTE
 Entrar a la app (cuenta **gsaltron@faymex.cl**) → Suscripción → "Mejorar a Pro" → registrar
 **tarjeta real** en Flow → verificar que queda en **"trialing"**. NO cobra al instante (trial
 14 días; se puede cancelar antes). Al hacerlo, verificar en la DB (`subscriptions`) y en Flow
 que la suscripción quedó bien.
+
+**Cancelación segura (mejora 23-jul, commit `0392252`):** `cancel_subscription` ahora, si la
+suscripción está en **trial**, cancela de **INMEDIATO** (`at_period_end=False`) → garantiza
+**cero cobro** al terminar la prueba (antes usaba `at_period_end=True` para todo, lo que durante
+el trial podía dejar pasar 1 cobro al día 14 — era un `# QA:` sin confirmar). Un plan pagado en
+curso sigue cancelándose al fin del período pagado. El endpoint de cancelar es admin
+(`POST …/billing/cancel`); igual conviene confirmar en el panel de Flow que quedó sin cobro
+pendiente.
 
 ### 2.2 ⚠️ Webhook de renovaciones (los planes prod se crearon SIN url_callback)
 Cuando se corrió el bootstrap de producción, `FLOW_WEBHOOK_URL` NO estaba en el `.env`, así que
