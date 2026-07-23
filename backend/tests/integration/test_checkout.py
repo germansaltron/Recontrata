@@ -9,7 +9,6 @@ from sqlalchemy import select
 from app.api.v1.billing import get_flow_client
 from app.main import app
 from app.models.subscription import Subscription
-from app.models.user import User
 
 API = "/api/v1"
 
@@ -114,14 +113,11 @@ class TestCheckout:
 
     async def test_checkout_sin_email_valido_da_400(self, hx, fake_flow):
         # Reproduce el bug histórico: usuario provisionado sin email (JWT de Clerk sin claim).
-        # El checkout debe fallar claro ANTES de llamar a Flow (Flow rechaza emails inexistentes).
+        # get_current_user devuelve este mismo objeto `user`, así que basta vaciar su email
+        # para simular la cuenta sin correo. El checkout debe fallar claro ANTES de llamar a Flow.
         user = await hx.create_user("noemail")
         org = await _new_org(hx, user)
-        async with hx.session_maker() as s:
-            u = (await s.execute(select(User).where(User.id == user.id))).scalar_one()
-            u.email = ""
-            await s.commit()
-
+        user.email = ""
         hx.act_as(user)
         r = await hx.client.post(
             f"{API}/organizations/{org}/billing/checkout",
