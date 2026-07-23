@@ -55,14 +55,28 @@ que la suscripción quedó bien.
 Cuando se corrió el bootstrap de producción, `FLOW_WEBHOOK_URL` NO estaba en el `.env`, así que
 los planes de Flow prod quedaron **sin URL de notificación**. Esto NO afecta la contratación
 inicial, pero sí las **notificaciones de cobro/renovación** (Flow no avisaría a la app cuando
-cobre a los 14 días). **Arreglo (hay tiempo antes del primer cobro):**
-- Poner `FLOW_WEBHOOK_URL=https://recontrata.cl/api/v1/webhooks/flow` en el entorno.
-- Actualizar los planes con esa `urlCallback`. El `flow_client` NO tiene `edit_plan`; opciones:
-  (a) agregar `plans/edit` al cliente y un script de update, o (b) eliminar y recrear los planes
-  con el callback (cuidado si ya hay suscripciones vivas), o (c) revisar si Flow permite un
-  webhook global en el panel.
-- El endpoint `POST /api/v1/webhooks/flow` YA existe en prod (re-consulta el estado a Flow,
-  idempotente por `flow_token`).
+cobre a los 14 días).
+
+**AVANCE 23-jul (código listo, falta 1 comando manual):**
+- ✅ Se agregó `FlowClient.edit_plan()` y `get_plan()` (endpoint `plans/edit`/`plans/get`,
+  confirmado contra la doc oficial de Flow) + el script `scripts/flow_update_plan_callback.py`
+  (`--verify`, `--dry-run`, y modo update) + 2 tests. Commit `c70d6af`, pusheado a master
+  (auto-deploy). Suite: 102 backend verdes.
+- ✅ **Verificado contra Flow PROD**: los 4 planes tienen hoy `urlCallback=None`, `status=1`,
+  y **sin suscriptores** (por eso se PUEDE editar; Flow deja `urlCallback` de solo lectura una
+  vez que el plan tiene un suscriptor → hay que correr esto ANTES de la prueba real 2.1).
+- ✅ **Hallazgo**: el handler `POST /api/v1/webhooks/flow` NO usa `FLOW_WEBHOOK_URL` en runtime
+  (solo recibe el `token` y re-consulta a Flow). ⇒ **la variable en Railway NO es necesaria**
+  para que el webhook funcione; solo se usa al crear/editar planes. Lo único crítico es fijar
+  la `urlCallback` en los planes (abajo).
+- ⏳ **PENDIENTE MANUAL**: correr el update (bloqueado por el clasificador de seguridad al
+  mutar prod desde el agente; hay que ejecutarlo tú). Desde `backend/`:
+  ```
+  FLOW_WEBHOOK_URL="https://recontrata.cl/api/v1/webhooks/flow" \
+    ./.venv/Scripts/python.exe scripts/flow_update_plan_callback.py
+  ```
+  Debe imprimir `OK` en los 4 planes (el script re-consulta cada plan tras editarlo).
+  Verificar después con `... scripts/flow_update_plan_callback.py --verify`.
 
 ### 2.3 🧹 Restaurar el `.env` local a SANDBOX
 Ahora mismo `backend/.env` tiene las credenciales de **producción** de Flow (se pusieron para el
