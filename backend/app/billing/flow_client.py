@@ -120,6 +120,15 @@ class FlowClient:
         """GET customer/getRegisterStatus → resultado del registro de tarjeta."""
         return await self.get("customer/getRegisterStatus", {"token": token})
 
+    async def list_customers(
+        self, start: int = 0, limit: int = 100, filter: str | None = None, status: int | None = None
+    ) -> dict[str, Any]:
+        """GET customer/list → { total, hasMore, data: [ {customerId, externalId, ...}, ... ] }.
+        `filter` busca por nombre del cliente. `limit` máx 100."""
+        return await self.get(
+            "customer/list", {"start": start, "limit": limit, "filter": filter, "status": status}
+        )
+
     # --- Planes (plans) ---
 
     async def create_plan(

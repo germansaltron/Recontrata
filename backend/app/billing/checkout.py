@@ -71,6 +71,23 @@ def _validate_plan(plan_str: str, period_str: str) -> tuple[Plan, BillingPeriod]
     return plan, period
 
 
+async def _find_customer_id_by_external_id(client: FlowClient, external_id: str) -> str | None:
+    """Busca en Flow (customer/list, paginado) el customerId cuyo externalId coincide.
+    Se usa para recuperar un cliente creado en un intento previo que no persistió su id."""
+    start = 0
+    for _ in range(50):  # backstop: hasta 50 páginas (5.000 clientes) para no colgarse
+        resp = await client.list_customers(start=start, limit=100)
+        data = resp.get("data") or []
+        for customer in data:
+            ext = customer.get("externalId", customer.get("external_id"))
+            if str(ext) == str(external_id):
+                return customer.get("customerId")
+        if not resp.get("hasMore"):
+            break
+        start += len(data) or 100
+    return None
+
+
 async def start_checkout(
     db: AsyncSession,
     subscription: Subscription,
@@ -87,18 +104,31 @@ async def start_checkout(
 
     # Customer en Flow: se crea una vez por org y se reutiliza (external_id = org_id).
     if not subscription.flow_customer_id:
+        external_id = str(subscription.org_id)
         try:
             resp = await client.create_customer(
                 name=org_name or "Cliente Recontrata",
                 email=user_email,
-                external_id=str(subscription.org_id),
+                external_id=external_id,
             )
+            customer_id = resp.get("customerId")  # validado en sandbox 22-jul
+            if not customer_id:
+                raise CheckoutError("Flow no devolvió customerId al crear el cliente.")
         except FlowError as e:
-            raise CheckoutError(f"No se pudo crear el cliente en Flow: {e}") from e
-        customer_id = resp.get("customerId")  # validado en sandbox 22-jul
-        if not customer_id:
-            raise CheckoutError("Flow no devolvió customerId al crear el cliente.")
+            # Recuperación de cliente huérfano: si un intento previo ya creó el customer en
+            # Flow pero no alcanzó a persistir el id (falló antes del commit), Flow responde
+            # "There is a customer with this externalId". En ese caso lo buscamos y reutilizamos
+            # en vez de fallar.
+            if "externalid" in str(e).lower():
+                customer_id = await _find_customer_id_by_external_id(client, external_id)
+                if not customer_id:
+                    raise CheckoutError(f"No se pudo crear ni recuperar el cliente en Flow: {e}") from e
+            else:
+                raise CheckoutError(f"No se pudo crear el cliente en Flow: {e}") from e
         subscription.flow_customer_id = customer_id
+        # Persistir de inmediato: si el registro de tarjeta falla más abajo, el customer ya
+        # queda asociado y un reintento no volverá a crearlo (evita el huérfano).
+        await db.commit()
 
     # Guarda el plan elegido como pendiente (se concreta en el return).
     subscription.pending_plan = plan.value

@@ -169,6 +169,38 @@ class _RecordingCancelClient:
         return {"status": "canceled"}
 
 
+class _ListingClient:
+    """Cliente que simula customer/list paginado para probar la recuperación."""
+
+    def __init__(self, customers, page_size=2):
+        self._customers = customers
+        self._page_size = page_size
+
+    async def list_customers(self, start=0, limit=100, filter=None, status=None):
+        page = self._customers[start:start + self._page_size]
+        return {
+            "total": len(self._customers),
+            "hasMore": 1 if start + self._page_size < len(self._customers) else 0,
+            "data": page,
+        }
+
+
+async def test_find_customer_por_external_id_pagina_y_matchea():
+    from app.billing.checkout import _find_customer_id_by_external_id
+
+    customers = [
+        {"customerId": "cus_A", "externalId": "org-1"},
+        {"customerId": "cus_B", "externalId": "org-2"},
+        {"customerId": "cus_C", "externalId": "org-3"},
+        {"customerId": "cus_D", "externalId": "org-4"},
+    ]
+    client = _ListingClient(customers, page_size=2)
+    # Está en la 2da página → obliga a paginar siguiendo hasMore.
+    assert await _find_customer_id_by_external_id(client, "org-3") == "cus_C"
+    # No existe → None (sin colgarse).
+    assert await _find_customer_id_by_external_id(client, "org-999") is None
+
+
 async def test_cancel_plan_pagado_usa_fin_de_periodo():
     """Un plan pagado en curso (status=active) se cancela al FIN del período pagado."""
     from app.billing.checkout import cancel_subscription
