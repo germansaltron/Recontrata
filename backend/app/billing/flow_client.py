@@ -147,6 +147,18 @@ class FlowClient:
             },
         )
 
+    async def edit_plan(self, plan_id: str, url_callback: str) -> dict[str, Any]:
+        """POST plans/edit → actualiza la urlCallback de un plan existente.
+
+        Restricción de Flow: si el plan YA tiene suscriptores, solo se puede editar
+        `trial_period_days`; el resto de campos (incl. urlCallback) queda de solo lectura.
+        Por eso hay que fijar el callback ANTES de la primera suscripción."""
+        return await self.post("plans/edit", {"planId": plan_id, "urlCallback": url_callback})
+
+    async def get_plan(self, plan_id: str) -> dict[str, Any]:
+        """GET plans/get → datos del plan (para verificar la urlCallback aplicada)."""
+        return await self.get("plans/get", {"planId": plan_id})
+
     # --- Suscripciones (subscription) ---
     # NOTA: los nombres de parámetros de cupón/cancelación deben reconfirmarse contra
     # el sandbox real al cablear la Fase 5.

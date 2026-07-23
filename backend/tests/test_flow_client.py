@@ -95,6 +95,33 @@ class TestRequests:
         assert p["name"] == "Faymex" and p["email"] == "a@b.cl" and p["externalId"] == "org-1"
         assert p["apiKey"] == "K" and _verify_sig(p, "secret")
 
+    async def test_edit_plan_posts_signed_callback(self):
+        captured = {}
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            captured["url"] = str(request.url)
+            captured["params"] = {k: v[0] for k, v in parse_qs(request.content.decode()).items()}
+            return httpx.Response(200, json={"planId": "recontrata-pro-monthly", "status": 1})
+
+        c = _client(httpx.MockTransport(handler))
+        data = await c.edit_plan("recontrata-pro-monthly", "https://recontrata.cl/api/v1/webhooks/flow")
+        assert data["planId"] == "recontrata-pro-monthly"
+        assert captured["url"].startswith("https://sandbox.flow.cl/api/plans/edit")
+        p = captured["params"]
+        assert p["planId"] == "recontrata-pro-monthly"
+        assert p["urlCallback"] == "https://recontrata.cl/api/v1/webhooks/flow"
+        assert p["apiKey"] == "K" and _verify_sig(p, "secret")
+
+    async def test_get_plan_sends_signed_query(self):
+        def handler(request: httpx.Request) -> httpx.Response:
+            params = {k: v[0] for k, v in parse_qs(request.url.query.decode()).items()}
+            assert params["planId"] == "recontrata-pro-annual" and _verify_sig(params, "secret")
+            return httpx.Response(200, json={"planId": "recontrata-pro-annual", "urlCallback": "https://x/cb"})
+
+        c = _client(httpx.MockTransport(handler))
+        data = await c.get_plan("recontrata-pro-annual")
+        assert data["urlCallback"] == "https://x/cb"
+
     async def test_http_error_raises_flowerror(self):
         def handler(request: httpx.Request) -> httpx.Response:
             return httpx.Response(400, json={"code": 1201, "message": "apiKey invalido"})
