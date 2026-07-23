@@ -90,8 +90,18 @@ async def create_checkout(
     registrar la tarjeta. Solo un admin de la org puede contratar."""
     sub = await _get_subscription(db, org_id)
     org = (await db.execute(select(Organization).where(Organization.id == org_id))).scalar_one_or_none()
-    # Fallback de email: el provisioning desde Clerk a veces deja el email vacío.
-    email = user.email or f"org-{org_id}@recontrata.cl"
+    # Flow valida que el email del cliente sea un buzón REAL (no basta con la sintaxis):
+    # un placeholder tipo org-<id>@recontrata.cl es rechazado con "email is not valid".
+    # Si la cuenta no tiene un email válido (p.ej. el JWT de Clerk no trajo el claim `email`),
+    # fallar con un mensaje claro en vez de mandar a Flow un correo inexistente.
+    email = (user.email or "").strip()
+    domain = email.rsplit("@", 1)[-1] if "@" in email else ""
+    if "@" not in email or "." not in domain:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"detail": "Tu cuenta no tiene un email válido para la facturación. "
+                              "Verifica que tu correo esté cargado en tu perfil y vuelve a intentar."},
+        )
     try:
         result = await checkout_service.start_checkout(
             db, sub, org.name if org else "", email, body.plan, body.billing_period, client

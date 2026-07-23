@@ -52,6 +52,24 @@ async def get_current_user(
         await db.commit()
         await db.refresh(user)
         logger.info("Auto-provisioned user from Clerk", clerk_id=clerk_id, email=email)
+    else:
+        # Self-heal: los primeros usuarios se provisionaron sin el claim `email` (el JWT de
+        # Clerk no lo traía) y quedaron con email="". Si un login posterior ya trae el claim,
+        # rellenar lo que falte. Sin esto, el email vacío nunca se corrige y rompe el checkout
+        # (Flow rechaza clientes sin un email real).
+        claim_email = claims.get("email", "")
+        claim_name = claims.get("name", "")
+        changed = False
+        if not user.email and claim_email:
+            user.email = claim_email
+            changed = True
+        if not user.full_name and claim_name:
+            user.full_name = claim_name
+            changed = True
+        if changed:
+            await db.commit()
+            await db.refresh(user)
+            logger.info("Backfilled user from Clerk claims", clerk_id=clerk_id, email=user.email)
 
     return user
 

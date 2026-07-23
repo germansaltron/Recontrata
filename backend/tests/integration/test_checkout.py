@@ -9,6 +9,7 @@ from sqlalchemy import select
 from app.api.v1.billing import get_flow_client
 from app.main import app
 from app.models.subscription import Subscription
+from app.models.user import User
 
 API = "/api/v1"
 
@@ -110,6 +111,25 @@ class TestCheckout:
         # del primer período al terminar la prueba.
         cancel_call = next(c for c in fake_flow.calls if c[0] == "cancel_subscription")
         assert cancel_call == ("cancel_subscription", "sub_TEST", False)
+
+    async def test_checkout_sin_email_valido_da_400(self, hx, fake_flow):
+        # Reproduce el bug histórico: usuario provisionado sin email (JWT de Clerk sin claim).
+        # El checkout debe fallar claro ANTES de llamar a Flow (Flow rechaza emails inexistentes).
+        user = await hx.create_user("noemail")
+        org = await _new_org(hx, user)
+        async with hx.session_maker() as s:
+            u = (await s.execute(select(User).where(User.id == user.id))).scalar_one()
+            u.email = ""
+            await s.commit()
+
+        hx.act_as(user)
+        r = await hx.client.post(
+            f"{API}/organizations/{org}/billing/checkout",
+            json={"plan": "pro", "billing_period": "monthly"},
+        )
+        assert r.status_code == 400, r.text
+        assert "email" in r.text.lower()
+        assert not any(c[0] == "create_customer" for c in fake_flow.calls)
 
     async def test_plan_invalido_da_400(self, hx, fake_flow):
         user = await hx.create_user("owner2")
