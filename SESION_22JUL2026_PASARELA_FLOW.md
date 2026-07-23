@@ -79,9 +79,18 @@ cobre a los 14 días).
   ```
 
 ### 2.3 🧹 Restaurar el `.env` local a SANDBOX
-Ahora mismo `backend/.env` tiene las credenciales de **producción** de Flow (se pusieron para el
-bootstrap prod). Restaurar las de **sandbox** para que cualquier prueba local NO cobre de verdad.
-Las de producción viven solo en Railway.
+✅ **RESUELTO 23-jul.** `backend/.env` volvió a **sandbox** (`FLOW_API_BASE=https://sandbox.flow.cl/api`,
+verificado; los 4 planes de sandbox responden `status=1`). Se hizo con el script
+`backend/restore_env_sandbox.ps1` (pide la key/secret de sandbox por teclado, respalda el `.env`
+de prod antes, toca solo las 3 vars de Flow, escribe UTF-8 sin BOM). Respaldos gitignored:
+`backend/.env.prod.bak.20260723-105635` (credenciales de prod, por si se necesitan) y
+`backend/.env.sandbox`. `.gitignore` endurecido a `.env.*` (commit `3342471`).
+
+**Único pendiente restante: la prueba real (2.1) con tarjeta.** Ojo con el orden: la prueba
+real necesita credenciales de PROD en el `.env`; ahora está en sandbox. Para hacerla, volver a
+prod temporalmente (copiar el `.env.prod.bak.*` sobre `.env`) o correr el checkout contra prod
+desde Railway (la app en producción ya usa las credenciales prod de Railway, así que la prueba
+real se hace **directo en recontrata.cl**, no en local).
 
 ---
 
