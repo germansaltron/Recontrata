@@ -69,14 +69,14 @@ cobre a los 14 días).
   (solo recibe el `token` y re-consulta a Flow). ⇒ **la variable en Railway NO es necesaria**
   para que el webhook funcione; solo se usa al crear/editar planes. Lo único crítico es fijar
   la `urlCallback` en los planes (abajo).
-- ⏳ **PENDIENTE MANUAL**: correr el update (bloqueado por el clasificador de seguridad al
-  mutar prod desde el agente; hay que ejecutarlo tú). Desde `backend/`:
+- ✅ **RESUELTO 23-jul**: Germán corrió el update; los 4 planes quedaron con
+  `urlCallback='https://recontrata.cl/api/v1/webhooks/flow'` (`status=1`), confirmado con
+  `scripts/flow_update_plan_callback.py --verify`. Flow ya notificará las renovaciones.
+  Comando usado (desde `backend/`, con el `.env` aún en prod):
   ```
   FLOW_WEBHOOK_URL="https://recontrata.cl/api/v1/webhooks/flow" \
     ./.venv/Scripts/python.exe scripts/flow_update_plan_callback.py
   ```
-  Debe imprimir `OK` en los 4 planes (el script re-consulta cada plan tras editarlo).
-  Verificar después con `... scripts/flow_update_plan_callback.py --verify`.
 
 ### 2.3 🧹 Restaurar el `.env` local a SANDBOX
 Ahora mismo `backend/.env` tiene las credenciales de **producción** de Flow (se pusieron para el
