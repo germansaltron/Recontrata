@@ -13,7 +13,9 @@ frontend/dist/
 
 # Environment
 .env
+.env.*
 !backend/.env.example
+!.env.example
 
 # Railway project token (deploy.sh) — NUNCA commitear
 .railway-token
