@@ -189,11 +189,17 @@ async def complete_return(db: AsyncSession, token: str, client: FlowClient) -> S
 
 
 async def cancel_subscription(db: AsyncSession, subscription: Subscription, client: FlowClient) -> Subscription:
-    """Cancela la suscripción en Flow (al fin del período pagado) y marca canceled_at."""
+    """Cancela la suscripción en Flow y marca canceled_at.
+
+    Si está en trial, cancela de INMEDIATO (at_period_end=False) para garantizar que Flow
+    no alcance a cobrar el primer período al terminar la prueba. Si es un plan pagado en
+    curso, cancela al FIN del período ya pagado (at_period_end=True) para no perder los
+    días que el cliente ya pagó."""
     if not subscription.flow_subscription_id:
         raise CheckoutError("La organización no tiene una suscripción de pago activa.")
+    in_trial = subscription.status == SubscriptionStatus.TRIALING.value
     try:
-        await client.cancel_subscription(subscription.flow_subscription_id, at_period_end=True)
+        await client.cancel_subscription(subscription.flow_subscription_id, at_period_end=not in_trial)
     except FlowError as e:
         raise CheckoutError(f"No se pudo cancelar la suscripción en Flow: {e}") from e
 

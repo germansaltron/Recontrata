@@ -36,7 +36,7 @@ class FakeFlow:
         return {"subscriptionId": "sub_TEST", "status": "trialing"}
 
     async def cancel_subscription(self, subscription_id, at_period_end=True):
-        self.calls.append(("cancel_subscription", subscription_id))
+        self.calls.append(("cancel_subscription", subscription_id, at_period_end))
         return {"status": "canceled"}
 
 
@@ -106,6 +106,10 @@ class TestCheckout:
             sub = (await s.execute(select(Subscription).where(Subscription.org_id == org))).scalar_one()
         assert sub.status == "canceled"
         assert sub.canceled_at is not None
+        # En trial se cancela de INMEDIATO (at_period_end=False) para no arriesgar el cobro
+        # del primer período al terminar la prueba.
+        cancel_call = next(c for c in fake_flow.calls if c[0] == "cancel_subscription")
+        assert cancel_call == ("cancel_subscription", "sub_TEST", False)
 
     async def test_plan_invalido_da_400(self, hx, fake_flow):
         user = await hx.create_user("owner2")
@@ -124,3 +128,38 @@ class TestCheckout:
         r = await hx.client.get(f"{API}/billing/return", params={"token": "cualquiera"})
         assert r.status_code == 303
         assert "checkout=error" in r.headers["location"]
+
+
+class _NoopDB:
+    """DB simulada: commit/refresh son no-ops (test unitario sin sesión real)."""
+
+    async def commit(self):
+        pass
+
+    async def refresh(self, obj):
+        pass
+
+
+class _RecordingCancelClient:
+    def __init__(self):
+        self.calls = []
+
+    async def cancel_subscription(self, subscription_id, at_period_end=True):
+        self.calls.append((subscription_id, at_period_end))
+        return {"status": "canceled"}
+
+
+async def test_cancel_plan_pagado_usa_fin_de_periodo():
+    """Un plan pagado en curso (status=active) se cancela al FIN del período pagado."""
+    from app.billing.checkout import cancel_subscription
+
+    sub = Subscription()
+    sub.flow_subscription_id = "sub_ACTIVE"
+    sub.status = "active"
+    client = _RecordingCancelClient()
+
+    await cancel_subscription(_NoopDB(), sub, client)
+
+    assert client.calls == [("sub_ACTIVE", True)]  # pagado → at_period_end=True
+    assert sub.status == "canceled"
+    assert sub.canceled_at is not None
